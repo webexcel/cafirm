@@ -29479,6 +29479,13 @@ code[class*=language-] {
   max-height: none !important;
 }
 
+@media (min-width: 1000px) {
+  /* Styles for xxl and larger screens */
+  .dashboard-card-val {
+    width: 17%;
+  }
+  }
+
 .page-header-breadcrumb {
   min-height: 65px !important;
 }

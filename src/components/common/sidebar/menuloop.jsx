@@ -6,11 +6,16 @@ import { Link } from "react-router-dom";
 function Menuloop({ MENUITEMS, toggleSidemenu, level, onHeaderTitleChange }) {
 
 	useEffect(() => {
-		MENUITEMS.children.map((firstlevel) => {
-			if (firstlevel.selected) {
-				onHeaderTitleChange(firstlevel.title);
-			}
-		})
+
+		if (MENUITEMS?.children) {
+			MENUITEMS.children.map((firstlevel) => {
+				if (firstlevel.selected) {
+					onHeaderTitleChange(firstlevel.title);
+				}
+			})
+			return;
+		}
+
 	}, [onHeaderTitleChange]);
 
 	return (
