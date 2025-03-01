@@ -9,9 +9,9 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { ThemeChanger } from "../../../redux/action";
 //IMAGES
-import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.png";
+import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.jpg";
 import togglelogo from "../../../assets/images/brand-logos/toggle-logo.png";
-import desktopdark from "../../../assets/images/brand-logos/desktop-dark.png";
+import desktopdark from "../../../assets/images/brand-logos/desktop-dark.jpg";
 import toggledark from "../../../assets/images/brand-logos/toggle-dark.png";
 import spainflag from "../../../assets/images/flags/spain_flag.jpg";
 import usflag from "../../../assets/images/flags/us_flag.jpg";
