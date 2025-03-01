@@ -36,10 +36,20 @@ const AdminLayout = () => {
    */
   useEffect(() => {
     MENUITEMS.map((data) => {
-      if (data?.selected) {
-        console.log('dataaa admin', data.selected)
+      // if (data?.selected) {
+      //   console.log('dataaa admin', data.selected)
+      // }
+      // console.log('dataaa admin', data.active)
+      if(data.children){
+        
       }
-      console.log('dataaa admin', data.active)
+      else{
+        if(data.title){
+          handleHeaderTitleChange(data.title)
+          console.log("else part",data)
+        }
+      }
+    // console.log("menuu",MENUITEMS)
 
     })
     const simulateLoading = setTimeout(() => {
