@@ -5,7 +5,7 @@ import CustomMultiPanelSelect from "../panel/CustomMultiPanelSelect";
 import CustomTable from "../table/CustomTable";
 import DatePicker from "react-datepicker";
 import { FaCalendarAlt } from "react-icons/fa";
-
+import TimeInput from "../../../pages/task_management/TimerSelector";
 
 const CustomForm = ({
   formFields,
@@ -66,6 +66,11 @@ const CustomForm = ({
             style={{ width: "100%" }}
           />
         );
+      case "timer":
+        return (
+          <TimeInput field={field} onChange={onChange} formData={formData} errors={errors} />
+        );
+
       case "dropdown":
         return (
           <Form.Select
@@ -220,7 +225,7 @@ const CustomForm = ({
           <Button
             type="submit"
             variant="primary"
-            className="btn btn-wave mb-3 w-75">
+            className="btn btn-wave mb-3 w-50 py-1">
             {btnText || "Add"}
           </Button>
         </Col>

@@ -7,34 +7,25 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddEmployeeField } from "../../constants/fields/employeeFields";
+import { addEmployee, deleteEmployee, getEmployee } from "../../service/employee_management/createEmployeeService";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 
 
 const CreateEmployee = () => {
-  const [tableData, setTableData] = useState([
-    { sno: 1, name: "Alice Johnson", role: "Admin", email: "alice@example.com", phone_number: "9876543210", Actions: "" },
-    { sno: 2, name: "David Brown", role: "Admin", email: "david@example.com", phone_number: "9123456789", Actions: "" },
-    { sno: 3, name: "Emma Wilson", role: "Admin", email: "emma@example.com", phone_number: "9988776655", Actions: "" },
-    { sno: 4, name: "Michael Clark", role: "Admin", email: "michael@example.com", phone_number: "8765432109", Actions: "" },
-    { sno: 5, name: "Sophia Martinez", role: "Admin", email: "sophia@example.com", phone_number: "9345678123", Actions: "" },
-    { sno: 6, name: "James Anderson", role: "Admin", email: "james@example.com", phone_number: "9456781234", Actions: "" },
-    { sno: 7, name: "Olivia Scott", role: "Admin", email: "olivia@example.com", phone_number: "9567812345", Actions: "" },
-    { sno: 8, name: "William Rodriguez", role: "Admin", email: "william@example.com", phone_number: "9678123456", Actions: "" },
-  ]);
+  const [tableData, setTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(AddEmployeeField);
-  const [file, setFile] = useState(null);
 
   const columns = [
-    { header: "Emp ID", accessor: "sno", editable: false },
+    { header: "Emp ID", accessor: "employee_id", editable: false },
     { header: "Name", accessor: "name", editable: false },
     { header: "Role", accessor: "role", editable: true },
     { header: "Email", accessor: "email", editable: true },
-    { header: "Phone No", accessor: "phone_number", editable: true },
+    { header: "Phone No", accessor: "phone", editable: true },
     { header: "Actions", accessor: "Actions", editable: false },
   ];
 
@@ -49,6 +40,25 @@ const CreateEmployee = () => {
     initialFormState,
     (data) => validateCustomForm(data, AddEmployeeField)
   );
+  const getEmployeeData = async () => {
+    try {
+      const response = await getEmployee()
+      const addSno = response.data.data.map((data, index) => ({
+        sno: index + 1,
+        ...data
+      }))
+      setTableData(addSno)
+      setFilteredData(addSno)
+      console.log("response : ", response)
+    }
+    catch (err) {
+      console.log("Error occurs while getting employee data : ", err)
+    }
+  }
+
+  useEffect(() => {
+    getEmployeeData()
+  }, [])
 
 
   // Handle pagination
@@ -63,7 +73,7 @@ const CreateEmployee = () => {
     if (!validateForm()) return;
 
     const result = await Swal.fire({
-      title: "Are you sure about add student ?",
+      title: "Are you sure about add employee ?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -73,28 +83,27 @@ const CreateEmployee = () => {
     });
     if (result.isConfirmed) {
       try {
-        // console.log("Selected form:", formData);
-        // const { CLASS_ID, FATHER_NAME, NAME, contact, feegroupid, gender } = formData;
-        // const payload = {
-        //   studentname: NAME,
-        //   fathername: FATHER_NAME,
-        //   classid: CLASS_ID,
-        //   gender: gender,
-        //   feegroupid: feegroupid,
-        //   contact: contact,
-        //   yearid: year.YearId
-        // }
-        // const response = await addStudent(payload);
-        // if (!response.data.status) {
-        //   return Swal.fire("Error", response.data.message || "Failed to add student.", "error");
-        // }
-        // console.log("admission numberrr", response)
-        // Swal.fire("Success", `Student added successfully with Admission No: ${response?.data?.data?.admissionNo}`, "success");
-        // resetForm()
-        // fetchViewClassStudData("All");
+        console.log("Selected form:", formData);
+        const { name, emprole, email, password, phone } = formData;
+        const payload = {
+          "name": name,
+          "email": email,
+          "password": password,
+          "phone": phone,
+          "role": emprole
+        }
+
+        const response = await addEmployee(payload);
+        if (!response.data.status) {
+          return Swal.fire("Error", response.data.message || "Failed to add employee.", "error");
+        }
+        console.log("admission numberrr", response)
+        Swal.fire("Success", `Employee added successfully with Employee`, "success");
+        resetForm()
+        getEmployeeData()
       } catch (err) {
-        console.error("Error while get student data:", err.stack);
-        Swal.fire("Error", err.response?.data?.message || "Failed to add student data.", "error");
+        console.error("Error while get employee data:", err.stack);
+        Swal.fire("Error", err.response?.data?.message || "Failed to add employee data.", "error");
       }
     }
 
@@ -106,7 +115,7 @@ const CreateEmployee = () => {
     console.log("update dataaa", updatedData, formData)
 
     const result = await Swal.fire({
-      title: "Are you sure about switch student to inactive?",
+      title: "Are you sure about remove employee?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -116,76 +125,25 @@ const CreateEmployee = () => {
     });
     if (result.isConfirmed) {
       try {
-        // const payload = { student_id: updatedData.ADMISSION_ID, Year_Id: year.YearId };
-        // const response = await deleteStudent(payload);
+        console.log("update dataa", updatedData)
+        const payload = { id: updatedData?.employee_id || '' };
+        const response = await deleteEmployee(payload);
         if (response.data.status) {
-          // const newFilteredData = filteredData.filter(
-          //   (item, ind) => ind !== index
-          // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-          // console.log("newFilteredData", newFilteredData)
-          // setFilteredData(newFilteredData);
-
-          // const newTableData = tableData.filter(
-          //   (item, ind) => ind !== index
-          // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-          // console.log("newFilteredData", newTableData)
-          // setTableData(newTableData);
-          Swal.fire("Deleted!", response?.data?.message || "Student deleted successfully.", "success");
+          const newFilteredData = filteredData
+            .filter((item, ind) => ind !== index)
+            .map((item, ind) => ({ ...item, sno: ind + 1 }));
+          setFilteredData(newFilteredData);
+          setTableData(newFilteredData);
+          Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.message || "Failed to delete student.", "error");
+        Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
       }
 
     }
 
   }, []);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const result = await Swal.fire({
-      title: "Are you sure about add student bulk upload?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Add it!",
-      cancelButtonText: "No, cancel!",
-      reverseButtons: true,
-    });
-    if (result.isConfirmed) {
-      if (!file) {
-        Swal.fire("Error", "Please select a file.", "error");
-        return;
-      }
-      try {
-        // const formData = new FormData();
-        // formData.append("students", file);
-        // formData.append(
-        //   "yearid", year.YearId
-        // );
-        // const response = await bulkUpload(formData);
-        // if (!response.data.status) {
-        //   return Swal.fire("Error", response.data.message || "Failed to add student bulk upload.", "error");
-
-        // }
-        // Swal.fire("Success", "Student bulk upload added successfully!", "success");
-        // fetchViewClassStudData("All");
-      }
-      catch (error) {
-        console.error("Error while get student data:", error.stack);
-        Swal.fire("Error", error.response?.data?.message || "Failed to add student bulk upload.", "error");
-      }
-    }
-
-
-  }
-  const onEdit = () => {
-
-  }
 
   return (
     <Fragment>

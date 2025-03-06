@@ -4,7 +4,7 @@ import { MENUITEMS } from "../components/common/sidebar/sidemenu";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 
 // Lazy-loaded components
-const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop")); 
+const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop"));
 const Loader = React.lazy(() => import("../components/common/loader/loader"));
 const Header = React.lazy(() => import("../components/common/header/header"));
 const Sidebar = React.lazy(() => import("../components/common/sidebar/sidebar"));
@@ -27,7 +27,7 @@ const AdminLayout = () => {
   const handleHeaderTitleChange = useCallback((title) => {
     setHeaderTitle(title);
     console.log('title', title);
-}, [setHeaderTitle]);
+  }, [setHeaderTitle]);
 
 
   /**
@@ -40,16 +40,16 @@ const AdminLayout = () => {
       //   console.log('dataaa admin', data.selected)
       // }
       // console.log('dataaa admin', data.active)
-      if(data.children){
-        
+      if (data.children) {
+
       }
-      else{
-        if(data.title){
+      else {
+        if (data.title) {
           handleHeaderTitleChange(data.title)
-          console.log("else part",data)
+          console.log("else part", data)
         }
       }
-    // console.log("menuu",MENUITEMS)
+      // console.log("menuu",MENUITEMS)
 
     })
     const simulateLoading = setTimeout(() => {
@@ -72,24 +72,27 @@ const AdminLayout = () => {
         // Render the main layout after loading is complete
         <>
           <ScrollToTop /> {/* This component handles scrolling to the top on route change */}
-          <Switcher />
-          <div className="main-page">
-            {/* Header component */}
-            <Header headerTitle={headerTitle} />
+          <PublicRoutes>
+            <Switcher />
+            <div className="main-page">
+              {/* Header component */}
+              <Header headerTitle={headerTitle} />
 
-            {/* Page header with dynamic title */}
-            <Pageheader />
+              {/* Page header with dynamic title */}
+              <Pageheader />
 
-            {/* Sidebar with a handler to update the header title */}
-            <Sidebar onHeaderTitleChange={handleHeaderTitleChange} />
+              {/* Sidebar with a handler to update the header title */}
+              <Sidebar onHeaderTitleChange={handleHeaderTitleChange} />
 
-            {/* Main content area */}
-            <div className="main-content app-content" style={{ marginBlockStart: '3.5rem' }}>
-              <div className="container-fluid">
-                <Outlet /> {/* Nested routes will be rendered here */}
+              {/* Main content area */}
+              <div className="main-content app-content" style={{ marginBlockStart: '3.5rem' }}>
+                <div className="container-fluid">
+                  <Outlet /> {/* Nested routes will be rendered here */}
+                </div>
               </div>
             </div>
-          </div>
+
+          </PublicRoutes>
         </>
       )}
     </>

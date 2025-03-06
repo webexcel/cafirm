@@ -12,7 +12,7 @@ export const AddEmployeeField = [
     label: "Employee Role",
     placeholder: "Select Employee Role",
     type: "dropdown",
-    options: [],
+    options: [{label:'Employee',value:'E'},{label:'Admin',value:'A'},{label:'Super Admin ',value:'S'}],
     required: true,
   },
 

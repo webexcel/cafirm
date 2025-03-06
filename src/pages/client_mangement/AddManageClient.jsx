@@ -7,34 +7,27 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddClientsField } from "../../constants/fields/clinetsFields";
+import { addClient, deleteClient, getClient } from "../../service/client_management/createClientServices";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 
 
 const AddManageClient = () => {
-  const [tableData, setTableData] = useState([
-    { sno: 1, name: "Alice Johnson", contactperson: "Bob Smith", email: "alice@example.com", phone_number: "9876543210", Actions: "" },
-    { sno: 2, name: "David Brown", contactperson: "Charlie Adams", email: "david@example.com", phone_number: "9123456789", Actions: "" },
-    { sno: 3, name: "Emma Wilson", contactperson: "Daniel Lee", email: "emma@example.com", phone_number: "9988776655", Actions: "" },
-    { sno: 4, name: "Michael Clark", contactperson: "Emily Harris", email: "michael@example.com", phone_number: "8765432109", Actions: "" },
-    { sno: 5, name: "Sophia Martinez", contactperson: "Frank White", email: "sophia@example.com", phone_number: "9345678123", Actions: "" },
-    { sno: 6, name: "James Anderson", contactperson: "Grace Thomas", email: "james@example.com", phone_number: "9456781234", Actions: "" },
-    { sno: 7, name: "Olivia Scott", contactperson: "Henry Walker", email: "olivia@example.com", phone_number: "9567812345", Actions: "" },
-    { sno: 8, name: "William Rodriguez", contactperson: "Isabella Young", email: "william@example.com", phone_number: "9678123456", Actions: "" },
-  ]);
+  const [tableData, setTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(AddClientsField);
-  const [file, setFile] = useState(null);
+  const date = new Date()
 
   const columns = [
     { header: "S.No", accessor: "sno", editable: false },
-    { header: "Name", accessor: "name", editable: false },
-    { header: "Contact Person", accessor: "contactperson", editable: true },
+    { header: "Name", accessor: "client_name", editable: false },
+    { header: "Client Type", accessor: "client_type", editable: true },
+    { header: "Contact Person", accessor: "contact_person", editable: true },
     { header: "Email", accessor: "email", editable: true },
-    { header: "Phone No", accessor: "phone_number", editable: true },
+    { header: "Phone No", accessor: "phone", editable: true },
     { header: "Actions", accessor: "Actions", editable: false },
   ];
 
@@ -50,20 +43,38 @@ const AddManageClient = () => {
     (data) => validateCustomForm(data, AddClientsField)
   );
 
+  const getClientData = async () => {
+    try {
+      const response = await getClient()
+      const addSno = response.data.data.map((data, index) => ({
+        sno: index + 1,
+        ...data
+      }))
+      setTableData(addSno)
+      setFilteredData(addSno)
+      console.log("response : ", response)
+    }
+    catch (err) {
+      console.log("Error occurs while getting client data : ", err)
+    }
+  }
+
+  useEffect(() => {
+    getClientData()
+  }, [])
+
 
   // Handle pagination
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Handle add class teacher
+  // Handle add
   const handleAdd = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     const result = await Swal.fire({
-      title: "Are you sure about add student ?",
+      title: "Are you sure about add client ?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -73,40 +84,48 @@ const AddManageClient = () => {
     });
     if (result.isConfirmed) {
       try {
-        // console.log("Selected form:", formData);
-        // const { CLASS_ID, FATHER_NAME, NAME, contact, feegroupid, gender } = formData;
-        // const payload = {
-        //   studentname: NAME,
-        //   fathername: FATHER_NAME,
-        //   classid: CLASS_ID,
-        //   gender: gender,
-        //   feegroupid: feegroupid,
-        //   contact: contact,
-        //   yearid: year.YearId
-        // }
-        // const response = await addStudent(payload);
-        // if (!response.data.status) {
-        //   return Swal.fire("Error", response.data.message || "Failed to add student.", "error");
-        // }
-        // console.log("admission numberrr", response)
-        // Swal.fire("Success", `Student added successfully with Admission No: ${response?.data?.data?.admissionNo}`, "success");
-        // resetForm()
-        // fetchViewClassStudData("All");
+        console.log("Selected form:", formData);
+        const payload = {
+          "name": formData?.name || '',
+          "type": formData?.clientType || '',
+          "cont_person": formData?.contactPerson || '',
+          "mail": formData?.email || '',
+          "phone": formData?.phone || '',
+          "address": formData?.address || '',
+          "city": formData?.city || '',
+          "state": formData?.state || '',
+          "country": formData?.country || '',
+          "pin": formData?.pincode || '',
+          "gst_num": formData?.gst_number || '',
+          "pan_num": formData?.pan_number || '',
+          "tan_num": formData?.tan_num || '',
+          "incop_date": `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}` || "",
+          "fin_start": `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}` || "",
+          "fin_end": `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}` || ""
+        }
+        const response = await addClient(payload);
+        if (!response.data.status) {
+          return Swal.fire("Error", response.data.message || "Failed to add client.", "error");
+        }
+        console.log("admission numberrr", response)
+        Swal.fire("Success", `Client added successfully with Client`, "success");
+        resetForm()
+        getClientData()
       } catch (err) {
-        console.error("Error while get student data:", err.stack);
-        Swal.fire("Error", err.response?.data?.message || "Failed to add student data.", "error");
+        console.error("Error while get client data:", err.stack);
+        Swal.fire("Error", err.response?.data?.message || "Failed to add client data.", "error");
       }
     }
 
   };
 
-  // Handle delete class teacher
+  // Handle delete
   const onDelete = useCallback(async (updatedData, index) => {
 
-    console.log("update dataaa", updatedData, formData)
+    // console.log("update dataaa", updatedData.client_id)
 
     const result = await Swal.fire({
-      title: "Are you sure about switch student to inactive?",
+      title: "Are you sure about remove client?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -116,76 +135,26 @@ const AddManageClient = () => {
     });
     if (result.isConfirmed) {
       try {
-        // const payload = { student_id: updatedData.ADMISSION_ID, Year_Id: year.YearId };
-        // const response = await deleteStudent(payload);
+        console.log("update dataa", updatedData.client_id)
+        const payload = { id: updatedData?.client_id || '' };
+        const response = await deleteClient(payload);
         if (response.data.status) {
-          // const newFilteredData = filteredData.filter(
-          //   (item, ind) => ind !== index
-          // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-          // console.log("newFilteredData", newFilteredData)
-          // setFilteredData(newFilteredData);
-
-          // const newTableData = tableData.filter(
-          //   (item, ind) => ind !== index
-          // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-          // console.log("newFilteredData", newTableData)
-          // setTableData(newTableData);
-          Swal.fire("Deleted!", response?.data?.message || "Student deleted successfully.", "success");
+          const newFilteredData = filteredData
+            .filter((item, ind) => ind !== index)
+            .map((item, ind) => ({ ...item, sno: ind + 1 }));
+          setFilteredData(newFilteredData);
+          setTableData(newFilteredData);
+          Swal.fire("Deleted!", response?.data?.message || "Client deleted successfully.", "success");
         }
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.message || "Failed to delete student.", "error");
+        Swal.fire("Error", error.response?.data?.message || "Failed to client employee.", "error");
       }
 
     }
 
   }, []);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const result = await Swal.fire({
-      title: "Are you sure about add student bulk upload?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Add it!",
-      cancelButtonText: "No, cancel!",
-      reverseButtons: true,
-    });
-    if (result.isConfirmed) {
-      if (!file) {
-        Swal.fire("Error", "Please select a file.", "error");
-        return;
-      }
-      try {
-        // const formData = new FormData();
-        // formData.append("students", file);
-        // formData.append(
-        //   "yearid", year.YearId
-        // );
-        // const response = await bulkUpload(formData);
-        // if (!response.data.status) {
-        //   return Swal.fire("Error", response.data.message || "Failed to add student bulk upload.", "error");
-
-        // }
-        // Swal.fire("Success", "Student bulk upload added successfully!", "success");
-        // fetchViewClassStudData("All");
-      }
-      catch (error) {
-        console.error("Error while get student data:", error.stack);
-        Swal.fire("Error", error.response?.data?.message || "Failed to add student bulk upload.", "error");
-      }
-    }
-
-
-  }
-  const onEdit = () => {
-
-  }
 
   return (
     <Fragment>
@@ -219,7 +188,7 @@ const AddManageClient = () => {
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
-              onEdit={onEdit}
+            // onEdit={onEdit}
             />
           </Suspense>
         </Card.Body>

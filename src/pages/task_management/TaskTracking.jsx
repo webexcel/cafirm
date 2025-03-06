@@ -1,63 +1,683 @@
 
-import React, { FC, Fragment, useState } from "react";
+import React, { FC, Fragment, useCallback, useEffect, useState } from "react";
 import { Button, Card, Col, Dropdown, Form, InputGroup, Modal, Nav, Pagination, Row, Tab } from "react-bootstrap";
-import { Todolistincompleted, Todolistinprogress, Todolistloopdata, Todolistpending, Option1, Option2 } from "./todolistdata";
-import Select from "react-select";
-import DatePicker from "react-datepicker";
-
-//IMAGES
-import faces8 from '../../assets/images/brand-logos/desktop-dark.png'
-import faces2 from '../../assets/images/brand-logos/desktop-dark.png'
-import media66 from '../../assets/images/brand-logos/desktop-dark.png'
-import { Link } from "react-router-dom";
+import { Option2 } from "./todolistdata";
+import * as Yup from "yup";
+import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import Swal from "sweetalert2";
+import { addTask, deleteTaskService, getAllTask, updateTaskStatus } from "../../service/task_management/createTaskServices";
+import CreateTaskModel from "./model/CreateTaskModel";
+import Search from "../../components/common/search/Search";
+import TaskCard from "./card/TaskCard";
+import CreateTicketModel from "./model/CreateTicketModel";
+import { addTicket, getAllTicket, updateTicketStatus } from "../../service/task_management/createTicketServices";
 
 const TaskTracking = () => {
 
+    const [tabStatus, setTabStatus] = useState('Task')
+    const [allTaskTabs] = useState(["all", "pending", "inprogress", "completed"])
+    const [allTicketTabs] = useState(["all", "pending", "inprogress", "completed"])
+    const [tasks, setTasks] = useState(
+        allTaskTabs.reduce((acc, key) => {
+            acc[key] = [];
+            return acc;
+        }, {})
+    );
+    const [tickets, setTickets] = useState(
+        allTicketTabs.reduce((acc, key) => {
+            acc[key] = [];
+            return acc;
+        }, {})
+    );
+    console.log("task", "ticket", tasks, tickets)
+    const [panelTabKey] = useState([
+        {
+            labelKey: 'all',
+            label: 'All Task',
+            paramKey: 'ALL'
+        },
+        {
+            labelKey: 'pending',
+            label: 'Pending',
+            paramKey: 'PENDING'
+        },
+        {
+            labelKey: 'inprogress',
+            label: 'In Progress',
+            paramKey: 'INPROCESS'
+        },
+        {
+            labelKey: 'completed',
+            label: 'Completed',
+            paramKey: 'COMPLETED'
+        },
+    ])
+    const [panelTabTicketKey] = useState([
+        {
+            labelKey: 'all',
+            label: 'All Ticket',
+            paramKey: 'ALL'
+        },
+        {
+            labelKey: 'pending',
+            label: 'Pending',
+            paramKey: 'PENDING'
+        },
+        {
+            labelKey: 'inprogress',
+            label: 'In Progress',
+            paramKey: 'INPROCESS'
+        },
+        {
+            labelKey: 'completed',
+            label: 'Completed',
+            paramKey: 'COMPLETED'
+        },
+    ])
+    const [employeeData, setEmployeeData] = useState([])
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
     const [show1, setShow1] = useState(false);
-
     const handleClose1 = () => setShow1(false);
     const handleShow1 = () => setShow1(true);
 
-    const [show2, setShow2] = useState(false);
+    useEffect(() => {
 
-    const handleClose2 = () => setShow2(false);
-    const handleShow2 = () => setShow2(true);
+    }, [])
 
-    const [show3, setShow3] = useState(false);
-
-    const handleClose3 = () => setShow3(false);
-    const handleShow3 = () => setShow3(true);
-
-    const [show4, setShow4] = useState(false);
-
-    const handleClose4 = () => setShow4(false);
-    const handleShow4 = () => setShow4(true);
-
-    const [startDate1, setStartDate1] = useState(new Date());
-    const handleDateChange1 = (date) => {
-        // Ensure date is defined before setting it
-        if (date) {
-            setStartDate1(date);
+    useEffect(() => {
+        const getEmployeeData = async () => {
+            try {
+                const response = await getEmployee()
+                const addSno = response.data.data.map((data) => ({
+                    value: data?.employee_id || "",
+                    label: data?.name || ""
+                }))
+                setEmployeeData(addSno)
+                console.log("response : ", response)
+            }
+            catch (err) {
+                console.log("Error occurs while getting employee data : ", err)
+            }
         }
-    };
-    const [startDate2, setStartDate2] = useState(new Date());
-    const handleDateChange2 = (date) => {
-        // Ensure date is defined before setting it
-        if (date) {
-            setStartDate2(date);
+        getEmployeeData()
+    }, [])
+
+    const getAllTaskData = async (type) => {
+        setTasks(allTaskTabs.reduce((acc, key) => {
+            acc[key] = [];
+            return acc;
+        }, {}))
+        try {
+            const payload = {
+                showType: type || ''
+            }
+            const response = await getAllTask(payload)
+            console.log("View tasks in response : ", tasks)
+            const taskData = response.data.data.forEach((data) => {
+                setTasks((prev) => {
+                    const updatedTasks = { ...prev };
+                    switch (Number(data.status)) {
+                        case 0:
+                            updatedTasks.pending = [...prev.pending, {
+                                ...data,
+                                switchBack: false,
+                                completedBtn: true,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'danger',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'pending'
+                            }];
+                            break;
+                        case 1:
+                            updatedTasks.inprogress = [...prev.inprogress, {
+                                ...data,
+                                switchBack: true,
+                                completedBtn: true,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'info',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'inprogress'
+                            }];
+                            break;
+                        case 2:
+                            updatedTasks.completed = [...prev.completed, {
+                                ...data,
+                                switchBack: false,
+                                completedBtn: false,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'success',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'completed'
+                            }];
+                            break;
+                    }
+                    updatedTasks.all = [...prev.all, {
+                        ...data,
+                        switchBack: Number(data.status) === 1 ? true : false,
+                        switchBackIcon: 'primary',
+                        statusBadge: Number(data.status) === 0 ? 'danger' :
+                            Number(data.status) === 1 ? 'primary' :
+                                Number(data.status) === 2 ? 'success' : '',
+                        deleteBtnColor: 'danger',
+                        statusLabel: Number(data.status) === 0 ? 'pending' :
+                            Number(data.status) === 1 ? 'inprogress' :
+                                Number(data.status) === 2 ? 'completed' : '',
+                        completedBtn: Number(data.status) === 2 ? false : true
+                    }];
+                    return updatedTasks;
+                });
+            });
+
+
+            console.log("All Task Response : ", response)
         }
-    };
+        catch (err) {
+            console.log("Error occurs while getting the tasks : ", err.stack)
+        }
+    }
+
+    useEffect(() => { console.log("Show all task : ", tasks) }, [tasks])
+
+    useEffect(() => {
+        getAllTaskData("ALL")
+    }, [])
+
+    const getAllTicketData = async (type) => {
+        setTickets(allTicketTabs.reduce((acc, key) => {
+            acc[key] = [];
+            return acc;
+        }, {}))
+        try {
+            const payload = {
+                showType: type || ''
+            }
+            const response = await getAllTicket(payload)
+            console.log("View tickets in response : ", tasks)
+            const ticketData = response.data.data.forEach((data) => {
+                setTickets((prev) => {
+                    const updateTickets = { ...prev };
+                    switch (Number(data.status)) {
+                        case 0:
+                            updateTickets.pending = [...prev.pending, {
+                                ...data,
+                                switchBack: false,
+                                completedBtn: true,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'danger',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'pending'
+                            }];
+                            break;
+                        case 1:
+                            updateTickets.inprogress = [...prev.inprogress, {
+                                ...data,
+                                switchBack: true,
+                                completedBtn: true,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'info',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'inprogress'
+                            }];
+                            break;
+                        case 2:
+                            updateTickets.completed = [...prev.completed, {
+                                ...data,
+                                switchBack: false,
+                                completedBtn: false,
+                                switchBackIcon: 'primary',
+                                statusBadge: 'success',
+                                deleteBtnColor: 'danger',
+                                statusLabel: 'completed'
+                            }];
+                            break;
+                    }
+                    updateTickets.all = [...prev.all, {
+                        ...data,
+                        switchBack: Number(data.status) === 1 ? true : false,
+                        switchBackIcon: 'primary',
+                        statusBadge: Number(data.status) === 0 ? 'danger' :
+                            Number(data.status) === 1 ? 'primary' :
+                                Number(data.status) === 2 ? 'success' : '',
+                        deleteBtnColor: 'danger',
+                        statusLabel: Number(data.status) === 0 ? 'pending' :
+                            Number(data.status) === 1 ? 'inprogress' :
+                                Number(data.status) === 2 ? 'completed' : '',
+                        completedBtn: Number(data.status) === 2 ? false : true
+                    }];
+                    return updateTickets;
+                });
+            });
+
+
+            console.log("All Task Response : ", response)
+        }
+        catch (err) {
+            console.log("Error occurs while getting the tasks : ", err.stack)
+        }
+    }
+
+    useEffect(() => {
+        getAllTicketData("ALL")
+    }, [])
+
+    const handleSubmit = useCallback(async (values) => {
+        console.log("Form Submitted:", values);
+        const result = await Swal.fire({
+            title: "Are you sure about adding the task?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Add it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const empIds = values.assignedTo.map((data) => data.value);
+
+                const payload = {
+                    name: values?.taskName || "",
+                    service: values?.service || "",
+                    assignTo: empIds || [],
+                    assignDate: `${values.assignedDate.getFullYear()}/${String(values.assignedDate.getMonth() + 1).padStart(2, "0")
+                        }/${String(values.assignedDate.getDate()).padStart(2, "0")}`,
+                    dueDate: `${values?.targetDate.getFullYear()}/${String(values?.targetDate.getMonth() + 1).padStart(2, "0")
+                        }/${String(values?.targetDate.getDate()).padStart(2, "0")}`,
+                    priority: values?.priority || "",
+                };
+
+                const response = await addTask(payload);
+
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
+                }
+
+                Swal.fire("Success", "Task added successfully", "success");
+                getAllTaskData("ALL")
+                handleClose();
+            } catch (err) {
+                console.error("Error while adding task data:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to add task data.", "error");
+            }
+        }
+    }, []);
+
+    const handleTicketSubmit = useCallback(async (values) => {
+        console.log("Form Submitted:", values);
+        const result = await Swal.fire({
+            title: "Are you sure about adding the ticket?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Add it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const empIds = values.assignedTo.map((data) => data.value);
+                const payload = {
+                    name: values?.ticketName || "",
+                    service: values?.service || "",
+                    assignTo: empIds || [],
+                    assignDate: `${values.assignedDate.getFullYear()}/${String(values.assignedDate.getMonth() + 1).padStart(2, "0")
+                        }/${String(values.assignedDate.getDate()).padStart(2, "0")}`,
+                    dueDate: `${values?.targetDate.getFullYear()}/${String(values?.targetDate.getMonth() + 1).padStart(2, "0")
+                        }/${String(values?.targetDate.getDate()).padStart(2, "0")}`,
+                    priority: values?.priority || "",
+                };
+                const response = await addTicket(payload);
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to add ticket.", "error");
+                }
+                Swal.fire("Success", "Ticket added successfully", "success");
+                getAllTicketData("ALL")
+                handleClose1();
+            } catch (err) {
+                console.error("Error while adding ticket data:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to add ticket data.", "error");
+            }
+        }
+    }, []);
+
+    const validationSchema = Yup.object().shape({
+        taskName: Yup.string().required("Task Name is required"),
+        service: Yup.string().required("Service is required"),
+        assignedTo: Yup.array().min(1, "At least one assignee is required"),
+        assignedDate: Yup.date().required("Assigned Date is required"),
+        targetDate: Yup.date()
+            .required("Target Date is required")
+            .min(Yup.ref("assignedDate"), "Target Date must be after Assigned Date"),
+        priority: Yup.string().required("Priority is required"),
+    });
+
+    const validationTicketSchema = Yup.object().shape({
+        ticketName: Yup.string().required("Ticket Name is required"),
+        service: Yup.string().required("Service is required"),
+        assignedTo: Yup.array().min(1, "At least one assignee is required"),
+        assignedDate: Yup.date().required("Assigned Date is required"),
+        targetDate: Yup.date()
+            .required("Target Date is required")
+            .min(Yup.ref("assignedDate"), "Target Date must be after Assigned Date"),
+        priority: Yup.string().required("Priority is required"),
+    });
+
+
+    const handlerOnTaskChange = useCallback(async (taskdata) => {
+        console.log("Task : ", taskdata)
+        const result = await Swal.fire({
+            title: "Are you sure about switch task ?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Switch it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = {
+                    id: taskdata?.task_id || "",
+                    status: String(Number(taskdata.status) + 1),
+                };
+                const response = await updateTaskStatus(payload);
+
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to switch task.", "error");
+                }
+
+                Swal.fire("Success", `Task switched successfully`, "success");
+                console.log("updatedTask1111111111111111", taskdata)
+                setTasks((prev) => {
+                    const updatedTask = {
+                        ...taskdata,
+                        status: Number(taskdata.status) === 0 ? 1 : 2,
+                        statusLabel: Number(taskdata.status) === 0 ? "inprogress" : "completed",
+                        switchBack: Number(taskdata.status) === 0 ? true : false,
+                        completedBtn: Number(taskdata.status) === 1 ? false : true
+                    };
+
+                    console.log("updatedTask", updatedTask)
+
+                    return {
+                        ...prev,
+                        all: prev.all.map((data) =>
+                            Number(data.task_id) === Number(taskdata.task_id) ? updatedTask : data
+                        ),
+                        pending: Number(taskdata.status) === 0
+                            ? prev.pending.filter((data) => Number(data.task_id) !== Number(taskdata.task_id))
+                            : prev.pending,
+                        inprogress: Number(taskdata.status) === 0
+                            ? [...prev.inprogress, updatedTask]
+                            : prev.inprogress.filter((data) => Number(data.task_id) !== Number(taskdata.task_id)),
+                        completed: Number(taskdata.status) === 1 ? [...prev.completed, updatedTask] : prev.completed,
+                    };
+                });
+            } catch (err) {
+                console.error("Error while updating task:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to switch task.", "error");
+            }
+        }
+
+    }, [])
+
+    const handlerPauseTask = useCallback(async (taskdata) => {
+        console.log("Task : ", taskdata)
+        const result = await Swal.fire({
+            title: "Are you sure about pause task ?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Switch it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = {
+                    id: taskdata?.task_id || "",
+                    status: "0",
+                };
+                const response = await updateTaskStatus(payload);
+
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to switch task.", "error");
+                }
+
+                Swal.fire("Success", `Task switched successfully`, "success");
+                console.log("updatedTask1111111111111111", taskdata)
+                setTasks((prev) => {
+                    const updatedTask = {
+                        ...taskdata,
+                        status: 0,
+                        statusLabel: "pending",
+                        switchBack: false,
+                        completedBtn: true
+
+                    };
+
+                    console.log("updatedTask", updatedTask)
+
+                    return {
+                        ...prev,
+                        all: prev.all.map((data) =>
+                            Number(data.task_id) === Number(taskdata.task_id) ? updatedTask : data
+                        ),
+                        inprogress: Number(taskdata.status) === 0
+                            ? [...prev.inprogress, updatedTask]
+                            : prev.inprogress.filter((data) => Number(data.task_id) !== Number(taskdata.task_id)),
+                        pending: [...prev.pending, updatedTask]
+                    };
+                });
+            } catch (err) {
+                console.error("Error while updating task:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to switch task.", "error");
+            }
+        }
+
+    }, [])
+
+    const handlerOnTicketChange = useCallback(async (taskdata) => {
+        console.log("Ticket : ", taskdata)
+        const result = await Swal.fire({
+            title: "Are you sure about switch ticket?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Switch it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = {
+                    id: taskdata?.ticket_id || "",
+                    status: String(Number(taskdata.status) + 1),
+                };
+                const response = await updateTicketStatus(payload);
+
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to switch ticket.", "error");
+                }
+
+                Swal.fire("Success", `Ticket switched successfully`, "success");
+                console.log("updatedTicket1111111111111111", taskdata)
+                setTickets((prev) => {
+                    const updatedTask = {
+                        ...taskdata,
+                        status: Number(taskdata.status) === 0 ? 1 : 2,
+                        statusLabel: Number(taskdata.status) === 0 ? "inprogress" : "completed",
+                        switchBack: Number(taskdata.status) === 0 ? true : false,
+                        completedBtn: Number(taskdata.status) === 1 ? false : true
+                    };
+
+                    console.log("updatedTask", updatedTask)
+
+                    return {
+                        ...prev,
+                        all: prev.all.map((data) =>
+                            Number(data.ticket_id) === Number(taskdata.ticket_id) ? updatedTask : data
+                        ),
+                        pending: Number(taskdata.status) === 0
+                            ? prev.pending.filter((data) => Number(data.ticket_id) !== Number(taskdata.ticket_id))
+                            : prev.pending,
+                        inprogress: Number(taskdata.status) === 0
+                            ? [...prev.inprogress, updatedTask]
+                            : prev.inprogress.filter((data) => Number(data.ticket_id) !== Number(taskdata.ticket_id)),
+                        completed: Number(taskdata.status) === 1 ? [...prev.completed, updatedTask] : prev.completed,
+                    };
+                });
+            } catch (err) {
+                console.error("Error while updating ticket:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to switch ticket.", "error");
+            }
+        }
+
+    }, [])
+
+    const handlerPauseTicket = useCallback(async (taskdata) => {
+        console.log("Task : ", taskdata)
+        const result = await Swal.fire({
+            title: "Are you sure about pause task ?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Switch it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = {
+                    id: taskdata?.ticket_id || "",
+                    status: "0",
+                };
+                const response = await updateTaskStatus(payload);
+
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to switch task.", "error");
+                }
+
+                Swal.fire("Success", `Task switched successfully`, "success");
+                console.log("updatedTask1111111111111111", taskdata)
+                setTickets((prev) => {
+                    const updatedTask = {
+                        ...taskdata,
+                        status: 0,
+                        statusLabel: "pending",
+                        switchBack: false,
+                        completedBtn: true
+
+                    };
+
+                    console.log("updatedTask", updatedTask)
+
+                    return {
+                        ...prev,
+                        all: prev.all.map((data) =>
+                            Number(data.ticket_id) === Number(taskdata.ticket_id) ? updatedTask : data
+                        ),
+                        inprogress: Number(taskdata.status) === 0
+                            ? [...prev.inprogress, updatedTask]
+                            : prev.inprogress.filter((data) => Number(data.ticket_id) !== Number(taskdata.ticket_id)),
+                        pending: [...prev.pending, updatedTask]
+                    };
+                });
+            } catch (err) {
+                console.error("Error while updating task:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to switch task.", "error");
+            }
+        }
+
+    }, [])
+
+    const onHandlerCreateTask = () => {
+        setTabStatus('Task')
+        handleShow()
+    }
+
+    const onHandlerCreateTicket = () => {
+        setTabStatus('Ticket')
+        handleShow1()
+    }
+
+    const deleteTask = useCallback(async (task) => {
+        if (!task?.task_id) return;
+        const result = await Swal.fire({
+            title: "Are you sure you want to delete this task?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Delete it!",
+            cancelButtonText: "No, Cancel!",
+            reverseButtons: true,
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await deleteTaskService({ id: task.task_id });
+
+            if (!response.data.status) {
+                return Swal.fire("Error", response.data.message || "Failed to delete task.", "error");
+            }
+
+            Swal.fire("Success", "Task deleted successfully", "success");
+
+            setTasks((prev) => {
+                return Object.keys(prev).reduce((acc, key) => {
+                    acc[key] = prev[key].filter(({ task_id }) => Number(task_id) !== Number(task.task_id));
+                    return acc;
+                }, {});
+            });
+        } catch (err) {
+            console.error("Error while deleting task:", err);
+            Swal.fire("Error", err.response?.data?.message || "Failed to delete task.", "error");
+        }
+    }, []);
+
+    const deleteTicket = useCallback(async (ticket) => {
+        console.log("Ticket : ", ticket)
+        if (!ticket?.ticket_id) return;
+        const result = await Swal.fire({
+            title: "Are you sure you want to delete ticket?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Delete it!",
+            cancelButtonText: "No, Cancel!",
+            reverseButtons: true,
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await deleteTaskService({ id: ticket.ticket_id });
+
+            if (!response.data.status) {
+                return Swal.fire("Error", response.data.message || "Failed to delete ticket.", "error");
+            }
+
+            Swal.fire("Success", "Ticket deleted successfully", "success");
+
+            setTickets((prev) => {
+                return Object.keys(prev).reduce((acc, key) => {
+                    acc[key] = prev[key].filter(({ ticket_id }) => ticket_id !== ticket.ticket_id);
+                    return acc;
+                }, {});
+            });
+        } catch (err) {
+            console.error("Error while deleting ticket:", err);
+            Swal.fire("Error", err.response?.data?.message || "Failed to delete ticket.", "error");
+        }
+    }, []);
 
     return (
         <Fragment>
             <Row>
-
-                <Tab.Container defaultActiveKey="first">
+                <Tab.Container defaultActiveKey="Task">
                     <Col xl={12}>
                         <Card className="custom-card py-0">
                             <div className="d-flex p-0 justify-content-between pl-4">
@@ -65,336 +685,92 @@ const TaskTracking = () => {
 
                                     <div>
                                         <Nav className="nav-tabs nav-tabs-header mb-0 d-sm-flex d-block p-0" role="tablist" defaultActiveKey="first">
-                                            <Nav.Item as="li" className="m-1">
-                                                <Nav.Link eventKey="first" className="px-5 py-2" style={{ fontWeight: '600' }}>Tasks</Nav.Link>
+                                            <Nav.Item as="li" className="m-1" onClick={() => { setTabStatus('Task') }}>
+                                                <Nav.Link eventKey="Task" className="px-5 py-2" style={{ fontWeight: '600' }}>Tasks</Nav.Link>
                                             </Nav.Item>
-                                            <Nav.Item as="li" className="m-1">
-                                                <Nav.Link eventKey="second" className="px-5 py-2" style={{ fontWeight: '600' }}>Ticket</Nav.Link>
+                                            <Nav.Item as="li" className="m-1" onClick={() => { setTabStatus('Ticket') }}>
+                                                <Nav.Link eventKey="Ticket" className="px-5 py-2" style={{ fontWeight: '600' }}>Ticket</Nav.Link>
                                             </Nav.Item>
                                         </Nav>
                                     </div>
 
                                     <div>
-                                        <Button type="button" className="btn btn-sm btn-primary d-flex align-items-center justify-content-center my-1 me-3" onClick={handleShow}
-                                            data-bs-toggle="modal" data-bs-target="#addtask">
-                                            <i className="ri-add-circle-line fs-16 align-middle me-1"></i>Create Task
-                                        </Button>
+                                        {
+                                            tabStatus == 'Task' ? (<Button type="button" className="btn btn-sm btn-primary d-flex align-items-center justify-content-center my-1 me-3" onClick={onHandlerCreateTask}
+                                                data-bs-toggle="modal" data-bs-target="#addtask">
+                                                <i className="ri-add-circle-line fs-16 align-middle me-1"></i>Create Task
+                                            </Button>) : (
+                                                <Button type="button" className="btn btn-sm btn-primary d-flex align-items-center justify-content-center my-1 me-3" onClick={onHandlerCreateTicket}
+                                                    data-bs-toggle="modal" data-bs-target="#addticket"
+                                                >
+                                                    <i className="ri-add-circle-line fs-16 align-middle me-1"></i>Create Ticket
+                                                </Button>
+                                            )
+                                        }
+
                                     </div>
                                 </div>
                             </div>
                         </Card>
                     </Col>
                     <Tab.Content className="task-tabs-container">
-                        <Tab.Pane eventKey="first" className="p-0" id="all-tasks"
+                        <Tab.Pane eventKey="Task" className="p-0" id="all-tasks"
                             role="tabpanel">
                             <Row id="tasks-container">
                                 <Col xl={12}>
                                     <Row>
-                                        <Tab.Container defaultActiveKey="first">
+                                        <Tab.Container defaultActiveKey="all">
                                             <Col xl={12}>
                                                 <Card className="custom-card">
                                                     <div className="d-flex p-0 justify-content-between pl-4">
                                                         <div className="d-flex align-items-center">
                                                             <div className="p-3 border-bottom border-block-end-dashed">
-                                                                <InputGroup>
-                                                                    <input type="text" className="form-control border-end-0" placeholder="Search Task Here" aria-describedby="button-addon2" />
-                                                                    <Button aria-label="button" className="btn btn-light" variant='' type="button" id="button-addon2"><i className="ri-search-line text-primary"></i></Button>
-                                                                </InputGroup>
+                                                                <Search />
                                                             </div>
                                                         </div>
                                                         <div className="d-flex p-3 align-items-center justify-content-end">
+                                                            <div>
+                                                                <Nav className="nav-tabs nav-tabs-header mb-0 d-sm-flex d-block" role="tablist" defaultActiveKey="all">
 
-                                                            <div>
-                                                                <Nav className="nav-tabs nav-tabs-header mb-0 d-sm-flex d-block" role="tablist" defaultActiveKey="first">
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="first">All Tasks</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="second">Pending</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="third" >In Progress</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="fourth">Completed</Nav.Link>
-                                                                    </Nav.Item>
+                                                                    {
+                                                                        panelTabKey.map((data, index) => (
+                                                                            <Nav.Item as="li" className="m-1" key={index}>
+                                                                                <Nav.Link eventKey={data.labelKey}>{data.label}</Nav.Link>
+                                                                            </Nav.Item>
+                                                                        ))
+                                                                    }
                                                                 </Nav>
-                                                            </div>
-                                                            <div>
-                                                                <Dropdown className="">
-                                                                    <Dropdown.Toggle variant='' aria-label="button" className="btn btn-icon btn-sm btn-light btn-wave waves-light waves-effect no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        <i className="ti ti-dots-vertical"></i>
-                                                                    </Dropdown.Toggle>
-                                                                    <Dropdown.Menu as="ul" className="dropdown-menu" align="end">
-                                                                        <li className="dropdown-item">Select All</li>
-                                                                        <li className="dropdown-item">Share All</li>
-                                                                        <li className="dropdown-item">Delete All</li>
-                                                                    </Dropdown.Menu >
-                                                                </Dropdown>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </Card>
                                             </Col>
                                             <Tab.Content className="task-tabs-container">
-                                                <Tab.Pane eventKey="first" className="p-0" id="all-tasks"
-                                                    role="tabpanel">
-                                                    <Row id="tasks-container">
-                                                        {Todolistloopdata.map((idx) => (
-                                                            <Col xxl={4} md={4} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-inprogress-card">
-                                                                    <Card.Body className="">
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To : </p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="" aria-label="button" type="button" className="btn btn-sm btn-icon btn-wave btn-primary-light waves-effect waves-light" onClick={handleShow1}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal"><i className="ri-add-fill"></i></Button></span>
 
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Link to="#" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Link>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal" tabIndex={-1} aria-labelledby="AddModalLabel" aria-hidden="true" show={show1} onHide={handleClose1}>
+                                                {
+                                                    allTaskTabs.map((data, index) => (
+                                                        <Tab.Pane eventKey={data} className="p-0" id={`task-${data}`} key={index}
+                                                            role="tabpanel">
+                                                            <Row id="tasks-container">
+                                                                {tasks[data].map((idx) => (
+                                                                    <Col xxl={4} md={4} className="task-card" key={Math.random()}>
+                                                                        <TaskCard
+                                                                            idx={idx}
+                                                                            handlerOnTaskChange={handlerOnTaskChange}
+                                                                            handlerPauseTask={handlerPauseTask}
+                                                                            onHandleDelete={deleteTask}
+                                                                        />
+                                                                    </Col>
+                                                                ))}
+                                                            </Row>
+                                                        </Tab.Pane>
+                                                    ))
+                                                }
 
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button variant="" type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button variant="" type="button" className="btn btn-primary" onClick={handleClose1}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="second" className="p-0" id="pending"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistpending.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <div className="card custom-card task-pending-card">
-                                                                    <div className="card-body">
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-secondary-light waves-effect waves-light" onClick={handleShow2}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal12"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Button variant="" aria-label="anchor" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Button>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="fade" id="addpromodal12" tabIndex={-1} aria-labelledby="AddModalLabel12" aria-hidden="true" show={show2} onHide={handleClose2}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel12">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose2}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="third" className="p-0" id="in-progress"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistinprogress.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-inprogress-card">
-                                                                    <Card.Body>
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="primary-light" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave  waves-effect waves-light" onClick={handleShow3}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal15"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Button variant="primary-light" aria-label="anchor" href="#" className="btn btn-sm btn-icon btn-wave"><i className="ri-eye-line"></i></Button>
-                                                                                    <Button type="button" variant="danger-light" aria-label="button" className="btn btn-sm btn-icon btn-wave  me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal15" tabIndex={-1} aria-labelledby="AddModalLabel15" aria-hidden="true" show={show3} onHide={handleClose3}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel15">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button variant="" type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose3}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="fourth" className="p-0" id="completed"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistincompleted.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-completed-card">
-                                                                    <Card.Body>
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color1}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2"><Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-primary-light waves-effect waves-light" onClick={handleShow4}
-                                                                                    data-bs-toggle="modal" data-bs-target="#addpromodal20"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Link to="#" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Link>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color3}-transparent d-block`}>{idx.badge1}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal20" tabIndex={-1} aria-labelledby="AddModalLabel20" aria-hidden="true" show={show4} onHide={handleClose4}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel20">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose4}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
                                             </Tab.Content>
                                         </Tab.Container>
                                     </Row>
+
                                     <div className="float-end mb-4">
                                         <nav aria-label="Page navigation" className="pagination-style-4">
                                             <Pagination className="mb-0  gap-2">
@@ -414,319 +790,68 @@ const TaskTracking = () => {
                                             </Pagination>
                                         </nav>
                                     </div>
+
                                 </Col>
                             </Row>
                         </Tab.Pane>
-                        <Tab.Pane eventKey="second" className="p-0" id="pending"
+
+                        <Tab.Pane eventKey="Ticket" className="p-0" id="all-tasks"
                             role="tabpanel">
                             <Row id="tasks-container">
                                 <Col xl={12}>
                                     <Row>
-                                        <Tab.Container defaultActiveKey="first">
+                                        <Tab.Container defaultActiveKey="all">
                                             <Col xl={12}>
                                                 <Card className="custom-card">
                                                     <div className="d-flex p-0 justify-content-between pl-4">
                                                         <div className="d-flex align-items-center">
                                                             <div className="p-3 border-bottom border-block-end-dashed">
-                                                                <InputGroup>
-                                                                    <input type="text" className="form-control border-end-0" placeholder="Search Ticket Here" aria-describedby="button-addon2" />
-                                                                    <Button aria-label="button" className="btn btn-light" variant='' type="button" id="button-addon2"><i className="ri-search-line text-primary"></i></Button>
-                                                                </InputGroup>
+                                                                <Search />
                                                             </div>
                                                         </div>
                                                         <div className="d-flex p-3 align-items-center justify-content-end">
+                                                            <div>
+                                                                <Nav className="nav-tabs nav-tabs-header mb-0 d-sm-flex d-block" role="tablist" defaultActiveKey="all">
 
-                                                            <div>
-                                                                <Nav className="nav-tabs nav-tabs-header mb-0 d-sm-flex d-block" role="tablist" defaultActiveKey="first">
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="first">All Tickets</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="second">Pending</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="third" >In Progress</Nav.Link>
-                                                                    </Nav.Item>
-                                                                    <Nav.Item as="li" className="m-1">
-                                                                        <Nav.Link eventKey="fourth">Completed</Nav.Link>
-                                                                    </Nav.Item>
+                                                                    {
+                                                                        panelTabTicketKey.map((data, index) => (
+                                                                            <Nav.Item as="li" className="m-1" key={index}>
+                                                                                <Nav.Link eventKey={data.labelKey}>{data.label}</Nav.Link>
+                                                                            </Nav.Item>
+                                                                        ))
+                                                                    }
                                                                 </Nav>
-                                                            </div>
-                                                            <div>
-                                                                <Dropdown className="">
-                                                                    <Dropdown.Toggle variant='' aria-label="button" className="btn btn-icon btn-sm btn-light btn-wave waves-light waves-effect no-caret" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        <i className="ti ti-dots-vertical"></i>
-                                                                    </Dropdown.Toggle>
-                                                                    <Dropdown.Menu as="ul" className="dropdown-menu" align="end">
-                                                                        <li className="dropdown-item">Select All</li>
-                                                                        <li className="dropdown-item">Share All</li>
-                                                                        <li className="dropdown-item">Delete All</li>
-                                                                    </Dropdown.Menu >
-                                                                </Dropdown>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </Card>
                                             </Col>
                                             <Tab.Content className="task-tabs-container">
-                                                <Tab.Pane eventKey="first" className="p-0" id="all-tasks"
-                                                    role="tabpanel">
-                                                    <Row id="tasks-container">
-                                                        {Todolistloopdata.map((idx) => (
-                                                            <Col xxl={4} md={4} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-inprogress-card">
-                                                                    <Card.Body className="">
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To : </p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="" aria-label="button" type="button" className="btn btn-sm btn-icon btn-wave btn-primary-light waves-effect waves-light" onClick={handleShow1}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal"><i className="ri-add-fill"></i></Button></span>
 
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Link to="#" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Link>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal" tabIndex={-1} aria-labelledby="AddModalLabel" aria-hidden="true" show={show1} onHide={handleClose1}>
+                                                {
+                                                    allTaskTabs.map((data, index) => (
+                                                        <Tab.Pane eventKey={data} className="p-0" id={`task-${data}`} key={index}
+                                                            role="tabpanel">
+                                                            <Row id="tasks-container">
+                                                                {tickets[data].map((idx) => (
+                                                                    <Col xxl={4} md={4} className="task-card" key={Math.random()}>
+                                                                        <TaskCard
+                                                                            idx={idx}
+                                                                            handlerOnTaskChange={handlerOnTicketChange}
+                                                                            handlerPauseTask={handlerPauseTicket}
+                                                                            onHandleDelete={deleteTicket}
+                                                                        />
+                                                                    </Col>
+                                                                ))}
+                                                            </Row>
+                                                        </Tab.Pane>
+                                                    ))
+                                                }
 
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button variant="" type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button variant="" type="button" className="btn btn-primary" onClick={handleClose1}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="second" className="p-0" id="pending"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistpending.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <div className="card custom-card task-pending-card">
-                                                                    <div className="card-body">
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-secondary-light waves-effect waves-light" onClick={handleShow2}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal12"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Button variant="" aria-label="anchor" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Button>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="fade" id="addpromodal12" tabIndex={-1} aria-labelledby="AddModalLabel12" aria-hidden="true" show={show2} onHide={handleClose2}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel12">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose2}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="third" className="p-0" id="in-progress"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistinprogress.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-inprogress-card">
-                                                                    <Card.Body>
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color2}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2">
-                                                                                    <Button variant="primary-light" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave  waves-effect waves-light" onClick={handleShow3}
-                                                                                        data-bs-toggle="modal" data-bs-target="#addpromodal15"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Button variant="primary-light" aria-label="anchor" href="#" className="btn btn-sm btn-icon btn-wave"><i className="ri-eye-line"></i></Button>
-                                                                                    <Button type="button" variant="danger-light" aria-label="button" className="btn btn-sm btn-icon btn-wave  me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color1}-transparent d-block`}>{idx.badge}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal15" tabIndex={-1} aria-labelledby="AddModalLabel15" aria-hidden="true" show={show3} onHide={handleClose3}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel15">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button variant="" type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose3}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
-                                                <Tab.Pane eventKey="fourth" className="p-0" id="completed"
-                                                    role="tabpanel">
-                                                    <Row>
-                                                        {Todolistincompleted.map((idx) => (
-                                                            <Col xxl={4} md={6} className="task-card" key={Math.random()}>
-                                                                <Card className="custom-card task-completed-card">
-                                                                    <Card.Body>
-                                                                        <div className="d-flex justify-content-between">
-                                                                            <div>
-                                                                                <Link to="#" className="fs-14 fw-semibold mb-3 d-flex align-items-center">{idx.title}</Link>
-                                                                                <p className="mb-3">Status : <span className={`badge bg-${idx.color1}`}>{idx.status}</span></p>
-                                                                                <p className="mb-0">Assigned To :</p>
-                                                                                <span className="avatar-list-stacked ms-1">
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces8} alt="user-img" />
-                                                                                    </span>
-                                                                                    <span className="avatar avatar-sm avatar-rounded">
-                                                                                        <img src={faces2} alt="user-img" />
-                                                                                    </span>
-                                                                                </span>
-                                                                                <span className="me-2"><Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-primary-light waves-effect waves-light" onClick={handleShow4}
-                                                                                    data-bs-toggle="modal" data-bs-target="#addpromodal20"><i className="ri-add-fill"></i></Button></span>
-
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="btn-list">
-                                                                                    <Link to="#" className="btn btn-sm btn-icon btn-wave btn-primary-light"><i className="ri-eye-line"></i></Link>
-                                                                                    <Button variant="" type="button" aria-label="button" className="btn btn-sm btn-icon btn-wave btn-danger-light me-0"><i className="ri-delete-bin-line"></i></Button>
-                                                                                </div>
-                                                                                <span className={`footer-badge badge bg-${idx.color3}-transparent d-block`}>{idx.badge1}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </Card.Body>
-                                                                </Card>
-                                                            </Col>
-                                                        ))}
-                                                        <Modal className="modal fade" id="addpromodal20" tabIndex={-1} aria-labelledby="AddModalLabel20" aria-hidden="true" show={show4} onHide={handleClose4}>
-
-                                                            <Modal.Header closeButton>
-                                                                <h6 className="modal-title" id="AddModalLabel20">Edit Assigne</h6>
-                                                            </Modal.Header>
-                                                            <Modal.Body className="">
-                                                                <Row>
-                                                                    <div className="col-12">
-                                                                        <div className="mb-3">
-                                                                            <label
-                                                                                className="col-form-label">Assigne To:</label>
-                                                                            <input type="text" className="form-control" />
-                                                                        </div>
-                                                                    </div>
-                                                                </Row>
-                                                            </Modal.Body>
-                                                            <Modal.Footer className="">
-                                                                <Button type="button" className="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Save</Button>
-                                                                <Button type="button" className="btn btn-primary" onClick={handleClose4}>Cancel</Button>
-                                                            </Modal.Footer>
-                                                        </Modal>
-                                                    </Row>
-                                                </Tab.Pane>
                                             </Tab.Content>
                                         </Tab.Container>
                                     </Row>
+
                                     <div className="float-end mb-4">
                                         <nav aria-label="Page navigation" className="pagination-style-4">
                                             <Pagination className="mb-0  gap-2">
@@ -746,82 +871,28 @@ const TaskTracking = () => {
                                             </Pagination>
                                         </nav>
                                     </div>
+
                                 </Col>
                             </Row>
                         </Tab.Pane>
+
                     </Tab.Content>
                 </Tab.Container>
 
-                <Modal className="fade" id="addtask" tabIndex={-1} aria-hidden="true" show={show} onHide={handleClose}>
-                    <Modal.Header closeButton className="">
-                        <h6 className="modal-title" id="mail-ComposeLabel">Create Task</h6>
-                    </Modal.Header>
-                    <Modal.Body className="px-4">
-                        <div className="row gy-2">
-                            <Col xl={12}>
-                                <label htmlFor="task-name" className="form-label">Task Name</label>
-                                <input type="text" className="form-control" id="task-name" placeholder="Task Name" />
-                            </Col>
-                            <Col xl={12}>
-                                <label className="form-label">Service</label>
-                                <Select name="state" options={[]}
-                                    className="js-example-placeholder-multiple w-full js-states"
-                                    menuPlacement='auto' classNamePrefix="Select2" isSearchable
-                                />
-                            </Col>
-                            <Col xl={12}>
-                                <label className="form-label">Assigned To</label>
-                                <Select isMulti name="colors" options={Option1} className="!p-0 ti-form-select !rounded-s-none"
-                                    menuPlacement='auto' classNamePrefix="Select2" defaultValue={[Option1[0]]} />
+                <CreateTaskModel show={show}
+                    handleClose={handleClose}
+                    employeeData={employeeData}
+                    Option2={Option2}
+                    handleSubmit={handleSubmit}
+                    validationSchema={validationSchema} />
 
-                            </Col>
-                            <Col xl={6}>
-                                <label className="form-label">Assigned Date</label>
-                                <Form.Group>
-                                    <InputGroup>
-                                        <div className="input-group-text text-muted"> <i className="ri-calendar-line"></i> </div>
-                                        <DatePicker
-                                            selected={startDate1}
-                                            onChange={handleDateChange1}
-                                            timeInputLabel="Time:"
-                                            dateFormat="yy/MM/dd h:mm aa"
-                                            placeholderText='Choose date with time'
-                                            showTimeInput
-                                        />
-                                    </InputGroup>
-                                </Form.Group>
-                            </Col>
-                            <Col xl={6}>
-                                <label className="form-label">Target Date</label>
-                                <Form.Group>
-                                    <InputGroup>
-                                        <div className="input-group-text text-muted"> <i className="ri-calendar-line"></i> </div>
-                                        <DatePicker
-                                            selected={startDate2}
-                                            onChange={handleDateChange2}
-                                            timeInputLabel="Time:"
-                                            dateFormat="yy/MM/dd h:mm aa"
-                                            placeholderText='Choose date with time'
-                                            showTimeInput
-                                        />
-                                    </InputGroup>
-                                </Form.Group>
-                            </Col>
-                            <Col xl={12}>
-                                <label className="form-label">Priority</label>
-                                <Select name="state" options={Option2}
-                                    className="js-example-placeholder-multiple w-full js-states"
-                                    menuPlacement='auto' classNamePrefix="Select2" isSearchable
-                                />
-                            </Col>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer className="">
-                        <Button variant="light" type="button" onClick={handleClose}
-                            data-bs-dismiss="modal">Cancel</Button>
-                        <Button variant="primary" type="button">Create</Button>
-                    </Modal.Footer>
-                </Modal>
+                <CreateTicketModel show={show1}
+                    handleClose={handleClose1}
+                    employeeData={employeeData}
+                    Option2={Option2}
+                    handleTicketSubmit={handleTicketSubmit}
+                    validationSchema={validationTicketSchema} />
+
             </Row>
 
         </Fragment>

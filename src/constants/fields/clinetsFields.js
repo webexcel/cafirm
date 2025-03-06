@@ -12,7 +12,10 @@ export const AddClientsField = [
     label: "Client Type",
     placeholder: "Select Client Type",
     type: "dropdown",
-    options: [],
+    options: [
+      { label: "Business", value: "business" },
+      { label: "Individual", value: "individual" },
+    ],
     required: true,
   },
 
@@ -55,6 +58,13 @@ export const AddClientsField = [
     required: true,
   },
   {
+    name: "state",
+    label: "State",
+    placeholder: "Enter State",
+    type: "text",
+    required: true,
+  },
+  {
     name: "country",
     label: "Country",
     placeholder: "Enter Country",
@@ -68,10 +78,32 @@ export const AddClientsField = [
     type: "text",
     required: true,
   },
+  {
+    name: "gst_number",
+    label: "GSTIN",
+    placeholder: "Enter GSTIN",
+    type: "text",
+    required: true,
+  },
+
+  {
+    name: "pan_number",
+    label: "Pan Number",
+    placeholder: "Enter Pan Number",
+    type: "text",
+    required: true,
+  },
+
+  {
+    name: "tan_num",
+    label: "Tan Number",
+    placeholder: "Enter Tan Number",
+    type: "text",
+    required: true,
+  },
 ];
 
 export const AddServiceField = [
-
   {
     name: "client",
     label: "Client",
@@ -89,5 +121,4 @@ export const AddServiceField = [
     options: [],
     required: true,
   },
-
 ];

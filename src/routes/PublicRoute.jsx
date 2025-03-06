@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { isAuthenticated } from "../hooks/useAuthentication";
 const PrivateRoutes = ({ children }) => {
   const isAuth = isAuthenticated();
-  return !isAuth ? children : <Navigate to="/dashboard" />;
+  return isAuth ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoutes;

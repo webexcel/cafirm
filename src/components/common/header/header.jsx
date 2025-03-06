@@ -1,24 +1,17 @@
 
 import React, { FC, Fragment, useEffect, useRef, useState } from "react";
 import { Button, Card, Dropdown, InputGroup, ListGroup, Modal, Nav, Offcanvas, Tab } from "react-bootstrap";
-import SimpleBar from "simplebar-react";
 import { MENUITEMS } from "../sidebar/sidemenu";
 import DatePicker from "react-datepicker";
 import store from "../../../redux/store";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { ThemeChanger } from "../../../redux/action";
+import Cookies from 'js-cookie';
 //IMAGES
 import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.png";
 import togglelogo from "../../../assets/images/brand-logos/toggle-logo.png";
 import desktopdark from "../../../assets/images/brand-logos/desktop-dark.png";
-import toggledark from "../../../assets/images/brand-logos/toggle-dark.png";
-import spainflag from "../../../assets/images/flags/spain_flag.jpg";
-import usflag from "../../../assets/images/flags/us_flag.jpg";
-import frenchflag from "../../../assets/images/flags/french_flag.jpg";
-import germanyflag from "../../../assets/images/flags/germany_flag.jpg";
-import russiaflag from "../../../assets/images/flags/russia_flag.jpg";
-import italyflag from "../../../assets/images/flags/italy_flag.jpg";
 import media34 from "../../../assets/images/media/media-34.jpg";
 import media35 from "../../../assets/images/media/media-35.jpg";
 import media36 from "../../../assets/images/media/media-36.jpg";
@@ -26,28 +19,22 @@ import faces16 from "../../../assets/images/faces/16.jpg";
 import faces1 from "../../../assets/images/faces/1.jpg";
 import faces9 from "../../../assets/images/faces/9.jpg";
 import faces6 from "../../../assets/images/faces/6.jpg";
-import faces2 from "../../../assets/images/faces/2.jpg";
-import faces8 from "../../../assets/images/faces/8.jpg";
 import faces14 from "../../../assets/images/faces/14.jpg";
 import faces11 from "../../../assets/images/faces/11.jpg";
-import png1 from "../../../assets/images/ecommerce/png/1.png";
-import png15 from "../../../assets/images/ecommerce/png/15.png";
-import png40 from "../../../assets/images/ecommerce/png/40.png";
-import png8 from "../../../assets/images/ecommerce/png/8.png";
-import png11 from "../../../assets/images/ecommerce/png/11.png";
 
-const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
+const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 	const [startDatei, setStartDatei] = useState(new Date());
-	const [show, setShow] = useState(false);
-
-	const handleClose = () => setShow(false);
-	const handleShow = () => setShow(true);
 
 	const [show1, setShow1] = useState(false);
 
 	const handleClose1 = () => setShow1(false);
-	const handleShow1 = () => setShow1(true);
+
+	const [userdata] = useState(() => {
+		const userData = Cookies.get('user');
+		return userData ? JSON.parse(userData) : null;
+	});
+
 
 	const [show3, setShow3] = useState(false);
 
@@ -63,48 +50,8 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 			ThemeChanger({ ...theme, toggled: local_varaiable.toggled ? local_varaiable.toggled : "" });
 		}
 	}
-	//Dark Model
-	const ToggleDark = () => {
 
-		ThemeChanger({
-			...local_varaiable,
-			"dataThemeMode": local_varaiable.dataThemeMode == "dark" ? "light" : "dark",
-			"dataHeaderStyles": local_varaiable.dataThemeMode == "dark" ? "light" : "gradient",
-			"dataMenuStyles": local_varaiable.dataNavLayout == "horizontal" ? local_varaiable.dataThemeMode == "dark" ? "gradient" : "dark" : "dark"
 
-		});
-		const theme = store.getState();
-
-		if (theme.dataThemeMode != "dark") {
-
-			ThemeChanger({
-				...theme,
-				"bodyBg": "",
-				"Light": "",
-				"darkBg": "",
-				"inputBorder": "",
-				"dataHeaderStyles": "gradient"
-
-			});
-			localStorage.removeItem("velvetdarktheme");
-			localStorage.removeItem("darkBgRGB1");
-			localStorage.removeItem("darkBgRGB2");
-			localStorage.removeItem("darkBgRGB3");
-			localStorage.removeItem("darkBgRGB4");
-			localStorage.removeItem("velvetMenu");
-			localStorage.removeItem("velvetHeader");
-		}
-		else {
-			localStorage.setItem("velvetdarktheme", "dark");
-			localStorage.removeItem("velvetlighttheme");
-			localStorage.removeItem("velvetHeader");
-			localStorage.removeItem("velvetMenu");
-
-		}
-
-	};
-
-	const [menuitems, setMenuitems] = useState(MENUITEMS);
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
 			items?.forEach((item) => {
@@ -125,105 +72,105 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 				const verticalStyle = theme.dataVerticalStyle;
 				const navStyle = theme.dataNavStyle;
 				switch (verticalStyle) {
-				// closed
-				case "closed":
-					ThemeChanger({ ...theme, "dataNavStyle": "" });
-					if (theme.toggled === "close-menu-close") {
-						ThemeChanger({ ...theme, "toggled": "" });
-					} else {
-						ThemeChanger({ ...theme, "toggled": "close-menu-close" });
-					}
-					break;
-					// icon-overlay
-				case "overlay":
-					ThemeChanger({ ...theme, "dataNavStyle": "" });
-					if (theme.toggled === "icon-overlay-close") {
-						ThemeChanger({ ...theme, "toggled": "" });
-					} else {
-						if (window.innerWidth >= 992) {
-							ThemeChanger({ ...theme, "toggled": "icon-overlay-close" });
+					// closed
+					case "closed":
+						ThemeChanger({ ...theme, "dataNavStyle": "" });
+						if (theme.toggled === "close-menu-close") {
+							ThemeChanger({ ...theme, "toggled": "" });
+						} else {
+							ThemeChanger({ ...theme, "toggled": "close-menu-close" });
 						}
-					}
-					break;
-					// icon-text
-				case "icontext":
-					ThemeChanger({ ...theme, "dataNavStyle": "" });
-					if (theme.toggled === "icon-text-close") {
-						ThemeChanger({ ...theme, "toggled": "" });
-					} else {
-						ThemeChanger({ ...theme, "toggled": "icon-text-close" });
-					}
-					break;
-					// doublemenu
-				case "doublemenu":
-					ThemeChanger({ ...theme, "dataNavStyle": "" });
-					if (theme.toggled === "double-menu-open") {
-						ThemeChanger({ ...theme, "toggled": "double-menu-close" });
-					} else {
-						const sidemenu = document.querySelector(".side-menu__item.active");
-						if (sidemenu) {
-							if (sidemenu.nextElementSibling) {
-								sidemenu.nextElementSibling.classList.add("double-menu-active");
-								ThemeChanger({ ...theme, "toggled": "double-menu-open" });
-							} else {
-
-								ThemeChanger({ ...theme, "toggled": "double-menu-close" });
+						break;
+					// icon-overlay
+					case "overlay":
+						ThemeChanger({ ...theme, "dataNavStyle": "" });
+						if (theme.toggled === "icon-overlay-close") {
+							ThemeChanger({ ...theme, "toggled": "" });
+						} else {
+							if (window.innerWidth >= 992) {
+								ThemeChanger({ ...theme, "toggled": "icon-overlay-close" });
 							}
 						}
-					}
+						break;
+					// icon-text
+					case "icontext":
+						ThemeChanger({ ...theme, "dataNavStyle": "" });
+						if (theme.toggled === "icon-text-close") {
+							ThemeChanger({ ...theme, "toggled": "" });
+						} else {
+							ThemeChanger({ ...theme, "toggled": "icon-text-close" });
+						}
+						break;
+					// doublemenu
+					case "doublemenu":
+						ThemeChanger({ ...theme, "dataNavStyle": "" });
+						if (theme.toggled === "double-menu-open") {
+							ThemeChanger({ ...theme, "toggled": "double-menu-close" });
+						} else {
+							const sidemenu = document.querySelector(".side-menu__item.active");
+							if (sidemenu) {
+								if (sidemenu.nextElementSibling) {
+									sidemenu.nextElementSibling.classList.add("double-menu-active");
+									ThemeChanger({ ...theme, "toggled": "double-menu-open" });
+								} else {
 
-					break;
+									ThemeChanger({ ...theme, "toggled": "double-menu-close" });
+								}
+							}
+						}
+
+						break;
 					// detached
-				case "detached":
-					if (theme.toggled === "detached-close") {
-						ThemeChanger({ ...theme, "toggled": "" });
+					case "detached":
+						if (theme.toggled === "detached-close") {
+							ThemeChanger({ ...theme, "toggled": "" });
 
-					} else {
-						ThemeChanger({ ...theme, "toggled": "detached-close" });
-					}
-					break;
+						} else {
+							ThemeChanger({ ...theme, "toggled": "detached-close" });
+						}
+						break;
 					// default
-				case "default":
-					ThemeChanger({ ...theme, "toggled": "" });
+					case "default":
+						ThemeChanger({ ...theme, "toggled": "" });
 
 				}
 				switch (navStyle) {
-				case "menu-click":
-					if (theme.toggled === "menu-click-closed") {
-						ThemeChanger({ ...theme, "toggled": "" });
-					}
-					else {
-						ThemeChanger({ ...theme, "toggled": "menu-click-closed" });
-					}
-					break;
+					case "menu-click":
+						if (theme.toggled === "menu-click-closed") {
+							ThemeChanger({ ...theme, "toggled": "" });
+						}
+						else {
+							ThemeChanger({ ...theme, "toggled": "menu-click-closed" });
+						}
+						break;
 					// icon-overlay
-				case "menu-hover":
-					if (theme.toggled === "menu-hover-closed") {
-						ThemeChanger({ ...theme, "toggled": "" });
-						closeMenuFn();
-					} else {
-						ThemeChanger({ ...theme, "toggled": "menu-hover-closed" });
-						// setMenuUsingUrl();
-					}
-					break;
-				case "icon-click":
-					if (theme.toggled === "icon-click-closed") {
-						ThemeChanger({ ...theme, "toggled": "" });
-					} else {
-						ThemeChanger({ ...theme, "toggled": "icon-click-closed" });
+					case "menu-hover":
+						if (theme.toggled === "menu-hover-closed") {
+							ThemeChanger({ ...theme, "toggled": "" });
+							closeMenuFn();
+						} else {
+							ThemeChanger({ ...theme, "toggled": "menu-hover-closed" });
+							// setMenuUsingUrl();
+						}
+						break;
+					case "icon-click":
+						if (theme.toggled === "icon-click-closed") {
+							ThemeChanger({ ...theme, "toggled": "" });
+						} else {
+							ThemeChanger({ ...theme, "toggled": "icon-click-closed" });
 
-					}
-					break;
-				case "icon-hover":
-					if (theme.toggled === "icon-hover-closed") {
-						ThemeChanger({ ...theme, "toggled": "" });
-						closeMenuFn();
-					} else {
-						ThemeChanger({ ...theme, "toggled": "icon-hover-closed" });
-						// setMenuUsingUrl();
+						}
+						break;
+					case "icon-hover":
+						if (theme.toggled === "icon-hover-closed") {
+							ThemeChanger({ ...theme, "toggled": "" });
+							closeMenuFn();
+						} else {
+							ThemeChanger({ ...theme, "toggled": "icon-hover-closed" });
+							// setMenuUsingUrl();
 
-					}
-					break;
+						}
+						break;
 				}
 			}
 		}
@@ -264,116 +211,6 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 		}
 	};
 
-	///****fullscreeen */
-	const [fullScreen, setFullScreen] = useState(false);
-
-	const toggleFullScreen = () => {
-		const elem = document.documentElement;
-
-		if (!document.fullscreenElement) {
-			elem.requestFullscreen().then(() => setFullScreen(true));
-		} else {
-			document.exitFullscreen().then(() => setFullScreen(false));
-		}
-	};
-
-	const handleFullscreenChange = () => {
-		setFullScreen(!!document.fullscreenElement);
-	};
-
-	useEffect(() => {
-		document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-		return () => {
-			document.removeEventListener("fullscreenchange", handleFullscreenChange);
-		};
-	}, []);
-
-	const Switchericon = () => {
-		document.querySelector(".offcanvas-end")?.classList.toggle("show");
-		if (document.querySelector(".switcher-backdrop")?.classList.contains("d-none")) {
-			document.querySelector(".switcher-backdrop")?.classList.add("d-block");
-			document.querySelector(".switcher-backdrop")?.classList.remove("d-none");
-		}
-	};
-
-	const cartProduct = [
-		{
-			id: 1,
-			src: png1,
-			name: "Cactus mini plant",
-			quantity: "02",
-			price: "$1,299.00",
-			oldpr: "$1,799",
-			newpr: "$1,229",
-		},
-		{
-			id: 2,
-			src: png15,
-			name: "Sports shoes for men",
-			quantity: "01",
-			price: "$179.29",
-			oldpr: "$799",
-			newpr: "$10,229",
-		},
-		{
-			id: 3,
-			src: png40,
-			name: "Pink color smart watch",
-			quantity: "03",
-			oldpr: "$599",
-			newpr: "$5,500",
-		},
-		{
-			id: 4,
-			src: png8,
-			name: "Red Leafs plant",
-			quantity: "01",
-			oldpr: "$799",
-			newpr: "$15,300",
-
-		},
-		{
-			id: 5,
-			src: png11,
-			name: "Good luck mini plant",
-			quantity: "02",
-			oldpr: "$99",
-			newpr: "$600",
-		},
-	];
-
-	const [cartItems, setCartItems] = useState([...cartProduct]);
-	const [cartItemCount, setCartItemCount] = useState(cartProduct.length);
-
-	const handleRemove = (itemId) => {
-		const updatedCart = cartItems.filter((item) => item.id !== itemId);
-		setCartItems(updatedCart);
-		setCartItemCount(updatedCart.length);
-	};
-
-	const img1 = <img src={faces2} alt="" />;
-	const img2 = <img src={faces8} alt="" />;
-
-	const initialNotifications = [
-		{ id: 1, src: img1, icon: "", name: "Olivia James", text1: "Congratulate for New template start", text2: "", text3: "2 min ago", avatarcolor: "secondary", },
-		{ id: 2, src: "", icon: "bx bx-pyramid fs-18", name: "Order Placed", text1: "Order Placed Successfully", text2: "ID: #1116773", text3: "5 min ago", avatarcolor: "warning", },
-		{ id: 3, src: img2, icon: "", name: "Elizabeth Lewis", text1: "added new schedule realease date", text2: "", text3: "10 min ago", avatarcolor: "secondary", },
-		{ id: 4, src: "", icon: "bx bx-pulse fs-18", name: "Your Order Has Been Shipped", text1: "Order No: 123456 Has Shipped To Your Delivery Address", text2: "", text3: "12 min ago", avatarcolor: "primary", },
-		{ id: 5, src: "", icon: "bx bx-badge-check", name: "Account Has Been Verified", text1: "Your Account Has Been Verified Sucessfully", text2: "", text3: "20 min ago", avatarcolor: "pink", },
-	];
-
-	const [notifications, setNotifications] = useState([...initialNotifications]);
-
-	const handleNotificationClose = (index) => {
-		// Create a copy of the notifications array and remove the item at the specified index
-		const updatedNotifications = [...notifications];
-		updatedNotifications.splice(index, 1);
-		setNotifications(updatedNotifications);
-
-	};
-
-	const searchRef = useRef(null);
 
 	const handleClick = (event) => {
 		const searchInput = searchRef.current;
@@ -393,67 +230,6 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 		};
 	}, []);
 
-	//// search Functionality
-	const [showa, setShowa] = useState(false);
-	const [InputValue, setInputValue] = useState("");
-	const [show2, setShow2] = useState(false);
-	const [searchcolor, setsearchcolor] = useState("text-dark");
-	const [searchval, setsearchval] = useState("Type something");
-	const [NavData, setNavData] = useState([]);
-
-	const myfunction = (inputvalue) => {
-		document.querySelector(".search-result")?.classList.remove("d-none");
-
-		const i = [];
-		const allElement2 = [];
-
-		MENUITEMS.forEach((mainLevel) => {
-			if (mainLevel.children) {
-				setShowa(true);
-				mainLevel.children.forEach((subLevel) => {
-					i.push(subLevel);
-					if (subLevel.children) {
-						subLevel.children.forEach((subLevel1) => {
-							i.push(subLevel1);
-							if (subLevel1.children) {
-								subLevel1.children.forEach((subLevel2) => {
-									i.push(subLevel2);
-								});
-							}
-						});
-					}
-				});
-			}
-		});
-
-		for (const allElement of i) {
-			if (allElement.title.toLowerCase().includes(inputvalue.toLowerCase())) {
-				if (allElement.title.toLowerCase().startsWith(inputvalue.toLowerCase())) {
-					setShow2(true);
-
-					// Check if the element has a path and doesn't already exist in allElement2 before pushing
-					if (allElement.path && !allElement2.some((el) => el.title === allElement.title)) {
-						allElement2.push(allElement);
-					}
-				}
-			}
-		}
-
-		if (!allElement2.length || inputvalue === "") {
-			if (inputvalue === "") {
-				setShow2(false);
-				setsearchval("Type something");
-				setsearchcolor("text-dark");
-			}
-			if (!allElement2.length) {
-				setShow2(false);
-				setsearchcolor("text-danger");
-				setsearchval("There is no component with this name");
-			}
-		}
-		setNavData(allElement2);
-
-	};
 
 	//   sticky-pin
 	const Topup = () => {
@@ -472,6 +248,7 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 	if (typeof window !== "undefined") {
 		window.addEventListener("scroll", Topup);
 	}
+
 
 	return (
 		<Fragment>
@@ -593,7 +370,7 @@ const Header = ({ local_varaiable, ThemeChanger,headerTitle }) => {
 									<div className="d-sm-flex wd-100p">
 										<div className="avatar avatar-sm"><img alt="avatar" className="rounded-circle" src={faces1} /></div>
 										<div className="ms-2 my-auto d-none d-xl-flex">
-											<h6 className=" font-weight-semibold mb-0 fs-13 user-name d-sm-block d-none">Balaji</h6>
+											<h6 className=" font-weight-semibold mb-0 fs-13 user-name d-sm-block d-none">{userdata?.name || 'UnKnown User'}</h6>
 										</div>
 									</div>
 								</div>

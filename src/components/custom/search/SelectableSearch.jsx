@@ -147,7 +147,7 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
                                 height: '40px'
                             }}
                             onClick={() => {
-                                setSearchTerm(`${item.NAME} - ${item?.ADMISSION_ID || ''} - ${item?.CLASSSEC || item?.CLASS_SECTION || ''}` || item?.staff_name);
+                                setSearchTerm(`${item?.name || item?.client_name || ''}`);
                                 setIsFocused(false);
                                 getUserData(item);
                                 setActiveIndex(-1);

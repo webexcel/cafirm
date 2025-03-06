@@ -40,8 +40,8 @@ export const MENUITEMS = [
 		children: [
 			{ path: `${import.meta.env.BASE_URL}addManageClient`, type: "link", active: false, selected: false, dirchange: false, title: "Create Clients" },
 			{ path: `${import.meta.env.BASE_URL}viewEditClient`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Profile" },
-			{ path: `${import.meta.env.BASE_URL}addService`, type: "link", active: false, selected: false, dirchange: false, title: "Add Service" },
-			{ path: `${import.meta.env.BASE_URL}addManageClient`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Service" },
+			// { path: `${import.meta.env.BASE_URL}addService`, type: "link", active: false, selected: false, dirchange: false, title: "Add Service" },
+			// { path: `${import.meta.env.BASE_URL}addManageClient`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Service" },
 		],
 	},
 
@@ -50,7 +50,7 @@ export const MENUITEMS = [
 		title: "Tasks", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 			{ path: `${import.meta.env.BASE_URL}taskTracking`, type: "link", active: false, selected: false, dirchange: false, title: "Create Tasks" },
-			{ path: `${import.meta.env.BASE_URL}taskTracking`, type: "link", active: false, selected: false, dirchange: false, title: "Add Time Sheet" },
+			{ path: `${import.meta.env.BASE_URL}addTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Time Sheet" },
 		],
 	},
 
@@ -78,7 +78,7 @@ export const MENUITEMS = [
 	{
 		title: "Master Class", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+			// { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
 		],
 	},
 

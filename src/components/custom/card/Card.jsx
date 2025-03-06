@@ -14,7 +14,7 @@ const CustomCard = ({ title, icon, value, field1, field2 }) => {
                         </Link>
                         <div className="flex-1">
                             <div className="flex-between mb-1 fs-10">
-                                <span className="fw-medium mb-1 text-muted">{title}</span>
+                                <span className="fw-bold mb-1 text-muted">{title}</span>
                                 {/* <span className="text-success text-end"><i className="ti ti-trending-up fs-11 me-1 ms-2"></i>0.14%</span> */}
                             </div>
                             <div className="flex-between fs-17 mb-3">
