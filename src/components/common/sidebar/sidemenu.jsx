@@ -9,7 +9,7 @@ const badge1 = <span className="badge bg-warning-transparent ms-2 d-inline-block
 export const MENUITEMS = [
 
 	{
-		menutitle: "CA FIRM",
+		menutitle: "Rajagopal & Badri Narayanan",
 	},
 
 	// Dashboard 
@@ -76,17 +76,37 @@ export const MENUITEMS = [
 
 	//Master Details
 	{
-		title: "Master Class", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		title: "Reports & Analytics", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			// { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Performance" },
+			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Service Completion" },
+			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Revenue generation" },
 		],
 	},
 
 	//Attendance
 	{
-		title: "Attendance", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		title: "Attendance Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 			// { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+		],
+	},
+
+	//Billing
+	{
+		title: "Billing & Invoicing", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		children: [
+			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Generate invoices" },
+			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Track Payment Status" },
+		],
+	},
+
+	//Documents
+	{
+		title: "Document Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		children: [
+			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Upload Documents" },
+			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Manage Documents" },
 		],
 	},
 ];
