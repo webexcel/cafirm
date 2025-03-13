@@ -3,7 +3,6 @@ import React, { Fragment, useCallback, useState, useEffect, Suspense } from "rea
 import { Row, Col, Card, Button, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomForm from "../../components/custom/form/CustomForm";
-import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddTimeSheetField } from "../../constants/fields/taskFields";
@@ -11,32 +10,18 @@ import { addTimesheet, deleteTimesheet, getTimesheet } from "../../service/clien
 import { getClient } from "../../service/client_management/createClientServices";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { getTimeDifferenceInMinutes } from "../../utils/generalUtils";
-const CustomTable = React.lazy(() =>
-  import("../../components/custom/table/CustomTable")
-);
+import { getService } from "../../service/masterDetails/serviceApi";
+import Cookies from 'js-cookie';
+import { addEmpRecord } from "../../service/task_management/empMonitor";
 
 
 const AddTimeSheet = () => {
 
-  const [tableData, setTableData] = useState([
-    { sno: 1, name: "Alice Johnson", service: "Auditing", date: "20/10/2025", hours: "5", desc: "", Actions: "" },
-    { sno: 2, name: "David Brown", service: "Auditing", date: "22/10/2025", hours: "4", desc: "", Actions: "" },
-    { sno: 3, name: "Emma Wilson", service: "Auditing", date: "23/10/2025", hours: "2", desc: "", Actions: "" },
-  ]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(15);
+  const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(AddTimeSheetField);
-  const columns = [
-    { header: "Client ID", accessor: "sno", editable: false },
-    { header: "Name", accessor: "name", editable: false },
-    { header: "Service", accessor: "service", editable: true },
-    { header: "Date", accessor: "date", editable: true },
-    { header: "Hours", accessor: "hours", editable: true },
-    { header: "Description", accessor: "descripition", editable: true },
-    { header: "Actions", accessor: "Actions", editable: false },
-  ];
-
+  const [clientdata, setClientData] = useState([])
+  const [servicedata, setServiceData] = useState([])
   // Initialize form state from field definitions
   const initialFormState = AddTimeSheetField.reduce((acc, field) => {
     acc[field.name] = "";
@@ -70,6 +55,7 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
+        const serviceresponse = await getService()
         const employeeresponse = await getEmployee();
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
@@ -82,9 +68,25 @@ const AddTimeSheet = () => {
                 label: item.client_name,
               }));
               console.log("Mapped Client Options:", clientOptions);
+              setClientData(clientOptions)
               return { ...field, options: clientOptions };
+
             } else {
               console.error("Client data response is not an array or is empty.");
+            }
+
+          }
+          if (field.name === "service") {
+            if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
+              const serviceOptions = serviceresponse.data.data.map((item) => ({
+                value: item.service_id,
+                label: item.service_name,
+              }));
+              console.log("Mapped Client Options:", serviceOptions);
+              setServiceData(serviceOptions)
+              return { ...field, options: serviceOptions };
+            } else {
+              console.error("Service data response is not an array or is empty.");
             }
 
           }
@@ -115,17 +117,12 @@ const AddTimeSheet = () => {
     getTimeSheetData()
   }, [])
 
-  // Handle pagination
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
   // Handle add
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({
-      title: "Are you sure about add timesheet ?",
+      title: "Are you sure about create task ?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -136,22 +133,37 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, date, start_time, end_time, employee } = formData;
+        const { client, service, description, date, start_time, end_time, employee, priority, task } = formData;
+        const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
+        const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
+        const empIds = employee.map((data) => data.value)
+        const date1 = new Date()
+        const userData = JSON.parse(Cookies.get('user'));
+        console.log("clientval", clientval)
+        console.log("serviceval", serviceval)
+        // console.log("employee", employee)
         const payload = {
-          "id": employee,
-          "clientId": client,
-          "serviceId": service,
-          "date": date,
-          "totalMinutes": getTimeDifferenceInMinutes(start_time, end_time),
-          "description": description
+          "task_name": task,
+          "emp_id": userData.employee_id,
+          "emp_name": userData.name,
+          "client_id": clientval[0].value,
+          "client_name": clientval[0].label,
+          "service_id": serviceval[0].value,
+          "service_name": serviceval[0].label,
+          "description": description,
+          "assignTo": empIds,
+          "assignDate":date,
+          "minutes": getTimeDifferenceInMinutes(start_time, end_time),
+          "dueDate": date,
+          "priority": priority
         }
-        const response = await addTimesheet(payload);
+        const response = await addEmpRecord(payload);
         if (!response.data.status) {
-          return Swal.fire("Error", response.data.message || "Failed to add timesheet.", "error");
+          return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
         }
-        Swal.fire("Success", `Timesheet added successfully`, "success");
+        Swal.fire("Success", `Task added successfully`, "success");
         resetForm()
-        getTimeSheetData();
+
       } catch (err) {
         console.error("Error while get timesheet data:", err.stack);
         Swal.fire("Error", err.response?.data?.message || "Failed to add timesheet data.", "error");
@@ -223,7 +235,7 @@ const AddTimeSheet = () => {
         </Col>
       </Row>
 
-      <Card className="custom-card p-3">
+      {/* <Card className="custom-card p-3">
         <Card.Body className="overflow-auto">
           <Suspense fallback={<Loader />}>
             <CustomTable
@@ -237,7 +249,7 @@ const AddTimeSheet = () => {
             />
           </Suspense>
         </Card.Body>
-      </Card>
+      </Card> */}
     </Fragment>
   );
 };

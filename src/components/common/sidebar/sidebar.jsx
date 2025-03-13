@@ -10,10 +10,12 @@ import logo4 from "../../../assets/images/brand-logos/toggle-dark.png";
 import SimpleBar from "simplebar-react";
 import { MENUITEMS } from "./sidemenu";
 import Menuloop from "./menuloop";
+import { usePermission } from "../../../contexts";
 
 const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	const [menuitems, setMenuitems] = useState(MENUITEMS);
-
+	const { menuItems } = usePermission();
+	console.log(menuItems,'---menuItemscontext');
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
 			items?.forEach((item) => {

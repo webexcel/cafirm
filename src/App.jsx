@@ -9,6 +9,8 @@ import { TimeSheetRoutesList } from './routes/RoutesList/TimeRoutesList.jsx';
 import { InvoiceRoutesList } from './routes/RoutesList/InvoiceRoutesList.jsx';
 import { EmployeeRoutesList } from './routes/RoutesList/EmployeeRoutesList.jsx';
 import { MasterClassRoutesList } from './routes/RoutesList/MasterClassRoutes.jsx';
+import { AttendanceRoutes } from './routes/RoutesList/AttendanceRoutes.jsx';
+import { PermissionRoutesList } from './routes/RoutesList/Configuration.jsx';
 const AuthLayout = React.lazy(() => import("./layout/AuthLayout.jsx"));
 const AdminLayout = React.lazy(() => import("./layout/AdminLayout.jsx"));
 const App = () => {
@@ -53,6 +55,13 @@ const App = () => {
                                 <Route key={index} path={route.path} element={route.element} />
                             ))}
 
+                            {AttendanceRoutes.childRoutes.map((route, index) => (
+                                <Route key={index} path={route.path} element={route.element} />
+                            ))}
+
+                            {PermissionRoutesList.childRoutes.map((route, index) => (
+                                <Route key={index} path={route.path} element={route.element} />
+                            ))}
                         </Route>
                     </Routes>
                 </React.Suspense>

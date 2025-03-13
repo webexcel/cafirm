@@ -21,6 +21,7 @@ import faces9 from "../../../assets/images/faces/9.jpg";
 import faces6 from "../../../assets/images/faces/6.jpg";
 import faces14 from "../../../assets/images/faces/14.jpg";
 import faces11 from "../../../assets/images/faces/11.jpg";
+import { usePermission } from "../../../contexts";
 
 const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
@@ -29,7 +30,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 	const [show1, setShow1] = useState(false);
 
 	const handleClose1 = () => setShow1(false);
-
+	const { fetchPermissions } = usePermission();
 	const [userdata] = useState(() => {
 		const userData = Cookies.get('user');
 		return userData ? JSON.parse(userData) : null;
@@ -248,6 +249,12 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 	if (typeof window !== "undefined") {
 		window.addEventListener("scroll", Topup);
 	}
+
+	useEffect(() => {
+		if (userdata) {
+		  fetchPermissions(userdata.userId);
+		}
+	  }, [userdata]);
 
 
 	return (

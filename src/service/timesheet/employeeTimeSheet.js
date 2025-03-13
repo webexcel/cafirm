@@ -6,6 +6,16 @@ export const viewEmpTimeSheet = async () => {
 };
 
 export const getEmpTimeSheet = async (data) => {
-  return await endpoint.post(`${mainUrl.EMPTIMESHEET}/searchEmployeeTimesheet`, data);
+  return await endpoint.post(
+    `${mainUrl.EMPTIMESHEET}/searchEmployeeTimesheet`,
+    data
+  );
 };
 
+export const getTimeSheetService = async () => {
+  return await endpoint.get(`${mainUrl.TIMESHEET}/getTimesheet`);
+};
+
+export const getServiceByClient = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/getService`, data);
+};

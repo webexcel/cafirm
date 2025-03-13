@@ -8,7 +8,6 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
-import { getEmpTimeSheet, viewEmpTimeSheet } from "../../service/timesheet/employeeTimeSheet";
 import { ViewCliTimeSheetField } from "../../constants/fields/timesheetFields";
 import { getCliTimeSheet, viewCliTimeSheet } from "../../service/timesheet/clientTimeSheet";
 const CustomTable = React.lazy(() =>
@@ -25,7 +24,7 @@ const ClientTimeSheet = () => {
   const [formFields, setFormFields] = useState(ViewCliTimeSheetField);
   const columns = [
     { header: "Client ID", accessor: "sno", editable: false },
-    { header: "Name", accessor: "name", editable: false },
+    { header: "Name", accessor: "employee", editable: false },
     { header: "Service", accessor: "service", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Mins", accessor: "total_minutes", editable: true },
@@ -117,8 +116,13 @@ const ClientTimeSheet = () => {
       if (!response.data.status) {
         return Swal.fire("Error", response.data.message || "Failed to get client timesheet.", "error");
       }
-      setTableData(response?.data?.data || [])
-      setFilteredData(response?.data?.data || [])
+      const addSno = response.data.data.map((data, index) => ({
+        ...data,
+        sno: index + 1,
+        date: data?.date?.split('T')[0] || data?.date || ""
+      }))
+      setTableData(addSno|| [])
+      setFilteredData(addSno|| [])
     } catch (err) {
       console.error("Error while get client timesheet data:", err.stack);
       Swal.fire("Error", err.response?.data?.message || "Failed to get client timesheet data.", "error");
