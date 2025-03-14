@@ -1,0 +1,40 @@
+{
+  "tasksample": [
+    {
+      "sno": 1,
+      "client_name": "Acme Corp",
+      "employee_name": "John Doe",
+      "task_name": "Design UI",
+      "service_name": "Web Design",
+      "priority": "High",
+      "status": "Pending",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    },
+    {
+      "sno": 2,
+      "client_name": "Beta Ltd",
+      "employee_name": "Jane Smith",
+      "task_name": "Develop API",
+      "service_name": "Backend Development",
+      "priority": "Medium",
+      "status": "Completed",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    },
+    {
+      "sno": 3,
+      "client_name": "Gamma Inc",
+      "employee_name": "Alice Brown",
+      "task_name": "Database Optimization",
+      "service_name": "Database Management",
+      "priority": "Low",
+      "status": "Pending",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    }
+  ]
+}

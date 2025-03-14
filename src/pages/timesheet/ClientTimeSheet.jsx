@@ -60,6 +60,36 @@ const ClientTimeSheet = () => {
     }
   }
 
+  const fetchViewTimeSheetData = async (client_id, service_id, emp_id, priority, status) => {
+    try {
+      const payload = {
+        "client_id": client_id,
+        "service_id": service_id,
+        "emp_id": emp_id,
+        "priority": priority,
+        "status": status
+      }
+      const response = await getViewTasks(payload)
+      const addSno = response?.data?.data.map((data, index) => ({
+        sno: index + 1,
+        ...data,
+        due_date: String(data.due_date)?.split('T')[0] || '',
+        assigned_date: String(data?.assigned_date).split('T')[0] || '',
+        assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
+      }))
+      // setTableData(addSno)
+      // setFilteredData(addSno)
+      console.log("All Task records : ", response)
+    }
+    catch (error) {
+      console.log("Error occurs while getting all task : ", error.stack)
+    }
+  }
+
+  useEffect(() => {
+    fetchViewTimeSheetData("All", "All", "All", "All", "ALL")
+  }, [])
+
   useEffect(() => {
     // Fetch field option data
     const fetchFieldOptionData = async () => {
@@ -121,8 +151,8 @@ const ClientTimeSheet = () => {
         sno: index + 1,
         date: data?.date?.split('T')[0] || data?.date || ""
       }))
-      setTableData(addSno|| [])
-      setFilteredData(addSno|| [])
+      setTableData(addSno || [])
+      setFilteredData(addSno || [])
     } catch (err) {
       console.error("Error while get client timesheet data:", err.stack);
       Swal.fire("Error", err.response?.data?.message || "Failed to get client timesheet data.", "error");

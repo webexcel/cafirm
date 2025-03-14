@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form } from "react-bootstrap";
+import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } from "react-bootstrap";
 
-const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive,onCopyTo }) => {
+const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,6 +63,22 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
     return items;
   };
 
+  console.log("table datttaaaaaa", data)
+
+  // {
+  //   Dismissiblealerts.map((idx) => (
+  //     <OverlayTrigger rootClose={true} trigger="click" placement={idx.class} key={Math.random()}
+  //       overlay={<Popover>
+  //         <Popover.Header as="h3"> Dismissible Popover</Popover.Header>
+  //         <Popover.Body>
+  //           And here's some amazing content. It's very engaging. Right?
+  //         </Popover.Body>
+  //       </Popover>}>
+  //       <Button variant={idx.color} className="btn  btn-wave">Popover Dismiss</Button>
+  //     </OverlayTrigger>
+  //   ))
+  // }
+
   return (
     <>
       <div className="table-responsive">
@@ -80,124 +96,154 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
             {currentData.map((row, rowIndex) => (
               <tr key={rowIndex}>
                 {columns.map((col, colIndex) => (
-                  <td key={colIndex} className="px-3">
-                    {col.accessor === "Actions" ? (
-                      rowIndex === editingIndex ? (
-                        <div className="d-flex justify-content-start">
-                          <OverlayTrigger placement="top" overlay={<Tooltip>Save</Tooltip>}>
-                            <a
-                              aria-label="save"
-                              className="btn btn-success btn-sm"
-                              onClick={() => handleSave(rowIndex)}
-                            >
-                              <span className="ri-check-line fs-14"></span>
-                            </a>
-                          </OverlayTrigger>
-                          <OverlayTrigger placement="top" overlay={<Tooltip>Cancel</Tooltip>}>
-                            <a
-                              aria-label="cancel"
-                              className="btn btn-danger btn-sm ms-2"
-                              onClick={handleCancel}
-                            >
-                              <span className="ri-close-line fs-14"></span>
-                            </a>
-                          </OverlayTrigger>
-                        </div>
+                  <OverlayTrigger rootClose={true} trigger="click" placement={'top'} key={Math.random()}
+                    overlay={<Popover>
+                      <Popover.Header as="h3"> Dismissible Popover</Popover.Header>
+                      <Popover.Body>
+                        And here's some amazing content. It's very engaging. Right?
+                      </Popover.Body>
+                    </Popover>}>
+                    <td key={colIndex} className="px-3">
+                      {col.accessor === "Actions" ? (
+                        rowIndex === editingIndex ? (
+                          <div className="d-flex justify-content-start">
+                            <OverlayTrigger placement="top" overlay={<Tooltip>Save</Tooltip>}>
+                              <a
+                                aria-label="save"
+                                className="btn btn-success btn-sm"
+                                onClick={() => handleSave(rowIndex)}
+                              >
+                                <span className="ri-check-line fs-14"></span>
+                              </a>
+                            </OverlayTrigger>
+                            <OverlayTrigger placement="top" overlay={<Tooltip>Cancel</Tooltip>}>
+                              <a
+                                aria-label="cancel"
+                                className="btn btn-danger btn-sm ms-2"
+                                onClick={handleCancel}
+                              >
+                                <span className="ri-close-line fs-14"></span>
+                              </a>
+                            </OverlayTrigger>
+                          </div>
+                        ) : (
+                          <div className="d-flex justify-content-start gap-2">
+                            {onEdit && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-info d-flex justify-content-center align-items-center"
+                                  onClick={() => handleEditClick(row, rowIndex)}
+                                >
+                                  <i className="ri-edit-line"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+                            {handlerEdit && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-info d-flex justify-content-center align-items-center"
+                                  onClick={() => handlerEdit(row, rowIndex)}
+                                >
+                                  <i className="ri-edit-line"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+                            {onDelete && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>Delete</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center"
+                                  onClick={() => onDelete(row, rowIndex)}
+                                >
+                                  <i className="ri-delete-bin-line"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+                            {onCheck && <Form.Check type="checkbox" />}
+
+                            {onActive && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>InActive</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center p-2"
+                                  onClick={() => onActive(row, rowIndex)}
+                                >
+                                  <i className="bi bi-toggle-on fs-16"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+                            {inActive && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>Active</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-success d-flex justify-content-center align-items-center p-2"
+                                  onClick={() => inActive(row, rowIndex)}
+                                >
+                                  <i className="bi bi-toggle-on fs-16"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+
+                            {onCopyTo && (
+                              <OverlayTrigger placement="top" overlay={<Tooltip>Copy To</Tooltip>}>
+                                <a
+                                  href="#"
+                                  className="btn btn-icon btn-sm btn-success d-flex justify-content-center align-items-center p-2"
+                                  onClick={() => onCopyTo(row, rowIndex)}
+                                >
+                                  <i className="bi bi-clipboard-check fs-16"></i>
+                                </a>
+                              </OverlayTrigger>
+                            )}
+
+                          </div>
+
+                        )
+                      ) : editingIndex === rowIndex && col.editable ? (
+                        col.options ? (
+                          <Form.Select
+                            value={editingData[col.accessor] || ""}
+                            onChange={(e) => handleInputChange(e, col.accessor)}
+                            className="form-control form-control-sm"
+                            style={{ width: "100%" }}
+                          >
+                            <option value="">Select Any</option>
+                            {col.options.map((option, idx) => (
+                              <option key={idx} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={editingData[col.accessor] || ""}
+                            onChange={(e) => handleInputChange(e, col.accessor)}
+                            className="form-control form-control-sm text-start"
+                            style={{ width: "70%" }}
+                          />
+                        )
                       ) : (
-                        <div className="d-flex justify-content-start gap-2">
-                          {onEdit && (
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
-                              <a
-                                href="#"
-                                className="btn btn-icon btn-sm btn-info d-flex justify-content-center align-items-center"
-                                onClick={() => handleEditClick(row, rowIndex)}
-                              >
-                                <i className="ri-edit-line"></i>
-                              </a>
-                            </OverlayTrigger>
-                          )}
+                        <span>
+                          {(col.accessor === "assignTo" || col.accessor === "assigned_to")
+                            ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
+                            : row[col.accessor]}
+                        </span>
 
-                          {onDelete && (
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Delete</Tooltip>}>
-                              <a
-                                href="#"
-                                className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center"
-                                onClick={() => onDelete(row, rowIndex)}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </a>
-                            </OverlayTrigger>
-                          )}
+                      )}
+                    </td>
+                  </OverlayTrigger>
 
-                          {onCheck && <Form.Check type="checkbox" />}
-
-                          {onActive && (
-                            <OverlayTrigger placement="top" overlay={<Tooltip>InActive</Tooltip>}>
-                              <a
-                                href="#"
-                                className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center p-2"
-                                onClick={() => onActive(row, rowIndex)}
-                              >
-                                <i className="bi bi-toggle-on fs-16"></i>
-                              </a>
-                            </OverlayTrigger>
-                          )}
-
-                          {inActive && (
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Active</Tooltip>}>
-                              <a
-                                href="#"
-                                className="btn btn-icon btn-sm btn-success d-flex justify-content-center align-items-center p-2"
-                                onClick={() => inActive(row, rowIndex)}
-                              >
-                                <i className="bi bi-toggle-on fs-16"></i>
-                              </a>
-                            </OverlayTrigger>
-                          )}
-                          
-                          {onCopyTo && (
-                            <OverlayTrigger placement="top" overlay={<Tooltip>Copy To</Tooltip>}>
-                              <a
-                                href="#"
-                                className="btn btn-icon btn-sm btn-success d-flex justify-content-center align-items-center p-2"
-                                onClick={() => onCopyTo(row, rowIndex)}
-                              >
-                                <i className="bi bi-clipboard-check fs-16"></i>
-                              </a>
-                            </OverlayTrigger>
-                          )}
-                        </div>
-                      )
-                    ) : editingIndex === rowIndex && col.editable ? (
-                      col.options ? (
-                        <Form.Select
-                          value={editingData[col.accessor] || ""}
-                          onChange={(e) => handleInputChange(e, col.accessor)}
-                          className="form-control form-control-sm"
-                          style={{ width: "100%" }}
-                        >
-                          <option value="">Select Any</option>
-                          {col.options.map((option, idx) => (
-                            <option key={idx} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </Form.Select>
-                      ) : (
-                        <input
-                          type="text"
-                          value={editingData[col.accessor] || ""}
-                          onChange={(e) => handleInputChange(e, col.accessor)}
-                          className="form-control form-control-sm text-start"
-                          style={{ width: "70%" }}
-                        />
-                      )
-                    ) : (
-                      <span>{row[col.accessor]}</span>
-                    )}
-                  </td>
                 ))}
               </tr>
+              // String(row[col.accessor][0]?.label || "" )
             ))}
           </tbody>
         </Table>

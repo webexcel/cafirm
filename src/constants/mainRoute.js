@@ -11,5 +11,5 @@ export default Object.freeze({
   MASTER :'master',
   SERVICE :'services',
   EMPMONITOR :'empMonitor',
-  PERMISSIONS : 'permissions'
+  PERMISSIONS : 'permissions',
 });

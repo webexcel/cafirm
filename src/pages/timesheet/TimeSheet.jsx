@@ -8,7 +8,7 @@ import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { ViewEmpTimeSheetField } from "../../constants/fields/timesheetFields";
-import { getEmpTimeSheet, getServiceByClient, getTimeSheetService, viewEmpTimeSheet } from "../../service/timesheet/employeeTimeSheet";
+import { getEmployeeByService, getEmpTimeSheet, getServiceByClient, getTaskByEmployee, getTimeSheetService, } from "../../service/timesheet/employeeTimeSheet";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
@@ -28,7 +28,6 @@ const AddTimeSheet = () => {
     { header: "Service", accessor: "service_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Mins", accessor: "total_minutes", editable: true },
-    { header: "Description", accessor: "descripition", editable: true },
     { header: "Actions", accessor: "Actions", editable: false },
   ];
 
@@ -43,7 +42,7 @@ const AddTimeSheet = () => {
     (data) => validateCustomForm(data, ViewEmpTimeSheetField)
   );
 
-  const getEmpTimeSheetData = async () => {
+  const getTimeSheetData = async () => {
     try {
       const response = await getTimeSheetService()
       const addSno = response.data.data.map((data, index) => ({
@@ -70,19 +69,35 @@ const AddTimeSheet = () => {
         console.log("Employee API Response:", employeeresponse);
 
         const updatedFormFields = ViewEmpTimeSheetField.map((field) => {
-          if (field.name === "employee") {
-            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
-                value: item.employee_id,
-                label: item.name,
+
+          if (field.name === "client") {
+            if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
+              const clientOption = clientresponse.data.data.map((item) => ({
+                value: item.client_id,
+                label: item.client_name,
               }));
-              console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions };
+              console.log("Mapped Employee Options:", clientOption);
+              return { ...field, options: clientOption };
             } else {
               console.error("Employee data response is not an array or is empty.");
             }
 
           }
+
+          // if (field.name === "employee") {
+          //   if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+          //     const employeeOptions = employeeresponse.data.data.map((item) => ({
+          //       value: item.employee_id,
+          //       label: item.name,
+          //     }));
+          //     console.log("Mapped Employee Options:", employeeOptions);
+          //     return { ...field, options: employeeOptions };
+          //   } else {
+          //     console.error("Employee data response is not an array or is empty.");
+          //   }
+
+          // }
+
           return field;
         });
         setFormFields(updatedFormFields);
@@ -102,34 +117,31 @@ const AddTimeSheet = () => {
           const payload = {
             client_id: formData.client,
           };
-          const clientresponse = await getServiceByClient(payload);
+          const serviceresponse = await getServiceByClient(payload);
 
-          console.log("Client API Response:", clientresponse.data.data);
+          console.log("Client API Response:", serviceresponse.data.data);
 
-          // const updatedFormFields = await formFields.map((field) => {
+          const updatedFormFields = await formFields.map((field) => {
 
-          //   if (field.name === "studentMapping") {
-          //     console.log('testt', formFields)
-          //     if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
-          //       const studentOptions = clientresponse.data.data.map((item) => ({
-          //         value: item.Admission_No,
-          //         label: item.NAME,
-          //       }));
+            if (field.name === "service") {
+              console.log('service', formFields)
+              if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
+                const serviceOptions = serviceresponse.data.data.map((item) => ({
+                  value: item.service_id,
+                  label: item.service_name,
+                }));
 
-          //       console.log('student optionnnnnnnnnnnnn', studentOptions)
-          //       return {
-          //         ...field,
-          //         options: {
-          //           ...field.options,
-          //           available: studentOptions
-          //         }
-          //       };
-          //     } else {
-          //       console.error("Student data response is not an array or is empty.");
-          //     }
-          //   }
-          //   return field;
-          // });
+                console.log('serviceOptions : ', serviceOptions, formFields)
+                return {
+                  ...field,
+                  options: serviceOptions
+                };
+              } else {
+                console.error("Student data response is not an array or is empty.");
+              }
+            }
+            return field;
+          });
           setFormFields(updatedFormFields);
           console.log("Mapped Student Options:", formFields);
 
@@ -143,7 +155,152 @@ const AddTimeSheet = () => {
   }, [formData.client]);
 
   useEffect(() => {
-    getEmpTimeSheetData()
+
+    if (formData.service) {
+      const fetchClientOptionData = async () => {
+        console.log('formm data', formData)
+        try {
+          const payload = {
+            "client_id": formData?.client || '',
+            "service_id": formData?.service || ''
+          };
+          const employeeresponse = await getEmployeeByService(payload);
+
+          console.log("Employee API Response:", employeeresponse.data.data);
+
+          const updatedFormFields = await formFields.map((field) => {
+
+            if (field.name === "employee") {
+              console.log('employee', formFields)
+              if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+                const employeeOptions = employeeresponse.data.data.map((item) => ({
+                  value: item.employee_id,
+                  label: item.name,
+                }));
+
+                console.log('employeeOptions : ', employeeOptions, formFields)
+                return {
+                  ...field,
+                  options: [{ value: 'All', label: 'All' }, ...employeeOptions]
+                };
+              } else {
+                console.error("Student data response is not an array or is empty.");
+              }
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
+          console.log("Mapped Student Options:", formFields);
+
+        } catch (error) {
+          console.error("Error fetching Student data:", error);
+        }
+      };
+
+      fetchClientOptionData();
+    }
+  }, [formData.service]);
+
+  useEffect(() => {
+
+    if (formData.employee) {
+      const fetchClientOptionData = async () => {
+        console.log('formm data', formData)
+        try {
+          const payload = {
+            // "client_id": formData?.client || '',
+            // "service_id": formData?.service || '',
+            // "emp_id": formData?.employee || ''
+            "client_id": 1,
+            "service_id": 1,
+            "emp_id": 1
+          };
+          const employeeresponse = await getTaskByEmployee(payload);
+
+          console.log("Task API Response:", employeeresponse.data.data);
+
+          const updatedFormFields = await formFields.map((field) => {
+
+            if (field.name === "task") {
+              console.log('task', formFields)
+              if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+                const employeeOptions = employeeresponse.data.data.map((item) => ({
+                  value: item.task_id,
+                  label: item.task_name,
+                }));
+
+                console.log('employeeOptions : ', employeeOptions, formFields)
+                return {
+                  ...field,
+                  options: employeeOptions
+                };
+              } else {
+                console.error("Student data response is not an array or is empty.");
+              }
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
+          console.log("Mapped Student Options:", formFields);
+
+        } catch (error) {
+          console.error("Error fetching Student data:", error);
+        }
+      };
+
+      fetchClientOptionData();
+    }
+  }, [formData.employee]);
+
+  useEffect(() => {
+
+    if (formData.service) {
+      const fetchClientOptionData = async () => {
+        console.log('formm data', formData)
+        try {
+          const payload = {
+            "client_id": formData?.client || '',
+            "service_id": formData?.service || ''
+          };
+          const employeeresponse = await getEmployeeByService(payload);
+
+          console.log("Employee API Response:", employeeresponse.data.data);
+
+          const updatedFormFields = await formFields.map((field) => {
+
+            if (field.name === "employee") {
+              console.log('employee', formFields)
+              if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+                const employeeOptions = employeeresponse.data.data.map((item) => ({
+                  value: item.employee_id,
+                  label: item.name,
+                }));
+
+                console.log('employeeOptions : ', employeeOptions, formFields)
+                return {
+                  ...field,
+                  options: employeeOptions
+                };
+              } else {
+                console.error("Student data response is not an array or is empty.");
+              }
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
+          console.log("Mapped Student Options:", formFields);
+
+        } catch (error) {
+          console.error("Error fetching Student data:", error);
+        }
+      };
+
+      fetchClientOptionData();
+    }
+  }, [formData.service]);
+
+  useEffect(() => {
+    getTimeSheetData()
   }, [])
 
   // Handle pagination
@@ -159,9 +316,15 @@ const AddTimeSheet = () => {
       console.log("Selected form:", formData);
       const { start_date, end_date, employee } = formData;
       const payload = {
-        "emp_id": employee,
-        "start_date": start_date,
-        "end_date": end_date,
+        // "emp_id": employee,
+        // "start_date": start_date,
+        // "end_date": end_date,
+        // "emp_id": 1,
+        "clientId": 1,
+        "serviceId": 2,
+        "task_id": 19,
+        "date": "2025-03-06",
+        "totalMinutes": 60
       }
       const response = await getEmpTimeSheet(payload);
       if (!response.data.status) {

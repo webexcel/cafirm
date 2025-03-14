@@ -19,3 +19,11 @@ export const getTimeSheetService = async () => {
 export const getServiceByClient = async (data) => {
   return await endpoint.post(`${mainUrl.TIMESHEET}/getService`, data);
 };
+
+export const getEmployeeByService = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/getemployee`, data);
+};
+
+export const getTaskByEmployee = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/getTaskList`, data);
+};

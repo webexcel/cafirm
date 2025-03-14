@@ -61,18 +61,25 @@ export const AddTimeSheetField = [
     options: [
       { value: "Low", label: "Low" },
       { value: "Medium", label: "Medium" },
-      { value: "Large", label: "Large" },
+      { value: "Critical", label: "Critical" },
     ],
     required: true,
   },
 ];
-
 
 export const ViewTaskField = [
   {
     name: "client",
     label: "Client",
     placeholder: "Select Client",
+    type: "dropdown",
+    options: [],
+    required: true,
+  },
+  {
+    name: "service",
+    label: "Service",
+    placeholder: "Select Service",
     type: "dropdown",
     options: [],
     required: true,
@@ -85,13 +92,30 @@ export const ViewTaskField = [
     options: [],
     required: true,
   },
-
   {
-    name: "service",
-    label: "Service",
-    placeholder: "Select Service",
+    name: "priority",
+    label: "Priority",
+    placeholder: "Select Priority",
     type: "dropdown",
-    options: [],
+    options: [
+      { value: "ALL", label: "All" },
+      { value: "Low", label: "Low" },
+      { value: "Medium", label: "Medium" },
+      { value: "Critical", label: "Critical" },
+    ],
+    required: true,
+  },
+  {
+    name: "status",
+    label: "Status",
+    placeholder: "Select Status",
+    type: "dropdown",
+    options: [
+      { value: "ALL", label: "All" },
+      { value: "PENDING", label: "Pending" },
+      { value: "INPROCESS", label: "Inprogress" },
+      { value: "COMPLETED", label: "Completed" },
+    ],
     required: true,
   },
 ];
