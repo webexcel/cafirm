@@ -33,7 +33,10 @@ const CustomModalBox = React.memo(({
                                             {label}
                                         </label>
                                         {(() => {
+
                                             switch (type) {
+
+
                                                 case 'dropdown':
                                                     return (
                                                         <Select
@@ -73,7 +76,7 @@ const CustomModalBox = React.memo(({
                                                                     selected={values[name]}
                                                                     onChange={(date) => setFieldValue(name, date)}
                                                                     placeholderText={placeholder}
-                                                                    className="form-control"
+                                                                    className="form-control w-100"
                                                                     disabled={disable}
                                                                 />
                                                             </InputGroup>
@@ -90,7 +93,19 @@ const CustomModalBox = React.memo(({
                                                         />
                                                     );
 
+                                                case "number":
+                                                    return (
+                                                        <Field
+                                                            type="number"
+                                                            name={name}
+                                                            className="form-control"
+                                                            placeholder={placeholder}
+                                                            disabled={disable}
+                                                        />
+                                                    );
+
                                                 default:
+
                                                     return null;
                                             }
                                         })()}
@@ -102,7 +117,7 @@ const CustomModalBox = React.memo(({
                         </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" type="button" onClick={handleClose} data-bs-dismiss="modal">Cancel</Button>
-                            <Button variant="primary" type="submit">Save Task</Button>
+                            <Button variant="primary" type="submit">Save</Button>
                         </Modal.Footer>
                     </FormikForm>
                 )}

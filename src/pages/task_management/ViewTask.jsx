@@ -9,7 +9,7 @@ import CustomForm from "../../components/custom/form/CustomForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import useForm from "../../hooks/useForm";
 import { ViewTaskField } from "../../constants/fields/taskFields";
-import { getViewTasks } from "../../service/task_management/createTaskServices";
+import { deleteTaskData, editTaskData, getViewTasks } from "../../service/task_management/createTaskServices";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
@@ -42,14 +42,10 @@ const ViewTask = () => {
         { header: "Employee", accessor: "assignTo", editable: false },
         { header: "Task", accessor: "task_name", editable: false },
         { header: "Service", accessor: "service_name", editable: true },
-        { header: "Start Date", accessor: "assigned_date", editable: true },
-        { header: "End Date", accessor: "due_date", editable: true },
         { header: "Priority", accessor: "priority", editable: true },
         { header: "Status", accessor: "status_name", editable: true },
         { header: "Actions", accessor: "Actions", editable: false },
     ];
-    // { header: "Date", accessor: "assigned_date", editable: true },
-    // { header: "Date", accessor: "assigned_date", editable: true },
     const [formFields, setFormFields] = useState(ViewTaskField);
 
     const initialFormState = ViewTaskField.reduce((acc, field) => {
@@ -92,18 +88,19 @@ const ViewTask = () => {
                 ...data,
                 due_date: String(data.due_date)?.split('T')[0] || '',
                 assigned_date: String(data?.assigned_date).split('T')[0] || '',
-                assignTo : data.assignTo.map((empdata) => ({value:empdata.emp_id , label:empdata.emp_name}))
+                assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
             }))
             setTableData(addSno)
             setFilteredData(addSno)
+            resetForm()
             console.log("All Task records : ", response)
         }
         catch (error) {
+            setTableData([])
+            setFilteredData([])
             console.log("Error occurs while getting all task : ", error.stack)
         }
     }
-
-
     useEffect(() => {
         fetchViewTaksData("All", "All", "All", "All", "ALL")
     }, [])
@@ -249,8 +246,8 @@ const ViewTask = () => {
         });
         if (result.isConfirmed) {
             try {
-                const payload = { id: updatedData.monitor_id };
-                const response = await deleteEmpRecord(payload);
+                const payload = { id: updatedData.task_id };
+                const response = await deleteTaskData(payload);
                 if (response.data.status) {
                     setFilteredData((prevFilteredData) =>
                         prevFilteredData
@@ -276,7 +273,30 @@ const ViewTask = () => {
 
     const handleAdd = async (e) => {
         e.preventDefault();
-    }
+
+        if (!validateForm()) return;
+
+        try {
+            console.log("Selected form view task:", formData);
+            fetchViewTaksData(
+                formData?.client || '',
+                formData?.service || '',
+                formData?.employee || '',
+                formData?.priority || '',
+                formData?.status || ''
+            ).catch((err) => {
+                Swal.fire("Error", err.response?.data?.message || "Failed to add employee data.", "error");
+            })
+
+        } catch (err) {
+            console.error("Error while get task data:", err.stack);
+            setTableData([])
+            setFilteredData([])
+            Swal.fire("Error", err.response?.data?.message || "Failed to add employee data.", "error");
+        }
+
+    };
+
     const updateEmployeeOptions = async () => {
         const updatedFields = await Promise.all(
             taskFormFileds.map(async (data) => {
@@ -311,14 +331,37 @@ const ViewTask = () => {
             assignedDate: data?.assigned_date || date1,
             targetDate: data?.due_date || '',
             priority: data?.priority || '',
-            status: data?.status_name || ''
+            status: data?.status_name || '',
+            task_id: data?.task_id || ''
         }))
 
         setShowModal(true)
     }
 
-    const handleSubmit = (values) => {
+    const handleSubmit = async (values) => {
         console.log("Submitted values:", values);
+        const emp_ids = values.employee.map((data) => data.value)
+        try {
+            const payload = {
+                "task_id": values?.task_id || '',
+                "task_name": values?.taskName || '',
+                "assignTo": emp_ids || [],
+                "assignDate": values?.assignedDate || '',
+                "dueDate": values?.targetDate || '',
+                "priority": values?.priority || '',
+                "description": '',
+                "status": values?.status || ''
+            }
+            const response = await editTaskData(payload)
+            if (!response.data.status) {
+                return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
+            }
+            Swal.fire("Success", `Task added successfully`, "success");
+        }
+        catch (err) {
+            Swal.fire("Error", err.response?.data?.message || "Failed to edit task data.", "error");
+            console.log("Error occurs edit task data : ", err.stack)
+        }
         setShowModal(false);
     };
 

@@ -22,5 +22,13 @@ export const getTasksByPriority = async () => {
 };
 
 export const getViewTasks = async (data) => {
-  return await endpoint.post(`${mainUrl.SERVICETASK}/getViewTasks`,data);
+  return await endpoint.post(`${mainUrl.SERVICETASK}/getViewTasks`, data);
+};
+
+export const editTaskData = async (data) => {
+  return await endpoint.post(`${mainUrl.SERVICETASK}/editTask`, data);
+};
+
+export const deleteTaskData = async (data) => {
+  return await endpoint.post(`${mainUrl.SERVICETASK}/deleteTask`, data);
 };

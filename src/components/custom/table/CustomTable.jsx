@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } from "react-bootstrap";
-
+import ColumnPopOver from '../popover/ColumnPopOver'
 const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
@@ -65,20 +65,6 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
 
   console.log("table datttaaaaaa", data)
 
-  // {
-  //   Dismissiblealerts.map((idx) => (
-  //     <OverlayTrigger rootClose={true} trigger="click" placement={idx.class} key={Math.random()}
-  //       overlay={<Popover>
-  //         <Popover.Header as="h3"> Dismissible Popover</Popover.Header>
-  //         <Popover.Body>
-  //           And here's some amazing content. It's very engaging. Right?
-  //         </Popover.Body>
-  //       </Popover>}>
-  //       <Button variant={idx.color} className="btn  btn-wave">Popover Dismiss</Button>
-  //     </OverlayTrigger>
-  //   ))
-  // }
-
   return (
     <>
       <div className="table-responsive">
@@ -94,15 +80,10 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
           </thead>
           <tbody>
             {currentData.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {columns.map((col, colIndex) => (
-                  <OverlayTrigger rootClose={true} trigger="click" placement={'top'} key={Math.random()}
-                    overlay={<Popover>
-                      <Popover.Header as="h3"> Dismissible Popover</Popover.Header>
-                      <Popover.Body>
-                        And here's some amazing content. It's very engaging. Right?
-                      </Popover.Body>
-                    </Popover>}>
+              // <ColumnPopOver data={row}>
+                <tr key={rowIndex}>
+                  {columns.map((col, colIndex) => (
+
                     <td key={colIndex} className="px-3">
                       {col.accessor === "Actions" ? (
                         rowIndex === editingIndex ? (
@@ -239,10 +220,11 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
 
                       )}
                     </td>
-                  </OverlayTrigger>
 
-                ))}
-              </tr>
+                  ))}
+
+                </tr>
+              // </ColumnPopOver>
               // String(row[col.accessor][0]?.label || "" )
             ))}
           </tbody>

@@ -6,35 +6,35 @@ export const TaskModalFields = [
     type: "text",
     required: true,
     disable: true,
-    collength : 12
+    collength: 12,
   },
-//   {
-//     name: "client",
-//     label: "Client",
-//     placeholder: "Select Client",
-//     type: "text",
-//     required: true,
-//     disable: true,
-//     collength : 12
-//   },
-//   {
-//     name: "service",
-//     label: "Service",
-//     placeholder: "Select Service",
-//     type: "text",
-//     required: true,
-//     disable: true,
-//     collength : 12
-//   },
+  //   {
+  //     name: "client",
+  //     label: "Client",
+  //     placeholder: "Select Client",
+  //     type: "text",
+  //     required: true,
+  //     disable: true,
+  //     collength : 12
+  //   },
+  //   {
+  //     name: "service",
+  //     label: "Service",
+  //     placeholder: "Select Service",
+  //     type: "text",
+  //     required: true,
+  //     disable: true,
+  //     collength : 12
+  //   },
   {
     name: "employee",
     label: "Employee",
     placeholder: "Select Employee",
     type: "multiSelect",
     options: [],
-    required: true,
+    required: false,
     disable: false,
-    collength : 12
+    collength: 12,
   },
   {
     name: "assignedDate",
@@ -43,7 +43,7 @@ export const TaskModalFields = [
     type: "date",
     required: true,
     disable: false,
-    collength : 6
+    collength: 6,
   },
   {
     name: "targetDate",
@@ -52,7 +52,7 @@ export const TaskModalFields = [
     type: "date",
     required: true,
     disable: false,
-    collength : 6
+    collength: 6,
   },
   {
     name: "priority",
@@ -66,7 +66,7 @@ export const TaskModalFields = [
     ],
     required: true,
     disable: false,
-    collength : 6
+    collength: 6,
   },
   {
     name: "status",
@@ -80,6 +80,65 @@ export const TaskModalFields = [
     ],
     required: true,
     disable: false,
-    collength : 6
+    collength: 6,
+  },
+];
+
+export const  TimesheetModalFields = [
+  {
+    name: "client",
+    label: "Client",
+    placeholder: "Select Client",
+    type: "text",
+    required: true,
+    disable: true,
+    collength: 12,
+  },
+  {
+    name: "service",
+    label: "Service",
+    placeholder: "Select Service",
+    type: "text",
+    required: true,
+    disable: true,
+    collength: 12,
+  },
+  {
+    name: "taskName",
+    label: "Task Name",
+    placeholder: "Select Task",
+    type: "dropdown",
+    options: [],
+    required: false,
+    disable: true,
+    collength: 12,
+  },
+  {
+    name: "employee",
+    label: "Employee",
+    placeholder: "Select Employee",
+    type: "dropdown",
+    options: [],
+    required: false,
+    disable: false,
+    collength: 12,
+  },
+  {
+    name: "date",
+    label: "Date",
+    placeholder: "Select Date",
+    type: "date",
+    required: true,
+    disable: false,
+    collength: 12,
+  },
+  {
+    name: "minutes",
+    label: "Minutes",
+    placeholder: "Enter Minutes",
+    type: "number",
+    required: true,
+    disable: false,
+    collength: 12,
   },
 ];

@@ -58,14 +58,6 @@ export const ViewEmpTimeSheetField = [
 
 export const ViewCliTimeSheetField = [
   {
-    name: "employee",
-    label: "Employee",
-    placeholder: "Select Employee",
-    type: "dropdown",
-    options: [],
-    required: true,
-  },
-  {
     name: "client",
     label: "Client",
     placeholder: "Select Client",
@@ -81,6 +73,15 @@ export const ViewCliTimeSheetField = [
     options: [],
     required: true,
   },
+  {
+    name: "employee",
+    label: "Employee",
+    placeholder: "Select Employee",
+    type: "dropdown",
+    options: [],
+    required: true,
+  },
+
   {
     name: "start_date",
     label: "Date",

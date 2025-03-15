@@ -25,13 +25,13 @@ export const AddEmployeeField = [
   },
 
  
-  {
-    name: "password",
-    label: "Password",
-    placeholder: "Enter Password",
-    type: "text",
-    required: true,
-  },
+  // {
+  //   name: "password",
+  //   label: "Password",
+  //   placeholder: "Enter Password",
+  //   type: "text",
+  //   required: true,
+  // },
 
   {
     name: "phone",

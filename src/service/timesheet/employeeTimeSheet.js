@@ -27,3 +27,19 @@ export const getEmployeeByService = async (data) => {
 export const getTaskByEmployee = async (data) => {
   return await endpoint.post(`${mainUrl.TIMESHEET}/getTaskList`, data);
 };
+
+export const addTimeSheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/addTimesheet`, data);
+};
+
+export const deleteTimeSheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/deleteTimesheet`, data);
+};
+
+export const editTimeSheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/editTimesheet`, data);
+};
+
+export const viewSelectTimeSheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/viewTimesheet`, data);
+};

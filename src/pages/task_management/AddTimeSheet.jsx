@@ -110,27 +110,27 @@ const AddTimeSheet = () => {
   }, []);
 
 
-  const getPriorityBased = async () => {
-    try {
-      const response = await getTasksByPriority()
-      console.log("Priority based task data : ", response)
-      const addSno = response?.data?.data.map((data, index) => ({
-        sno: index + 1,
-        startdate: data?.assigned_date.split('T')[0],
-        enddate: data?.due_date.split('T')[0],
-        assigned_to: data.assigned_to.map((data) => ({ value: data.emp_id, label: data.emp_name })),
-        ...data
 
-      }))
-      setTableData(addSno)
-      setFilteredData(addSno)
-    }
-    catch (error) {
-      console.log("Error Occures while getting tasks by priority : ", error.stack)
-    }
-  }
 
   useEffect(() => {
+    const getPriorityBased = async () => {
+      try {
+        const response = await getTasksByPriority()
+        console.log("Priority based task data : ", response)
+        const addSno = response?.data?.data.map((data, index) => ({
+          ...data,
+          sno: index + 1,
+          startdate: data?.assigned_date.split('T')[0],
+          enddate: data?.due_date.split('T')[0],
+          assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
+        }))
+        setTableData(addSno)
+        setFilteredData(addSno)
+      }
+      catch (error) {
+        console.log("Error Occures while getting tasks by priority : ", error.stack)
+      }
+    }
     getPriorityBased()
   }, [])
 
@@ -189,46 +189,6 @@ const AddTimeSheet = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
-  // Handle delete class teacher
-  // const onDelete = useCallback(async (updatedData, index) => {
-
-  //   console.log("update dataaa", updatedData, formData)
-
-  //   const result = await Swal.fire({
-  //     title: "Are you sure about delete timesheet?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, delete it!",
-  //     cancelButtonText: "No, cancel!",
-  //     reverseButtons: true,
-  //   });
-  //   if (result.isConfirmed) {
-  //     try {
-  //       const payload = { id: updatedData.time_sheet_id };
-  //       const response = await deleteTimesheet(payload);
-  //       if (response.data.status) {
-  //         const newFilteredData = filteredData.filter(
-  //           (item, ind) => ind !== index
-  //         ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-  //         console.log("newFilteredData", newFilteredData)
-  //         setFilteredData(newFilteredData);
-
-  //         const newTableData = tableData.filter(
-  //           (item, ind) => ind !== index
-  //         ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-  //         console.log("newFilteredData", newTableData)
-  //         setTableData(newTableData);
-  //         Swal.fire("Deleted!", response?.data?.message || "Timesheet deleted successfully.", "success");
-  //       }
-  //     } catch (error) {
-  //       Swal.fire("Error", error.response?.data?.message || "Failed to delete timesheet.", "error");
-  //     }
-
-  //   }
-
-  // }, []);
 
 
   return (

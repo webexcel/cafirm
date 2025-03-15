@@ -17,7 +17,7 @@ const CreateEmployee = () => {
   const [tableData, setTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
-  const [filteredData, setFilteredData] = useState(tableData);
+  const [filteredData, setFilteredData] = useState([]);
   const [formFields, setFormFields] = useState(AddEmployeeField);
 
   const columns = [
@@ -109,13 +109,11 @@ const CreateEmployee = () => {
 
   };
 
-  // Handle delete class teacher
   const onDelete = useCallback(async (updatedData, index) => {
-
-    console.log("update dataaa", updatedData, formData)
-
+    console.log("update dataaa", updatedData, formData);
+  
     const result = await Swal.fire({
-      title: "Are you sure about remove employee?",
+      title: "Are you sure about removing the employee?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -123,26 +121,31 @@ const CreateEmployee = () => {
       cancelButtonText: "No, cancel!",
       reverseButtons: true,
     });
+  
     if (result.isConfirmed) {
       try {
-        console.log("update dataa", updatedData)
+        console.log("update dataa", updatedData);
         const payload = { id: updatedData?.employee_id || '' };
         const response = await deleteEmployee(payload);
+        
         if (response.data.status) {
-          const newFilteredData = filteredData
-            .filter((item, ind) => ind !== index)
-            .map((item, ind) => ({ ...item, sno: ind + 1 }));
-          setFilteredData(newFilteredData);
-          setTableData(newFilteredData);
+          // Use functional state update to get the latest state
+          setFilteredData(prevData => {
+            const newFilteredData = prevData
+              .filter((item, ind) => ind !== index)
+              .map((item, ind) => ({ ...item, sno: ind + 1 }));
+            setTableData(newFilteredData);
+            return newFilteredData;
+          });
+  
           Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
       } catch (error) {
         Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
       }
-
     }
-
-  }, []);
+  }, [filteredData]);
+  
 
 
   return (
