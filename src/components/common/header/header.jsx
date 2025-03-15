@@ -4,7 +4,7 @@ import { Button, Card, Dropdown, InputGroup, ListGroup, Modal, Nav, Offcanvas, T
 import { MENUITEMS } from "../sidebar/sidemenu";
 import DatePicker from "react-datepicker";
 import store from "../../../redux/store";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { ThemeChanger } from "../../../redux/action";
 import Cookies from 'js-cookie';
@@ -35,7 +35,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 		const userData = Cookies.get('user');
 		return userData ? JSON.parse(userData) : null;
 	});
-
+	const navigate = useNavigate()
 
 	const [show3, setShow3] = useState(false);
 
@@ -252,9 +252,16 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 	useEffect(() => {
 		if (userdata) {
-		  fetchPermissions(userdata.userId);
+			fetchPermissions(userdata.userId);
 		}
-	  }, [userdata]);
+	}, [userdata]);
+
+	const logout = () => {
+		console.log("logout successfully")
+		localStorage.clear();
+		navigate('/login');
+
+	}
 
 
 	return (
@@ -385,7 +392,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 							<Dropdown.Menu as="ul" className="dropdown-menu  border-0 main-header-dropdown  overflow-hidden header-profile-dropdown" aria-labelledby="mainHeaderProfile">
 								<Dropdown.Item as="li" className="border-0">
 									<Link to="#"><i className="fs-13 me-2 bx bx-user"></i>Profile</Link></Dropdown.Item>
-								<Dropdown.Item as="li" className="border-0">
+								<Dropdown.Item as="li" className="border-0" onClick={() => { logout() }}>
 									<Link to="#">
 										<i className="fs-13 me-2 bx bx-arrow-to-right"></i>Log Out
 									</Link>

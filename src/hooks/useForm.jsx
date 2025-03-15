@@ -43,6 +43,7 @@ const useForm = (initialState, validate) => {
   };
 
   const setFieldValue = (key, value) => {
+    console.log("key value: ",key, value)
     setFormData((prev) => ({
       ...prev,
       [key]: value

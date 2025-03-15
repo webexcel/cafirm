@@ -41,7 +41,7 @@ const AddTimeSheet = () => {
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, AddTimeSheetField)
   );
@@ -109,9 +109,6 @@ const AddTimeSheet = () => {
     fetchFieldOptionData()
   }, []);
 
-
-
-
   useEffect(() => {
     const getPriorityBased = async () => {
       try {
@@ -133,6 +130,22 @@ const AddTimeSheet = () => {
     }
     getPriorityBased()
   }, [])
+
+  useEffect(() => {
+
+    if (formData.client) {
+      const fetchClientOptionData = async () => {
+        const clientresponse = await getClient();
+        const splitedValues = formData.task.split('-')
+        console.log("splitedValues",splitedValues[0])
+        const clientFilter = clientresponse.data.data.forEach((element) => {
+          if (Number(formData.client) === Number(element.client_id)) setFieldValue("task", `${element.display_name}-${formData.task}`)
+        });
+        console.log('formm data', formData, formFields, clientdata)
+      };
+      fetchClientOptionData();
+    }
+  }, [formData.client]);
 
   // Handle add
   const handleAdd = async (e) => {

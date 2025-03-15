@@ -39,66 +39,68 @@ export default function ActivityTracker() {
     setCurrentPage(pageNumber);
   };
 
-    const onDelete = useCallback(async (updatedData, index) => {
-  
-      console.log("update dataaa", updatedData, formData)
-  
-      const result = await Swal.fire({
-        title: "Are you sure about remove employee?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "No, cancel!",
-        reverseButtons: true,
-      });
-      if (result.isConfirmed) {
-        try {
-          console.log("update dataa", updatedData)
-          const payload = { id: updatedData?.employee_id || '' };
-          const response = await deleteEmployee(payload);
-          if (response.data.status) {
-            const newFilteredData = filteredData
-              .filter((item, ind) => ind !== index)
-              .map((item, ind) => ({ ...item, sno: ind + 1 }));
-            setFilteredData(newFilteredData);
-            setTableData(newFilteredData);
-            Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
-          }
-        } catch (error) {
-          Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
+  const onDelete = useCallback(async (updatedData, index) => {
+
+    console.log("update dataaa", updatedData, formData)
+
+    const result = await Swal.fire({
+      title: "Are you sure about remove employee?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true,
+    });
+    if (result.isConfirmed) {
+      try {
+        console.log("update dataa", updatedData)
+        const payload = { id: updatedData?.employee_id || '' };
+        const response = await deleteEmployee(payload);
+        if (response.data.status) {
+          const newFilteredData = filteredData
+            .filter((item, ind) => ind !== index)
+            .map((item, ind) => ({ ...item, sno: ind + 1 }));
+          setFilteredData(newFilteredData);
+          setTableData(newFilteredData);
+          Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
-  
+      } catch (error) {
+        Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
       }
-  
-    }, []);
+
+    }
+
+  }, []);
 
   return (
 
     <Fragment>
       <Row>
+
         <Col xl={12}>
           <div className="d-flex justify-content-center align-items-centermt-5">
+
             <div className="card shadow-lg border-0 rounded-3 p-3 d-flex flex-row w-100 justify-content-center align-items-center gap-4">
-            <div className="d-flex align-items-center justify-content-center gap-3">
-              <i className="bi bi-stopwatch-fill display-6 text-primary"></i>
-              <h1 className="display-5 fw-bold text-dark m-0">{formatTime(time)}</h1>
-            </div>
+              <div className="d-flex align-items-center justify-content-center gap-3">
+                <i className="bi bi-stopwatch-fill display-6 text-primary"></i>
+                <h1 className="display-5 fw-bold text-dark m-0">{formatTime(time)}</h1>
+              </div>
               <div className="d-flex gap-3">
                 {
                   isRunning === true ? (
                     <button
-                      className="btn btn-danger d-flex align-items-center"
+                      className="btn btn-danger d-flex align-items-center gap-2"
                       onClick={() => setIsRunning(false)}
                     >
-                      <i className="bi bi-pause-fill fs-15"></i>
+                      <span>Login</span><i className="bi bi-pause-fill fs-15"></i>
                     </button>
                   ) : (
                     <button
-                      className="btn btn-success d-flex align-items-center"
+                      className="btn btn-success d-flex align-items-center gap-2"
                       onClick={() => setIsRunning(true)}
                     >
-                      <i className="bi bi-play-fill fs-15"></i>
+                       <span>Login</span> <i className="bi bi-play-fill fs-15"></i>
                     </button>
                   )
                 }

@@ -29491,6 +29491,9 @@ code[class*=language-] {
   justify-content: center;
   /* backdrop-filter: blur(5px); */
 }
+.css-13cymwt-control {
+  min-height: 34px !important;
+}
 
 @media (min-width: 1000px) {
   /* Styles for xxl and larger screens */

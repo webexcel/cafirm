@@ -3,7 +3,6 @@ import React, { Fragment, useCallback, useState, useEffect, Suspense } from "rea
 import { Button, Card, Col, Row } from "react-bootstrap";
 import Swal from "sweetalert2";
 import Loader from "../../components/common/loader/loader";
-import { deleteEmpRecord } from "../../service/task_management/empMonitor";
 import Search from "../../components/common/search/Search";
 import CustomForm from "../../components/custom/form/CustomForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
@@ -331,7 +330,7 @@ const ViewTask = () => {
             assignedDate: data?.assigned_date || date1,
             targetDate: data?.due_date || '',
             priority: data?.priority || '',
-            status: data?.status_name || '',
+            status: Number(data.status) || '',
             task_id: data?.task_id || ''
         }))
 

@@ -5,7 +5,7 @@ export const TaskModalFields = [
     placeholder: "Enter Task Name",
     type: "text",
     required: true,
-    disable: true,
+    disable: false,
     collength: 12,
   },
   //   {
@@ -74,9 +74,9 @@ export const TaskModalFields = [
     placeholder: "Select Status",
     type: "dropdown",
     options: [
-      { value: "Pending", label: "Pending" },
-      { value: "InProgress", label: "InProgress" },
-      { value: "Completed", label: "Completed" },
+      { value: 0, label: "Pending" },
+      { value: 2, label: "InProgress" },
+      { value: 3, label: "Completed" },
     ],
     required: true,
     disable: false,
@@ -84,7 +84,7 @@ export const TaskModalFields = [
   },
 ];
 
-export const  TimesheetModalFields = [
+export const TimesheetModalFields = [
   {
     name: "client",
     label: "Client",

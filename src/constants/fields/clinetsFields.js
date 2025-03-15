@@ -2,7 +2,15 @@ export const AddClientsField = [
   {
     name: "name",
     label: "Name",
-    placeholder: "Enter Name",
+    placeholder: "Enter Full Name",
+    type: "text",
+    required: true,
+  },
+
+  {
+    name: "displayname",
+    label: "Display Name",
+    placeholder: "Enter Display Name",
     type: "text",
     required: true,
   },

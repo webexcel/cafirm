@@ -16,6 +16,9 @@ export const MENUITEMS = [
 	{ path: `${import.meta.env.BASE_URL}dashboard`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Dashboard" },
 
 
+	// Dashboard 
+	{ path: `${import.meta.env.BASE_URL}calender`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Calender" },
+
 
 	//Configuration	
 	// {

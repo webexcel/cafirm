@@ -1,5 +1,12 @@
 export const AddTimeSheetField = [
   {
+    name: "task",
+    label: "Task",
+    placeholder: "Enter Task",
+    type: "text",
+    required: true,
+  },
+  {
     name: "client",
     label: "Client",
     placeholder: "Select Client",
@@ -16,13 +23,7 @@ export const AddTimeSheetField = [
     options: [],
     required: true,
   },
-  {
-    name: "task",
-    label: "Task",
-    placeholder: "Enter Task",
-    type: "text",
-    required: true,
-  },
+
   {
     name: "employee",
     label: "Employee",
@@ -112,9 +113,9 @@ export const ViewTaskField = [
     type: "dropdown",
     options: [
       { value: "ALL", label: "All" },
-      { value: "PENDING", label: "Pending" },
-      { value: "INPROCESS", label: "Inprogress" },
-      { value: "COMPLETED", label: "Completed" },
+      { value: 0, label: "Pending" },
+      { value: 1, label: "Inprogress" },
+      { value: 2, label: "Completed" },
     ],
     required: true,
   },

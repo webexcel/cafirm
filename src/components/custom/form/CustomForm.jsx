@@ -89,6 +89,31 @@ const CustomForm = ({
             ))}
           </Form.Select>
         );
+
+      case "searchable_dropdown":
+        return (
+          <Select
+            name={field.name}
+            value={field.options.find(option => option.value === formData[field.name]) || null}
+            onChange={(selectedOption) =>
+              onChange({ target: { name: field.name, value: selectedOption?.value || "" } }, field.name)
+            }
+            options={field.options}
+            isSearchable
+            placeholder={`Select ${field.label}`}
+            styles={{
+              control: (provided, state) => ({
+                ...provided,
+                width: '100%',
+                borderColor: state.isFocused ? 'transparent' : provided.borderColor,
+                '&:hover': {
+                  borderColor: provided.borderColor
+                }
+              })
+            }}
+          />
+        );
+
       case "textarea":
         return (
           <Form.Control

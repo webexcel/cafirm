@@ -43,7 +43,7 @@ const ViewEditProfileEmp = () => {
     { key: "role", label: "Employee Role" },
     { key: "employee_id", label: "Employee ID" },
     { key: "email", label: "Email" },
-    { key: "password", label: "Password" },
+    // { key: "password", label: "Password" },
     { key: "phone", label: "Contact" },
     { key: "photo", label: "photo" },
   ];
@@ -63,7 +63,8 @@ const ViewEditProfileEmp = () => {
         employee_id: userData?.employee_id,
         name: userData?.name,
         phone: userData?.phone,
-        role: userData?.role
+        role: userData?.role,
+        photo: userData?.photo
       }))
       console.log("Response : ", response)
     }
