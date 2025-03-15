@@ -56,7 +56,7 @@ const ClientTimeSheet = () => {
     { header: "Emp Name", accessor: "employee_name", editable: false },
     { header: "Client Name", accessor: "client_name", editable: false },
     { header: "Service", accessor: "service_name", editable: true },
-    { header: "Task", accessor: "service", editable: true },
+    { header: "Task", accessor: "task_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Mins", accessor: "total_minutes", editable: true },
     // { header: "Description", accessor: "descripition", editable: true },

@@ -197,6 +197,34 @@ const CustomForm = ({
           </div>
 
         );
+
+      case "daterange":
+        return (
+          <div
+            style={{ position: "relative", display: "inline-block", width: '100%' }}
+          >
+            <DatePicker
+              selectsRange
+              onChange={(date) => handleDateChange(date, field.name)}
+              isClearable
+              dateFormat="yyyy/MM/dd"
+              placeholderText="Select date range"
+              className="form-control"
+              isInvalid={formData[field.name] || ""}
+            />
+            <FaCalendarAlt
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+                color: "#6c757d",
+              }}
+            />
+          </div>
+
+        );
       case "email":
         return (
           <Form.Control

@@ -2,16 +2,17 @@ import { useState, useEffect, Fragment, Suspense, useCallback } from "react";
 import { Row, Col, Card, Button, Form } from "react-bootstrap";
 import Loader from "../../components/common/loader/loader";
 import CustomTable from "../../components/custom/table/CustomTable";
+import{activityTrackersample} from '../../../sampledata.json'
 export default function ActivityTracker() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const columns = [
-    { header: "Sno", accessor: "employee_id", editable: false },
-    { header: "Start Time", accessor: "name", editable: false },
-    { header: "End Time", accessor: "name", editable: false },
-    { header: "Actions", accessor: "Actions", editable: false },
+    { header: "Sno", accessor: "sno", editable: false },
+    { header: "Start Time", accessor: "start_date", editable: false },
+    { header: "End Time", accessor: "end_time", editable: false },
+    { header: "Minutes", accessor: "minutes", editable: false },
   ];
-  const [filteredData, setFilteredData] = useState([]);
+  const [filteredData, setFilteredData] = useState(activityTrackersample);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
 
@@ -61,8 +62,8 @@ export default function ActivityTracker() {
           const newFilteredData = filteredData
             .filter((item, ind) => ind !== index)
             .map((item, ind) => ({ ...item, sno: ind + 1 }));
-          setFilteredData(newFilteredData);
-          setTableData(newFilteredData);
+          // setFilteredData(newFilteredData);
+          // setTableData(newFilteredData);
           Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
       } catch (error) {

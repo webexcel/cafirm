@@ -113,9 +113,9 @@ export const ViewTaskField = [
     type: "dropdown",
     options: [
       { value: "ALL", label: "All" },
-      { value: 0, label: "Pending" },
-      { value: 1, label: "Inprogress" },
-      { value: 2, label: "Completed" },
+      { value: "0", label: "Pending" },
+      { value: "1", label: "Inprogress" },
+      { value: "2", label: "Completed" },
     ],
     required: true,
   },

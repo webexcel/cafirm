@@ -25,8 +25,9 @@ const AddTimeSheet = () => {
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
-    { header: "Client Name", accessor: "client_name", editable: false },
-    { header: "Service", accessor: "service_name", editable: true },
+    { header: "Task Name", accessor: "task_name", editable: false },
+    // { header: "Client Name", accessor: "client_name", editable: false },
+    // { header: "Service", accessor: "service_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Mins", accessor: "total_minutes", editable: true },
     // { header: "Actions", accessor: "Actions", editable: false },
@@ -196,13 +197,14 @@ const AddTimeSheet = () => {
         console.log("Selected form:", formData);
         const payload = {
           "emp_id": formData?.employee || '',
-          "clientId": formData?.client || '',
-          "serviceId": formData?.service || '',
+          // "clientId": formData?.client || '',
+          // "serviceId": formData?.service || '',
           "task_id": formData?.task || '',
           "date": formData?.date || '',
           "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)
         }
         const response = await addTimeSheet(payload);
+        getTimeSheetData()
         if (!response.data.status) {
           return Swal.fire("Error", response.data.message || "Failed to get employee timesheet.", "error");
         }

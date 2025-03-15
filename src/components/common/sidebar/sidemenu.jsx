@@ -99,6 +99,7 @@ export const MENUITEMS = [
 		title: "Attendance", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 			{ path: `${import.meta.env.BASE_URL}activityTracker`, type: "link", active: false, selected: false, dirchange: false, title: "Activity Tracker" },
+			{ path: `${import.meta.env.BASE_URL}workTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Work Timesheet" },
 		],
 	},
 ];

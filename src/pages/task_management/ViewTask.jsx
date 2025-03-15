@@ -330,7 +330,7 @@ const ViewTask = () => {
             assignedDate: data?.assigned_date || date1,
             targetDate: data?.due_date || '',
             priority: data?.priority || '',
-            status: Number(data.status) || '',
+            status: data.status || '',
             task_id: data?.task_id || ''
         }))
 
