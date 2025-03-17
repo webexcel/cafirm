@@ -23,6 +23,7 @@ const CreateService = () => {
     const columns = [
         { header: "S.No", accessor: "sno", editable: false },
         { header: "Service", accessor: "service_name", editable: true },
+        { header: "Short Name", accessor: "short_name", editable: true },
         { header: "Actions", accessor: "Actions", editable: false },
     ];
 

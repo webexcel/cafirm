@@ -76,7 +76,7 @@ const Dashboard = () => {
       <Row>
 
         <Col className="card-background flex-fill dashboard-card-val">
-          <CustomCard title={'TOTAL STUDENT'}
+          <CustomCard title={'TOTAL CLIENTS'}
             field1={`Boys : ${metrics.boy_count}`}
             field2={`Girls : ${metrics.girl_count}`}
             icon={'bi bi-people-fill dashboard-card-val'}
@@ -84,14 +84,14 @@ const Dashboard = () => {
         </Col>
 
         <Col className="card-background flex-fill dashboard-card-val">
-          <CustomCard title={'TOTAL FEES'}
+          <CustomCard title={'TOTAL EMPLOYEES'}
             field1={`COL : ${'0'}`}
             field2={`BAL : ${'0'}`}
             icon={'bi bi-credit-card'}
             value={'0'} />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
-          <CustomCard title={'MOBILE APP'}
+          <CustomCard title={'TODAYS TASK'}
             field1={`INSTALL : ${metrics.INSTALL}`}
             field2={`BAL: ${''}`}
             icon={'bi bi-phone'}

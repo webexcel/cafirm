@@ -92,6 +92,7 @@ export const AddClientsField = [
     placeholder: "Enter GSTIN",
     type: "text",
     required: true,
+    maxLength: 15
   },
 
   {
@@ -100,6 +101,7 @@ export const AddClientsField = [
     placeholder: "Enter Pan Number",
     type: "text",
     required: true,
+    maxLength: 10
   },
 
   {
@@ -108,6 +110,7 @@ export const AddClientsField = [
     placeholder: "Enter Tan Number",
     type: "text",
     required: true,
+    maxLength: 10
   },
 ];
 

@@ -1,12 +1,5 @@
 export const AddTimeSheetField = [
   {
-    name: "task",
-    label: "Task",
-    placeholder: "Enter Task",
-    type: "text",
-    required: true,
-  },
-  {
     name: "client",
     label: "Client",
     placeholder: "Select Client",
@@ -21,6 +14,14 @@ export const AddTimeSheetField = [
     placeholder: "Select Service",
     type: "dropdown",
     options: [],
+    required: true,
+  },
+
+  {
+    name: "task",
+    label: "Task",
+    placeholder: "Enter Task",
+    type: "text",
     required: true,
   },
 

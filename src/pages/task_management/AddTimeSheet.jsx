@@ -27,11 +27,9 @@ const AddTimeSheet = () => {
     // { header: "Client", accessor: "client_name", editable: false },
     { header: "Employee", accessor: "assigned_to", editable: false },
     { header: "Service", accessor: "service_name", editable: true },
-    { header: "Start Date", accessor: "startdate", editable: true },
-    { header: "End Date", accessor: "enddate", editable: true },
-    { header: "Description", accessor: "description", editable: true },
+    { header: "Total Minutes", accessor: "total_minutes", editable: true },
+    { header: "Status", accessor: "status_name", editable: true },
     { header: "Priority", accessor: "priority", editable: true },
-    // { header: "Actions", accessor: "Actions", editable: false },
   ];
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
@@ -132,20 +130,63 @@ const AddTimeSheet = () => {
   }, [])
 
   useEffect(() => {
-
     if (formData.client) {
+      formData.task = ""
+      setFieldValue("service", "");
       const fetchClientOptionData = async () => {
-        const clientresponse = await getClient();
-        const splitedValues = formData.task.split('-')
-        console.log("splitedValues",splitedValues[0])
-        const clientFilter = clientresponse.data.data.forEach((element) => {
-          if (Number(formData.client) === Number(element.client_id)) setFieldValue("task", `${element.display_name}-${formData.task}`)
-        });
-        console.log('formm data', formData, formFields, clientdata)
+        try {
+          const clientresponse = await getClient();
+
+          const client = clientresponse.data.data.find(
+            (element) => Number(formData.client) === Number(element.client_id)
+          );
+
+          if (client) {
+            setFieldValue("task", `${client.display_name}-${formData.task}`);
+          }
+
+          console.log("form data:", formData, formFields, clientdata);
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+        }
       };
+
       fetchClientOptionData();
     }
   }, [formData.client]);
+
+
+  useEffect(() => {
+    if (formData.service) {
+            
+      const fetchClientOptionData = async () => {
+        try {
+          const serviceresponse = await getService()
+
+          const service = serviceresponse.data.data.find(
+            (element) => Number(formData.service) === Number(element.service_id)
+          );
+
+          if (service) {
+            const taskValidation = formData.task.split("-")
+            if(taskValidation.length > 1){
+              const taskval = taskValidation[0]
+              setFieldValue("task", `${taskval}-${service.service_name}`);
+              console.log("taskval",taskval,"taskValidation",taskValidation)
+              return;
+            }
+            setFieldValue("task", `${formData.task}${service.service_name}`);
+          }
+
+          console.log("form data:", formData, formFields, clientdata);
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+        }
+      };
+
+      fetchClientOptionData();
+    }
+  }, [formData.service]);
 
   // Handle add
   const handleAdd = async (e) => {
@@ -163,7 +204,7 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, date, start_time, end_time, employee, priority, task } = formData;
+        const { client, service, description, employee, priority, task } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
         const empIds = employee.map((data) => data.value)

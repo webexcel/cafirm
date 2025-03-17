@@ -2,20 +2,17 @@ import { useState, useEffect, Fragment, Suspense, useCallback } from "react";
 import { Row, Col, Card, Button, Form } from "react-bootstrap";
 import Loader from "../../components/common/loader/loader";
 import CustomTable from "../../components/custom/table/CustomTable";
-import{activityTrackersample} from '../../../sampledata.json'
+import { activityTrackersample } from "../../../sampledata.json";
+import DatePicker from "react-datepicker";
+import { FaCalendarAlt } from "react-icons/fa";
+
 export default function ActivityTracker() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const columns = [
-    { header: "Sno", accessor: "sno", editable: false },
-    { header: "Start Time", accessor: "start_date", editable: false },
-    { header: "End Time", accessor: "end_time", editable: false },
-    { header: "Minutes", accessor: "minutes", editable: false },
-  ];
+  const [formData, setFormData] = useState("");
   const [filteredData, setFilteredData] = useState(activityTrackersample);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
-
 
   useEffect(() => {
     let timer;
@@ -27,13 +24,17 @@ export default function ActivityTracker() {
     return () => clearInterval(timer);
   }, [isRunning]);
 
-  // Convert total seconds into HH:MM:SS format
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert(`Submitted: ${formData}`);
+    setFormData("");
   };
 
   const handlePageChange = (pageNumber) => {
@@ -41,11 +42,10 @@ export default function ActivityTracker() {
   };
 
   const onDelete = useCallback(async (updatedData, index) => {
-
-    console.log("update dataaa", updatedData, formData)
+    console.log("update dataaa", updatedData);
 
     const result = await Swal.fire({
-      title: "Are you sure about remove employee?",
+      title: "Are you sure about removing this employee?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -53,70 +53,86 @@ export default function ActivityTracker() {
       cancelButtonText: "No, cancel!",
       reverseButtons: true,
     });
+
     if (result.isConfirmed) {
       try {
-        console.log("update dataa", updatedData)
-        const payload = { id: updatedData?.employee_id || '' };
+        console.log("update dataa", updatedData);
+        const payload = { id: updatedData?.employee_id || "" };
         const response = await deleteEmployee(payload);
         if (response.data.status) {
           const newFilteredData = filteredData
             .filter((item, ind) => ind !== index)
             .map((item, ind) => ({ ...item, sno: ind + 1 }));
-          // setFilteredData(newFilteredData);
-          // setTableData(newFilteredData);
+
           Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
       } catch (error) {
         Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
       }
-
     }
-
   }, []);
 
   return (
-
     <Fragment>
       <Row>
-
         <Col xl={12}>
-          <div className="d-flex justify-content-center align-items-centermt-5">
-
-            <div className="card shadow-lg border-0 rounded-3 p-3 d-flex flex-row w-100 justify-content-center align-items-center gap-4">
-              <div className="d-flex align-items-center justify-content-center gap-3">
+          <div className="card shadow-md border-0 rounded-3 py-3 px-3 d-flex flex-row justify-content-between align-items-center">
+            {/* Left Side: Timer & Button */}
+            <div className="d-flex align-items-center gap-3">
+              <div className="d-flex align-items-center gap-3">
                 <i className="bi bi-stopwatch-fill display-6 text-primary"></i>
                 <h1 className="display-5 fw-bold text-dark m-0">{formatTime(time)}</h1>
               </div>
-              <div className="d-flex gap-3">
-                {
-                  isRunning === true ? (
-                    <button
-                      className="btn btn-danger d-flex align-items-center gap-2"
-                      onClick={() => setIsRunning(false)}
-                    >
-                      <span>Login</span><i className="bi bi-pause-fill fs-15"></i>
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-success d-flex align-items-center gap-2"
-                      onClick={() => setIsRunning(true)}
-                    >
-                       <span>Login</span> <i className="bi bi-play-fill fs-15"></i>
-                    </button>
-                  )
-                }
+              <Button
+                variant={isRunning ? "danger" : "success"}
+                className="d-flex align-items-center gap-2 btn btn-sm px-3 py-1"
+                onClick={() => setIsRunning(!isRunning)}
+              >
+                <span>{isRunning ? "Logout" : "Login"}</span>
+                <i className={`bi ${isRunning ? "bi-pause-fill" : "bi-play-fill"} fs-5`}></i>
+              </Button>
+            </div>
 
-              </div>
+            <div>
+              <Form onSubmit={handleSubmit} className="d-flex gap-3">
+              <div
+            style={{ position: "relative", display: "inline-block", width: '100%' }}
+          >
+            <DatePicker
+              selected={ new Date()}
+              // onChange={(date) => handleDateChange(date, field.name)}
+              // placeholderText={field.placeholder}
+              className="form-control"
+              // isInvalid={formData[field.name] || ""}
+            />
+            <FaCalendarAlt
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+                color: "#6c757d",
+              }}
+            />
+          </div>
+                <Button type="submit" className="btn btn-sm px-4" variant="primary">Submit</Button>
+              </Form>
             </div>
           </div>
         </Col>
       </Row>
 
-      <Card className="custom-card p-3">
+      <Card className="custom-card p-3 mt-4">
         <Card.Body className="overflow-auto">
           <Suspense fallback={<Loader />}>
             <CustomTable
-              columns={columns}
+              columns={[
+                { header: "Sno", accessor: "sno", editable: false },
+                { header: "Start Time", accessor: "start_time", editable: false },
+                { header: "End Time", accessor: "end_time", editable: false },
+                { header: "Minutes", accessor: "minutes", editable: false },
+              ]}
               data={filteredData}
               currentPage={currentPage}
               recordsPerPage={recordsPerPage}
@@ -128,6 +144,5 @@ export default function ActivityTracker() {
         </Card.Body>
       </Card>
     </Fragment>
-
   );
 }
