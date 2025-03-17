@@ -1,40 +1,45 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Form } from "react-bootstrap";
 import { convertToBase64 } from "../../utils/generalUtils";
 
-const ImageSelector = React.memo(({ onImageSelect }) => {
+const ImageSelector = ({ onImageSelect }) => {
+  const fileInputRef = useRef(null);
+  const [error, setError] = useState("");
+
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
-    
+
     if (file) {
-      // Validate the file size (e.g., 2MB limit)
-      const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-      if (file.size > maxSize) {
-        alert("File size exceeds the 2MB limit. Please upload a smaller image.");
-        
-        // Clear the file input if the size is too large
-        event.target.value = null;
-        return;
-      }
-
-      // Validate the file type (JPEG, PNG, GIF)
+      const maxSize = 2 * 1024 * 1024; // 2MB limit
       const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!validImageTypes.includes(file.type)) {
-        alert("Please upload a valid image file (JPEG, PNG, GIF).");
 
-        // Clear the file input if the type is not valid
-        event.target.value = null;
+      if (file.size > maxSize) {
+        setError("File size exceeds the 2MB limit. Please upload a smaller image.");
+        resetFileInput();
         return;
       }
 
-      // Convert image to Base64
-      const base64 = await convertToBase64(file);
+      if (!validImageTypes.includes(file.type)) {
+        setError("Invalid file type. Please upload a JPEG, PNG, or GIF.");
+        resetFileInput();
+        return;
+      }
 
-      // Pass the Base64 string to the parent component
-      if (onImageSelect) {
-        onImageSelect(base64);
+      try {
+        const base64 = await convertToBase64(file);
+        if (onImageSelect) onImageSelect(base64);
+        setError("");
+      } catch (err) {
+        setError("Failed to process the image. Please try again.");
+        console.error("Image conversion error:", err);
+        resetFileInput();
       }
     }
+  };
+
+  const resetFileInput = () => {
+    // Reset using ref instead of direct DOM manipulation
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -45,10 +50,12 @@ const ImageSelector = React.memo(({ onImageSelect }) => {
           type="file"
           accept="image/*"
           onChange={handleImageChange}
+          ref={fileInputRef}
         />
+        {error && <div className="text-danger mt-1">{error}</div>}
       </Form.Group>
     </Form>
   );
-});
+};
 
 export default ImageSelector;

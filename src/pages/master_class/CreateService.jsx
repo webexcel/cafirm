@@ -23,7 +23,7 @@ const CreateService = () => {
     const columns = [
         { header: "S.No", accessor: "sno", editable: false },
         { header: "Service", accessor: "service_name", editable: true },
-        { header: "Short Name", accessor: "short_name", editable: true },
+        { header: "Short Name", accessor: "service_short_name", editable: true },
         { header: "Actions", accessor: "Actions", editable: false },
     ];
 
@@ -79,9 +79,10 @@ const CreateService = () => {
         if (result.isConfirmed) {
             try {
                 console.log("Selected form:", formData);
-                const { service } = formData;
+                const { service,service_short_name } = formData;
                 const payload = {
                     service_name: service,
+                    short_name: service_short_name
                 }
                 const response = await addService(payload);
                 if (!response.data.status) {

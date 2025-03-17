@@ -12,4 +12,6 @@ export default Object.freeze({
   SERVICE :'services',
   EMPMONITOR :'empMonitor',
   PERMISSIONS : 'permissions',
+  ATTENDANCE : 'attendance',
+  DASHBOARD : 'dashboard',
 });

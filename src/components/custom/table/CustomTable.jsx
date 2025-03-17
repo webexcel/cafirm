@@ -217,11 +217,17 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                           ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
                           : String(row[col.accessor] || "").trim().toLowerCase() === "pending"
                             ? (<span className="badge bg-danger">{row[col.accessor]}</span>)
-                            : String(row[col.accessor] || "").toLowerCase() === "In-progress"
+                            : String(row[col.accessor] || "").trim().toLowerCase() === "in-progress"
                               ? (<span className="badge bg-warning">{row[col.accessor]}</span>)
                               : String(row[col.accessor] || "").trim().toLowerCase() === "completed"
-                              ? (<span className="badge bg-success">{row[col.accessor]}</span>) : 
-                              row[col.accessor]}
+                                ? (<span className="badge bg-success">{row[col.accessor]}</span>)
+                                : String(row[col.accessor] || "").trim().toLowerCase() === "critical"
+                                  ? (<span className="badge bg-danger">{row[col.accessor]}</span>)
+                                  : String(row[col.accessor] || "").trim().toLowerCase() === "low"
+                                    ? (<span className="badge bg-info">{row[col.accessor]}</span>)
+                                    : String(row[col.accessor] || "").trim().toLowerCase() === "medium"
+                                      ? (<span className="badge bg-warning">{row[col.accessor]}</span>)
+                                      : row[col.accessor]}
                       </span>
 
                     )}

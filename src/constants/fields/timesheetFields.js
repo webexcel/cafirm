@@ -1,20 +1,4 @@
 export const ViewEmpTimeSheetField = [
-  // {
-  //   name: "client",
-  //   label: "Client",
-  //   placeholder: "Select Client",
-  //   type: "dropdown",
-  //   options: [],
-  //   required: true,
-  // },
-  // {
-  //   name: "service",
-  //   label: "Service",
-  //   placeholder: "Select Service",
-  //   type: "dropdown",
-  //   options: [],
-  //   required: true,
-  // },
   {
     name: "employee",
     label: "Employee",
@@ -22,6 +6,7 @@ export const ViewEmpTimeSheetField = [
     type: "dropdown",
     options: [],
     required: true,
+    disabled: true,
   },
   {
     name: "task",

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import Select from "react-select";
 import CustomMultiPanelSelect from "../panel/CustomMultiPanelSelect";
@@ -19,8 +19,14 @@ const CustomForm = ({
   customOnClick,
   btnText
 }) => {
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
   const handleDateChange = (date, name) => {
-    // Store the date as a string in ISO format (YYYY-MM-DD)
+    if (String(name) === "dates") {
+      setDateRange(date)
+      onChange({ target: { name, value: date ? date : "" } }, name);
+      return;
+    }
     onChange({ target: { name, value: date ? date.toISOString().split("T")[0] : "" } }, name);
   };
 
@@ -78,7 +84,9 @@ const CustomForm = ({
             value={formData[field.name] || ""}
             onChange={(e) => onChange(e, field.name)}
             isInvalid={!!errors[field.name]}
-            style={{ width: "100%" }}>
+            style={{ width: "100%" }}
+            disabled={field?.disabled && field.disabled}
+          >
             {
               field.name == "staffperiodtype" ? null : <option value={""}>Select {field.label}</option>
             }
@@ -205,6 +213,8 @@ const CustomForm = ({
           >
             <DatePicker
               selectsRange
+              startDate={startDate}
+              endDate={endDate}
               onChange={(date) => handleDateChange(date, field.name)}
               isClearable
               dateFormat="yyyy/MM/dd"
@@ -212,7 +222,7 @@ const CustomForm = ({
               className="form-control"
               isInvalid={formData[field.name] || ""}
             />
-            <FaCalendarAlt
+            {/* <FaCalendarAlt
               style={{
                 position: "absolute",
                 right: "10px",
@@ -221,7 +231,7 @@ const CustomForm = ({
                 pointerEvents: "none",
                 color: "#6c757d",
               }}
-            />
+            /> */}
           </div>
 
         );

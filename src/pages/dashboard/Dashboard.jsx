@@ -7,7 +7,8 @@ import CustomCard from '../../components/custom/card/Card'
 import { Cardsdata, Monthlyprofit, Salesstatistics, Salesvalue } from "./dashboarddata";
 import demoimg from '../../assets/images/faces/1.jpg'
 import useDocumentTitle from "../../hooks/useDocumentTitle";
-
+import DashboardCard from './DashboardCard'
+import { getDashboard } from "../../service/dashboardServices";
 
 
 const Dashboard = () => {
@@ -19,14 +20,13 @@ const Dashboard = () => {
 
   // State to store various metrics fetched from the dashboard API
   const [metrics, setMetrics] = useState({
-    Stu_count: 0,
-    boy_count: 50,
-    girl_count: 10,
-    INSTALL: 0,
-    NOTINSTALL: 0,
-    EXPEN: 0,
-    OTHER: 0,
-    DATE: "N/A"
+    employee_count: 0,
+    client_count: 0,
+    service_count: 0,
+    task_pending: 0,
+    task_inprogress: 0,
+    task_completed: 0,
+    today_attendance: 0,
   });
 
   // States for managing flash and circular messages
@@ -35,39 +35,32 @@ const Dashboard = () => {
   const [circularmessage, setCircularmessage] = useState([]);
 
   // Function to fetch dashboard metrics
-  // const getDashboardService = useCallback(async () => {
-  // 	try {
-  // 		const get_year = await getYear(); // Fetch current year details
-  // 		const payload = { yearid: get_year.YearId }; // Prepare payload with year ID
-  // 		console.log('Year ID:', payload);
+  const getDashboardService = async () => {
+    try {
 
-  // 		const response = await getDashboard(payload); // Fetch dashboard data
-  // 		console.log('Dashboard Response:', response.data.data.metrics[0]);
+      const response = await getDashboard();
+      if (response.data.status) {
+        const metricsData = response.data.data;
+        console.log("metricsData",metricsData)
+        setMetrics((prev) => ({
+          ...prev,
+          "client_count": metricsData.client_count,
+          "employee_count": metricsData.employee_count,
+          "service_count": metricsData.service_count,
+          "task_pending": metricsData.task_pending,
+          "task_inprogress": metricsData.task_inprogress,
+          "task_completed": metricsData.task_completed,
+          "today_attendance": metricsData.today_attendance
+        }))
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    }
+  }
 
-  // 		if (response.data.status) {
-  // 			// Update metrics state with the fetched data
-  // 			const metricsData = response.data.data.metrics[0];
-  // 			setMetrics({
-  // 				Stu_count: metricsData.Stu_count || 0,
-  // 				boy_count: metricsData.boy_count || 0,
-  // 				girl_count: metricsData.girl_count || 0,
-  // 				INSTALL: metricsData.INSTALL || 0,
-  // 				NOTINSTALL: metricsData.NOTINSTALL || 0,
-  // 				EXPEN: metricsData.EXPEN || 0,
-  // 				OTHER: metricsData.OTHER || 0,
-  // 				DATE: metricsData.DATE || "N/A"
-  // 			});
-  // 		}
-  // 	} catch (error) {
-  // 		console.error("Failed to fetch dashboard data:", error);
-  // 	}
-  // }, []);
-
-  // Effect hook to trigger dashboard service on year ID change
-  // useEffect(() => {
-  // 	getDashboardService();
-  // 	console.log('Redux Year ID:', yearId);
-  // }, [yearId]);
+  useEffect(() => {
+    getDashboardService()
+  }, [])
 
 
   return (
@@ -76,39 +69,45 @@ const Dashboard = () => {
       <Row>
 
         <Col className="card-background flex-fill dashboard-card-val">
-          <CustomCard title={'TOTAL CLIENTS'}
-            field1={`Boys : ${metrics.boy_count}`}
-            field2={`Girls : ${metrics.girl_count}`}
-            icon={'bi bi-people-fill dashboard-card-val'}
-            value={metrics.Stu_count} />
+          <DashboardCard
+            Title={'Employee Count'}
+            Count={metrics.employee_count}
+          />
         </Col>
-
         <Col className="card-background flex-fill dashboard-card-val">
-          <CustomCard title={'TOTAL EMPLOYEES'}
-            field1={`COL : ${'0'}`}
-            field2={`BAL : ${'0'}`}
-            icon={'bi bi-credit-card'}
-            value={'0'} />
-        </Col>
-        <Col className="col card-background flex-fill dashboard-card-val">
-          <CustomCard title={'TODAYS TASK'}
-            field1={`INSTALL : ${metrics.INSTALL}`}
-            field2={`BAL: ${''}`}
-            icon={'bi bi-phone'}
-            value={'0'}
+          <DashboardCard
+            Title={'Client Count'}
+            Count={metrics.client_count}
           />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
-          <CustomCard title={'STUDENT ABSENT'}
-            field1={`COUNT : ${'0'}`}
-            icon={'bi bi-phone'}
-            value={'0'} />
+          <DashboardCard
+            Title={'Service Count'}
+            Count={metrics.service_count} />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
-          <CustomCard title={'STAFF ABSENT'}
-            field1={`COUNT : ${'0'}`}
-            icon={'bi bi-person-badge'}
-            value={'0'} />
+          <DashboardCard
+            Title={'Pending Task'}
+            Count={metrics.task_pending}
+          />
+        </Col>
+        <Col className="col card-background flex-fill dashboard-card-val">
+          <DashboardCard
+            Title={'In Progress Task'}
+            Count={metrics.task_inprogress}
+          />
+        </Col>
+        <Col className="col card-background flex-fill dashboard-card-val">
+          <DashboardCard
+            Title={'Completed Task'}
+            Count={metrics.task_completed}
+          />
+        </Col>
+        <Col className="col card-background flex-fill dashboard-card-val">
+          <DashboardCard
+            Title={'Today Attendance'}
+            Count={metrics.today_attendance}
+          />
         </Col>
       </Row>
 

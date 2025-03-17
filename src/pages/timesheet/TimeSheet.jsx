@@ -6,14 +6,13 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { ViewEmpTimeSheetField } from "../../constants/fields/timesheetFields";
 import { addTimeSheet, getEmployeeByService, getTaskByEmployee, getTimeSheetService, } from "../../service/timesheet/employeeTimeSheet";
 import { getTimeDifferenceInMinutes } from "../../utils/generalUtils";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
-
+import Cookies from 'js-cookie';
 
 const AddTimeSheet = () => {
 
@@ -35,11 +34,12 @@ const AddTimeSheet = () => {
 
   // Initialize form state from field definitions
   const initialFormState = ViewEmpTimeSheetField.reduce((acc, field) => {
+    
     acc[field.name] = "";
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm ,setFieldValue} = useForm(
     initialFormState,
     (data) => validateCustomForm(data, ViewEmpTimeSheetField)
   );
@@ -66,8 +66,6 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const payload = {
-          // "client_id": formData?.client || '',
-          // "service_id": formData?.service || ''
         };
         const clientresponse = await getClient();
         const employeeresponse = await getEmployeeByService(payload);
@@ -92,11 +90,13 @@ const AddTimeSheet = () => {
 
           if (field.name === "employee") {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+              const userData = JSON.parse(Cookies.get('user'));
+              setFieldValue("employee",userData.employee_id)
               const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
                 label: item.name,
               }));
-              console.log("Mapped Employee Options:", employeeOptions);
+              console.log("Mapped Employee Options:", userData, field, employeeOptions);
               return { ...field, options: employeeOptions };
             } else {
               console.error("Employee data response is not an array or is empty.");
@@ -197,8 +197,6 @@ const AddTimeSheet = () => {
         console.log("Selected form:", formData);
         const payload = {
           "emp_id": formData?.employee || '',
-          // "clientId": formData?.client || '',
-          // "serviceId": formData?.service || '',
           "task_id": formData?.task || '',
           "date": formData?.date || '',
           "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)

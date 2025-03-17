@@ -29498,7 +29498,7 @@ code[class*=language-] {
 @media (min-width: 1000px) {
   /* Styles for xxl and larger screens */
   .dashboard-card-val {
-    width: 17%;
+    width: 25%;
   }
   }
 

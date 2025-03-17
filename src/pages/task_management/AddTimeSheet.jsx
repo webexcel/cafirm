@@ -74,7 +74,7 @@ const AddTimeSheet = () => {
             if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
               const serviceOptions = serviceresponse.data.data.map((item) => ({
                 value: item.service_id,
-                label: item.service_name,
+                label: item.service_short_name,
               }));
               console.log("Mapped Client Options:", serviceOptions);
               setServiceData(serviceOptions)
@@ -142,7 +142,7 @@ const AddTimeSheet = () => {
           );
 
           if (client) {
-            setFieldValue("task", `${client.display_name}-${formData.task}`);
+            setFieldValue("task", `${client.display_name || '' }-${formData.task}`);
           }
 
           console.log("form data:", formData, formFields, clientdata);

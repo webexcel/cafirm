@@ -8,10 +8,11 @@ export const CreateServiceFields = [
   },
 
   {
-    name: "short_name",
+    name: "service_short_name",
     label: "Short Name",
     placeholder: "Enter Short Name",
     type: "text",
     required: true,
+    maxLength : 5
   },
 ];

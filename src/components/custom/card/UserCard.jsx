@@ -129,8 +129,9 @@ const UserCard = ({
                                         />
                                         {!userData?.photo && (
                                             <FaCamera
-                                                className="position-absolute top-50 start-50 translate-middle text-white"
+                                                className="position-absolute top-50 start-50 translate-middle text-white cursor-pointer"
                                                 style={{ fontSize: '20px', opacity: 0.7 }}
+                                                onClick={handleProfileChange}
                                             />
                                         )}
                                         <input

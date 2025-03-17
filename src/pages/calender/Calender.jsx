@@ -8,10 +8,8 @@ import { Modal, Card, Button, Form, Col, Row } from "react-bootstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-
-const ColorPicker = React.lazy(() => import('../../components/colorpicker/ColorPickerList'))
-
-const ImageSelector = React.lazy(() => import('../../components/imageselector/ImageSelector'))
+import ColorPicker from '../../components/colorpicker/ColorPickerList'
+import ImageSelectorfrom from '../../components/imageselector/ImageSelector'
 
 const getCalenderObj = (id, title,
     // calenderImage,
@@ -474,7 +472,7 @@ const Calender = () => {
                         </Row>
                         <Row>
                             <Col>
-                                <ImageSelector onImageSelect={setSelectedImage} />
+                                {/* <ImageSelector onImageSelect={setSelectedImage} /> */}
 
                             </Col>
                         </Row>
@@ -517,10 +515,10 @@ const Calender = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <Col>
+                            {/* <Col>
                                 <ColorPicker onChangeColor={setSelectedColor}
                                     defaultColor={editformik.values.color} />
-                            </Col>
+                            </Col> */}
                         </Row>
 
                         <Row>
