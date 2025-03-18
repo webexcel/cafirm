@@ -18,6 +18,7 @@ const CustomTable = React.lazy(() =>
 );
 import * as Yup from "yup";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import Cookies from 'js-cookie';
 
 
 const ClientTimeSheet = () => {
@@ -69,7 +70,7 @@ const ClientTimeSheet = () => {
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm,setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, ViewCliTimeSheetField)
   );
@@ -78,7 +79,10 @@ const ClientTimeSheet = () => {
     // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
+        const payload = {
+        };
         const clientresponse = await getClient();
+        const employeeresponse = await getEmployeeByService(payload);
         console.log("Client API Response:", clientresponse);
         const updatedFormFields = ViewCliTimeSheetField.map((field) => {
           if (field.name === "client") {
@@ -91,6 +95,31 @@ const ClientTimeSheet = () => {
               return { ...field, options: [{ value: "All", label: "All" }, ...clientOptions] };
             } else {
               console.error("Client data response is not an array or is empty.");
+            }
+
+          }
+
+          if (field.name === "employee") {
+            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+              const userData = JSON.parse(Cookies.get('user'));
+              if (userData?.role !== 'S') {
+                setFieldValue("employee", userData.employee_id);
+                console.log("userData111111111111111", userData);
+              }
+              console.log("userDatauserDatauserData", userData)
+              const employeeOptions = employeeresponse.data.data.map((item) => ({
+                value: item.employee_id,
+                label: item.name,
+              }));
+              console.log("Mapped Employee Options:", userData, field,
+                employeeOptions);
+              return {
+                ...field,
+                options: employeeOptions,
+                disabled: userData?.role !== 'S' ? true : false
+              };
+            } else {
+              console.error("Employee data response is not an array or is empty.");
             }
 
           }
@@ -186,56 +215,56 @@ const ClientTimeSheet = () => {
     }
   }, [formData.client]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (formData.service) {
-      const fetchClientOptionData = async () => {
-        console.log('formm data', formData)
-        try {
-          const payload = {
-            "client_id": formData?.client || '',
-            "service_id": formData?.service || ''
-          };
-          const employeeresponse = await getEmployeeByService(payload);
+  //   if (formData.service) {
+  //     const fetchClientOptionData = async () => {
+  //       console.log('formm data', formData)
+  //       try {
+  //         const payload = {
+  //           "client_id": formData?.client || '',
+  //           "service_id": formData?.service || ''
+  //         };
+  //         const employeeresponse = await getEmployeeByService(payload);
 
-          console.log("Employee API Response:", employeeresponse.data.data);
+  //         console.log("Employee API Response:", employeeresponse.data.data);
 
-          const updatedFormFields = await formFields.map((field) => {
+  //         const updatedFormFields = await formFields.map((field) => {
 
-            if (field.name === "employee") {
-              console.log('employee', formFields)
-              if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-                const employeeOptions = employeeresponse.data.data.map((item) => ({
-                  value: item.employee_id,
-                  label: item.name,
-                }));
+  //           if (field.name === "employee") {
+  //             console.log('employee', formFields)
+  //             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+  //               const employeeOptions = employeeresponse.data.data.map((item) => ({
+  //                 value: item.employee_id,
+  //                 label: item.name,
+  //               }));
 
-                console.log('employeeOptions : ', employeeOptions, formFields)
-                return {
-                  ...field,
-                  options: [{ value: "All", label: 'All' }, ...employeeOptions]
-                };
-              } else {
-                console.error("Student data response is not an array or is empty.");
-                return {
-                  ...field,
-                  options: [{ value: "All", label: 'All' }]
-                };
-              }
-            }
-            return field;
-          });
-          setFormFields(updatedFormFields);
-          console.log("Mapped Student Options:", formFields);
+  //               console.log('employeeOptions : ', employeeOptions, formFields)
+  //               return {
+  //                 ...field,
+  //                 options: [{ value: "All", label: 'All' }, ...employeeOptions]
+  //               };
+  //             } else {
+  //               console.error("Student data response is not an array or is empty.");
+  //               return {
+  //                 ...field,
+  //                 options: [{ value: "All", label: 'All' }]
+  //               };
+  //             }
+  //           }
+  //           return field;
+  //         });
+  //         setFormFields(updatedFormFields);
+  //         console.log("Mapped Student Options:", formFields);
 
-        } catch (error) {
-          console.error("Error fetching Student data:", error);
-        }
-      };
+  //       } catch (error) {
+  //         console.error("Error fetching Student data:", error);
+  //       }
+  //     };
 
-      fetchClientOptionData();
-    }
-  }, [formData.service]);
+  //     fetchClientOptionData();
+  //   }
+  // }, [formData.service]);
 
   // Handle pagination
   const handlePageChange = (pageNumber) => {

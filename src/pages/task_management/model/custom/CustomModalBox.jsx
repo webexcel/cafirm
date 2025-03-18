@@ -46,7 +46,7 @@ const CustomModalBox = React.memo(({
                                                             isSearchable
                                                             onChange={(selected) => setFieldValue(name, selected.value)}
                                                             isDisabled={disable}
-                                                            defaultInputValue={values[name]}
+                                                            defaultInputValue={options.find(option => String(option.value) === String(values[name]))?.label}
                                                         />
                                                     );
                                                 case "multiSelect":

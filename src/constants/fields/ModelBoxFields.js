@@ -74,9 +74,9 @@ export const TaskModalFields = [
     placeholder: "Select Status",
     type: "dropdown",
     options: [
-      { value: "0", label: "Pending" },
-      { value: "1", label: "InProgress" },
-      { value: "2", label: "Completed" },
+      { value: 0, label: "Pending" },
+      { value: 1, label: "InProgress" },
+      { value: 2, label: "Completed" },
     ],
     required: true,
     disable: false,

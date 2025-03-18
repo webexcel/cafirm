@@ -231,7 +231,6 @@ const ViewTask = () => {
         setCurrentPage(pageNumber);
     };
 
-    // Handle delete 
     const onDelete = useCallback(async (updatedData, index) => {
         console.log("update dataaa", updatedData)
         const result = await Swal.fire({
@@ -321,6 +320,7 @@ const ViewTask = () => {
         updateEmployeeOptions()
         console.log("dataaaa", data, index, taskFormFileds, taskFormFileds)
         const date1 = new Date()
+
         setInitialModelValues((prev) => ({
             ...prev,
             taskName: data?.task_name || '',
@@ -355,6 +355,7 @@ const ViewTask = () => {
             if (!response.data.status) {
                 return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
             }
+            fetchViewTaksData("All", "All", "All", "All", "ALL")
             Swal.fire("Success", `Task added successfully`, "success");
         }
         catch (err) {

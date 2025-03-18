@@ -16,3 +16,7 @@ export const addAttendanceLogout = async (data) => {
 export const getAttendanceByDate = async (data) => {
   return await endpoint.post(`${mainUrl.ATTENDANCE}/getAttendanceByDate`, data);
 };
+
+export const checkTodayAttendance = async (data) => {
+  return await endpoint.post(`${mainUrl.ATTENDANCE}/checkTodayAttendance`, data);
+};

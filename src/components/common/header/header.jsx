@@ -256,9 +256,14 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 		}
 	}, [userdata]);
 
-	const logout = () => {
+	const logout = async () => {
 		console.log("logout successfully")
-		localStorage.clear();
+		const logoutFiter = await Object.keys(localStorage).forEach((key) => {
+			if (key !== "time") {
+				localStorage.removeItem(key);
+			}
+			console.log("keys", key)
+		});
 		navigate('/login');
 
 	}

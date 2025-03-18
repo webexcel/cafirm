@@ -63,7 +63,7 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
     return items;
   };
 
-  console.log("table datttaaaaaa", data)
+  // console.log("table datttaaaaaa", data)
 
   return (
     <>
@@ -263,4 +263,4 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   );
 };
 
-export default CustomTable;
+export default React.memo(CustomTable);

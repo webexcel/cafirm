@@ -34,12 +34,12 @@ const AddTimeSheet = () => {
 
   // Initialize form state from field definitions
   const initialFormState = ViewEmpTimeSheetField.reduce((acc, field) => {
-    
+
     acc[field.name] = "";
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm ,setFieldValue} = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, ViewEmpTimeSheetField)
   );
@@ -91,13 +91,22 @@ const AddTimeSheet = () => {
           if (field.name === "employee") {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
               const userData = JSON.parse(Cookies.get('user'));
-              setFieldValue("employee",userData.employee_id)
+              if (userData?.role !== 'S') {
+                setFieldValue("employee", userData.employee_id);
+                console.log("userData111111111111111", userData);
+              }
+              console.log("userDatauserDatauserData", userData)
               const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
                 label: item.name,
               }));
-              console.log("Mapped Employee Options:", userData, field, employeeOptions);
-              return { ...field, options: employeeOptions };
+              console.log("Mapped Employee Options:", userData, field,
+                employeeOptions);
+              return {
+                ...field,
+                options: employeeOptions,
+                disabled: userData?.role !== 'S' ? true : false
+              };
             } else {
               console.error("Employee data response is not an array or is empty.");
             }

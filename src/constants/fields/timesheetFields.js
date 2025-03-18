@@ -65,6 +65,7 @@ export const ViewCliTimeSheetField = [
     type: "dropdown",
     options: [],
     required: true,
+    disabled:true
   },
 
   {
