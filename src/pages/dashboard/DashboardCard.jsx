@@ -1,14 +1,14 @@
 import React from 'react'
 import { Card } from 'react-bootstrap'
 
-const DashboardCard = ({ Title, Count }) => {
+const DashboardCard = ({ Title, Count, Icon, Color }) => {
     return (
-        <Card className="custom-card">
+        <Card className="custom-card py-2">
             <Card.Body className="">
                 <div className="d-flex align-items-center">
                     <div className="me-2">
-                        <div className="avatar avatar-lg bg-info-transparent text-info">
-                            <i className="fe fe-users"></i>
+                        <div className={`avatar avatar-lg ${Color}`}>
+                            <i className={`${Icon}`}></i>
                         </div>
                     </div>
                     <div className="flex-1">

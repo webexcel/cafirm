@@ -10,14 +10,11 @@ import * as Yup from "yup";
 import Swal from "sweetalert2";
 import ColorPicker from '../../components/colorpicker/ColorPickerList'
 import ImageSelectorfrom from '../../components/imageselector/ImageSelector'
+import { addCalendarEvent, deleteCalendarEvent, editCalendarEvent, getCalendarList } from "../../service/calendarServices";
 
-const getCalenderObj = (id, title,
-    // calenderImage,
-    color, start, end) => {
+const getCalenderObj = (id, title, color, start, end, description) => {
     return {
-        id, title,
-        // calenderImage,
-        color, start, end
+        id, title, color, start, end, description
     }
 }
 const Calender = () => {
@@ -39,77 +36,78 @@ const Calender = () => {
 
     // const yearId = useSelector(state => state.yearId);
 
-    // const INITIAL_EVENTS = [
-    //     {
-    //         id: 57,
-    //         title: "Meeting222",
-    //         calenderImage: sampleImg,
-    //         start: "2024-11-18",
-    //         end: "2024-11-22"
-    //     },
-    //     {
-    //         id: createEventId(),
-    //         title: "Meeting Time",
-    //         calenderImage: sampleImg,
-    //         start: "2024-11-18T18:30:00.000Z",
-    //         end: "2024-11-24T18:30:00.000Z",
-    //         color: 'blue'
+    const INITIAL_EVENTS = [
+        {
+            id: 57,
+            title: "Meeting222",
+            // calenderImage: sampleImg,
+            start: "2024-11-18",
+            end: "2024-11-22",
+            color: 'blue'
+        },
+        {
+            id: createEventId(),
+            title: "Meeting Time",
+            // calenderImage: sampleImg,
+            start: "2025-03-16T18:30:00.000Z",
+            end: "2025-03-22T18:30:00.000Z",
+            color: 'blue'
 
-    //     },
-    //     {
-    //         id: createEventId(),
-    //         title: "test",
-    //         start: " 2024-11-17" + "T20:00:00",
-    //     },
-    //     {
+        },
+        {
+            id: createEventId(),
+            title: "test",
+            start: " 2024-11-17" + "T20:00:00",
+        },
+        {
 
-    //         calenderImage: "",
-    //         color: "red",
-    //         end
-    //             :
-    //             "2019-01-24",
-    //         id
-    //             :
-    //             58,
-    //         start
-    //             :
-    //             "2019-01-23",
-    //         title
-    //             :
-    //             "parentalert",
-    //     },
-    //     {
-    //         id: 58,
-    //         title: "parentalert",
-    //         calenderImage: "",
-    //         start: "2019-01-24T18:30:00.000Z",
-    //         end: "2019-01-23",
-    //         color: 'red'
-    //     }
+            calenderImage: "",
+            color: "red",
+            end
+                :
+                "2019-01-24",
+            id
+                :
+                58,
+            start
+                :
+                "2019-01-23",
+            title
+                :
+                "parentalert",
+        },
+        {
+            id: 58,
+            title: "parentalert",
+            calenderImage: "",
+            start: "2019-01-24T18:30:00.000Z",
+            end: "2019-01-23",
+            color: 'red'
+        }
 
-    // ];
+    ];
 
     const getCalenderService = useCallback(async () => {
         try {
             setEvents([])
-            // const { getCalenderList } = await import("../../services/calenderService");
-            // const response = await getCalenderList();
-            // console.log('response calender', response.data.data)
-            // if (response.data.status) {
-            //     const setDataToCalList = await response.data.data.map((data) => {
-            //         setEvents(prev => [...prev,
-            //         getCalenderObj(
-            //             data.id,
-            //             data.title,
-            //             // data.calenderImage || sampleImg,
-            //             data.color,
-            //             data.start,
-            //             data.end,
-            //         )
-            //         ])
-            //     })
+            const response = await getCalendarList();
+            console.log('response calender', response.data.data)
+            if (response.data.status) {
+                const setDataToCalList = await response.data.data.map((data) => {
+                    setEvents(prev => [...prev,
+                    getCalenderObj(
+                        data.cal_id,
+                        data.title,
+                        "blue",
+                        data.start_date,
+                        data.end_date,
+                        data.description
+                    )
+                    ])
+                })
 
-            // }
+            }
+
         } catch (error) {
             console.error("GET Calender Failed:", error);
         }
@@ -170,11 +168,13 @@ const Calender = () => {
             title: "",
             start: "",
             end: "",
+            description: ""
         },
         validationSchema: Yup.object({
             title: Yup.string().required("Title is required"),
             start: Yup.string().required("Start date is required"),
             end: Yup.string().required("End date is required"),
+            description: Yup.string().required("Description is required"),
         }),
         onSubmit: async (values) => {
 
@@ -198,28 +198,32 @@ const Calender = () => {
                 if (result.isConfirmed) {
                     try {
 
-                        const newEvent = {
-
+                        const payload = {
                             title: formik.values.title,
-                            calendarImage: "Test URL",
-                            start: formik.values.start,
-                            end: formik.values.end,
-                            color: selectedColor,
-                            yearid: 5
-
+                            // calendarImage: "Test URL",
+                            start_date: formik.values.start,
+                            end_date: formik.values.end,
+                            // color: selectedColor,
+                            description: formik.values.description
                         };
-                        // const { createCalender } = await import("../../services/calenderService");
 
-                        // const response = await createCalender(newEvent);
-                        // if (response.data.status) {
-                        //     // setEvents((prevEvents) => [...prevEvents, newEvent]);
-                        //     getCalenderService()
-                        //     setModalShow(false);
-                        // }
+                        const response = await addCalendarEvent(payload);
+                        if (response.data.status) {
+                            // setEvents((prevEvents) => [...prevEvents, {
+                            //     ...payload,
+                            //     start: formik.values.start,
+                            //     end: formik.values.end,
+                            //     // color: selectedColor
+                            // }]);
+                            getCalenderService()
+                            setModalShow(false);
+                            Swal.fire("Success", `Event added successfully`, "success");
+                        }
 
                         console.log('add event response', response)
                     }
                     catch (error) {
+                        Swal.fire("Error", error.response?.data?.message || "Failed to add event.", "error");
                         console.log('Create Event error  ', error)
                     }
 
@@ -241,14 +245,15 @@ const Calender = () => {
     const editformik = useFormik({
         initialValues: {
             edit_title: "",
-            color: "",
+            // color: "",
             calenderid: "",
             iseventdeleted: false,
+            start: "",
+            end: "",
+            description: ""
         },
         validationSchema: Yup.object({
             edit_title: Yup.string().required("Title is required"),
-            // start: Yup.string().required("Start date is required"),
-            // end: Yup.string().required("End date is required"),
         }),
         onSubmit: async (values) => {
 
@@ -271,26 +276,54 @@ const Calender = () => {
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const editEventPayload = {
 
-                            title: editformik.values.edit_title,
-                            color: selectedColor,
-                            calenderid: editformik.values.calenderid,
-                            iseventdeleted: editformik.values.iseventdeleted
+                        if (editformik.values.iseventdeleted) {
+                            try {
+                                const payload = {
+                                    "evt_id": editformik.values.calenderid
+                                }
+                                const response = await deleteCalendarEvent(payload)
+                                if (response.data.status) {
+                                    getCalenderService()
+                                    setModalEditShow(false);
+                                    Swal.fire("Success", `Event edited successfully`, "success");
+                                }
+                            }
+                            catch (error) {
+                                Swal.fire("Error", error.response?.data?.message || "Failed to add event.", "error");
+                                console.log("error occurs while delete event : ", error)
+                            }
+                            console.log("event deleted")
+                            return;
+                        }
 
+                        const payload = {
+                            "evt_id": editformik.values.calenderid,
+                            "title": editformik.values.edit_title,
+                            "description": editformik.values.description,
+                            "start_date": editformik.values.start,
+                            "end_date": editformik.values.end
                         };
-                        // const { editCalender } = await import("../../services/calenderService");
 
-                        // const response = await editCalender(editEventPayload);
+                        const response = await editCalendarEvent(payload);
 
-                        // console.log('edit event response:', response.data)
-                        // if (response.data.status) {
-                        //     getCalenderService()
-                        //     editformik.resetForm()
-                        //     setModalEditShow(false);
-                        // }
+                        if (response.data.status) {
+                            // setEvents((prevEvents) => [...prevEvents, {
+                            //     ...payload,
+                            //     start: formik.values.start,
+                            //     end: formik.values.end,
+                            //     // color: selectedColor
+                            // }]);
+                            getCalenderService()
+                            editformik.resetForm()
+                            setModalEditShow(false);
+                            Swal.fire("Success", `Event edited successfully`, "success");
+                        }
+
+                        console.log("event edited")
                     }
                     catch (error) {
+                        Swal.fire("Error", error.response?.data?.message || "Failed to edit event.", "error");
                         console.log('Edit Event error  ', error)
                     }
 
@@ -311,25 +344,17 @@ const Calender = () => {
 
     //edit
     const handleEventClick = (clickInfo) => {
-
         editformik.resetForm()
-
         editformik.setFieldValue('iseventdeleted', false)
-
         console.log('edit table valueee', clickInfo.event._def.publicId, events)
-
         const selectedId = clickInfo.event._def.publicId
-
         const filterData = events.filter(data => Number(data.id) === Number(selectedId))
-
         console.log('checkkkk', filterData[0])
-
         editformik.setFieldValue('calenderid', filterData[0].id)
-
         editformik.setFieldValue('edit_title', filterData[0].title)
-
-        editformik.setFieldValue('color', filterData[0].color)
-
+        editformik.setFieldValue('description', filterData[0].description)
+        editformik.setFieldValue('start', String(filterData[0].start).split('T')[0])
+        editformik.setFieldValue('end', String(filterData[0].end).split('T')[0])
         setModalEditShow(true)
 
     };
@@ -362,8 +387,8 @@ const Calender = () => {
     };
 
     const handleCheckboxChange = (event) => {
-        const isCheckedValue = event.target.checked; // Get the checked valu
-        console.log("Checkbox is checked:", isCheckedValue); // Log the value
+        const isCheckedValue = event.target.checked;
+        console.log("Checkbox is checked:", isCheckedValue);
         editformik.setFieldValue('iseventdeleted', isCheckedValue)
     };
 
@@ -387,12 +412,11 @@ const Calender = () => {
                                     }}
                                     initialView="dayGridMonth"
                                     events={events}
-                                    select={handleDateSelect} // Trigger modal on date selection
+                                    select={handleDateSelect}
                                     selectable={true}
                                     editable={true}
                                     selectMirror={true}
                                     dayMaxEvents={true}
-                                    // initialEvents={events}
                                     eventContent={renderEventContent}
                                     eventClick={handleEventClick}
                                     eventsSet={handleEvents}
@@ -411,8 +435,8 @@ const Calender = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={formik.handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <Row>
-                            <Col>
+                        <Row className="gap-2">
+                            <Col md={12}>
                                 <Form.Group controlId="title">
                                     <Form.Label>Event Title</Form.Label>
                                     <Form.Control
@@ -425,6 +449,23 @@ const Calender = () => {
                                     />
                                     <Form.Control.Feedback type="invalid">
                                         {formik.errors.title}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col md={12}>
+                                <Form.Group controlId="description">
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        name="description"
+                                        value={formik.values.description}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={formik.touched.description && formik.errors.description}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {formik.errors.description}
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
@@ -496,7 +537,7 @@ const Calender = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={editformik.handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <Row>
+                        <Row className="gap-2">
                             <Col>
                                 <Form.Group controlId="edittitle">
                                     <Form.Label>Event Title</Form.Label>
@@ -513,6 +554,23 @@ const Calender = () => {
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Col>
+                            <Col md={12}>
+                                <Form.Group controlId="description">
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        name="description"
+                                        value={editformik.values.description}
+                                        onChange={editformik.handleChange}
+                                        onBlur={editformik.handleBlur}
+                                        isInvalid={editformik.touched.description && editformik.errors.description}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {editformik.errors.description}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
                         </Row>
                         <Row>
                             {/* <Col>
@@ -520,6 +578,47 @@ const Calender = () => {
                                     defaultColor={editformik.values.color} />
                             </Col> */}
                         </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="start">
+                                    <Form.Label>Start Date</Form.Label>
+                                    <Form.Control
+                                        // type="datetime-local"
+                                        type="date"
+                                        name="start"
+                                        value={editformik.values.start}
+                                        onChange={editformik.handleChange}
+                                        onBlur={editformik.handleBlur}
+                                        isInvalid={editformik.touched.start && editformik.errors.start}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {editformik.errors.start}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="end">
+                                    <Form.Label>End Date</Form.Label>
+                                    <Form.Control
+                                        // type="datetime-local"
+                                        type="date"
+                                        name="end"
+                                        value={editformik.values.end}
+                                        onChange={editformik.handleChange}
+                                        onBlur={editformik.handleBlur}
+                                        isInvalid={editformik.touched.end && editformik.errors.end}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {editformik.errors.end}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        {/* <Row>
+                            <Col>
+                                <ColorPicker onChangeColor={setSelectedColor} />
+                            </Col>
+                        </Row> */}
 
                         <Row>
                             <Col className="pb-2">

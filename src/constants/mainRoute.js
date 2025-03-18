@@ -14,4 +14,5 @@ export default Object.freeze({
   PERMISSIONS : 'permissions',
   ATTENDANCE : 'attendance',
   DASHBOARD : 'dashboard',
+  CALENDAR : 'calendar',
 });

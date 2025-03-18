@@ -41,7 +41,7 @@ const Dashboard = () => {
       const response = await getDashboard();
       if (response.data.status) {
         const metricsData = response.data.data;
-        console.log("metricsData",metricsData)
+        console.log("metricsData", metricsData)
         setMetrics((prev) => ({
           ...prev,
           "client_count": metricsData.client_count,
@@ -72,41 +72,61 @@ const Dashboard = () => {
           <DashboardCard
             Title={'Employee Count'}
             Count={metrics.employee_count}
+            Icon={'fe fe-users'}
+            Color={'bg-info-transparent text-info'}
           />
         </Col>
         <Col className="card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Client Count'}
             Count={metrics.client_count}
+            Icon={'fe fe-user-plus'}
+            Color={'bg-teal-transparent text-teal'}
           />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Service Count'}
-            Count={metrics.service_count} />
+            Count={metrics.service_count}
+            Icon={'fe fe-map'}
+            Color={'bg-pink-transparent text-pink'}
+
+          />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Pending Task'}
             Count={metrics.task_pending}
+            Icon={'fe fe-mail'}
+            Color={'bg-warning-transparent text-warning'}
+
           />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'In Progress Task'}
             Count={metrics.task_inprogress}
+            Icon={'bx bx-briefcase'}
+            Color={'bg-info-transparent text-info'}
+
           />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Completed Task'}
             Count={metrics.task_completed}
+            Icon={'bx-book-open'}
+            Color={'bg-pink-transparent text-pink'}
+
           />
         </Col>
         <Col className="col card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Today Attendance'}
             Count={metrics.today_attendance}
+            Icon={'fe fe-map'}
+            Color={'bg-teal-transparent text-teal'}
+
           />
         </Col>
       </Row>
