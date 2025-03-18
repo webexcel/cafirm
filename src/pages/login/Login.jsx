@@ -20,18 +20,14 @@ const Login = () => {
 				password: loginForm?.values?.password,
 			};
 			const logResponse = await loginService(user_data);
-			console.log("Login response:", logResponse);
 			if (logResponse.data.status) {
-				const setSessToken = await setToken(logResponse.data.token)
-				console.log('userrrr', logResponse.data.userdata)
+				await setToken(logResponse.data.token)
 				Cookies.set('user', JSON.stringify(logResponse.data.userdata), { expires: 30 });
 				navigate('/dashboard', { replace: true });
 			} else {
 				throw new Error("Unexpected response status");
 			}
 		} catch (err) {
-			console.error("Login error:", err);
-
 			setTimeout(() => {
 				if (err.response) {
 					setError(err.response.data.message);
@@ -39,24 +35,16 @@ const Login = () => {
 					setError("Connection Error!");
 				}
 			}, 300);
-		} finally {
-			//   setLoaderHandle(false);
 		}
 	};
 
 	useDocumentTitle("CA Firm - Login");
 
-	//validation
 	const loginSchema = yup.object().shape({
-		gmail: yup.string()
-			// .email("Invalid email address")
-			.required("Email is required"),
-		password: yup.string()
-			// .min(6, "Password must be at least 6 characters")
-			.required("Password is required"),
+		gmail: yup.string().required("Email is required"),
+		password: yup.string().required("Password is required"),
 	});
 
-	//form value
 	const loginForm = useFormik({
 		initialValues: {
 			gmail: '',
@@ -66,7 +54,6 @@ const Login = () => {
 		validationSchema: loginSchema
 	})
 
-	// console.log('errrrrrrr', loginForm.errors)
 	return (
 		<Fragment>
 			<div className="container">
@@ -74,14 +61,10 @@ const Login = () => {
 					<Col xxl={4} xl={5} lg={5} md={6} sm={8} className="col-12">
 						<Card>
 							<div className="my-4 d-flex justify-content-center">
-								{/* <Link to={`${import.meta.env.BASE_URL}dashboards/sales`}> */}
 								<img src={logo} alt="logo" style={{ height: '3rem' }} className="desktop-logo" />
-								{/* <img src={logo} alt="logo" className="desktop-dark" /> */}
-								{/* </Link> */}
 							</div>
 							<div className="card-body p-5 pt-1 rectangle3">
 								<p className="h4 fw-semibold mb-2 text-center">Sign In</p>
-								{/* <p className="mb-4 text-muted op-7 fw-normal text-center">Welcome back Jhon !</p> */}
 
 								<form className="row g-3" onSubmit={loginForm.handleSubmit}>
 									{err && <Alert style={{ margin: '0', marginTop: '10%' }} variant="danger">{err}</Alert>}
@@ -98,11 +81,7 @@ const Login = () => {
 									</div>
 									{loginForm.errors.gmail && loginForm.touched.gmail && <div style={{ color: 'red', margin: '0', padding: '1% 2%' }}>{loginForm.errors.gmail}!</div>}
 									<div className="col-xl-12 mb-2 p-1">
-										<Form.Label htmlFor="signin-password" className="form-label text-default d-block"
-
-										>Password
-											{/* <Link to="#" className="float-end text-primary">Forget password ?</Link> */}
-										</Form.Label>
+										<Form.Label htmlFor="signin-password" className="form-label text-default">Password</Form.Label>
 										<div className="input-group">
 											<Form.Control
 												className="form-control-lg"
@@ -115,29 +94,23 @@ const Login = () => {
 												onBlur={loginForm.handleBlur}
 												isInvalid={!!(loginForm.errors.password && loginForm.touched.password)}
 											/>
-											<Button variant="" className={`btn ${!!(loginForm.errors.password && loginForm.touched.password) ? "border-danger" : "btn-light bg-transparent "}`} type="button" onClick={() => setpasswordshow1(!passwordshow1)}
-												id="button-addon2"><i className={`${passwordshow1 ? "ri-eye-line" : "ri-eye-off-line"} align-middle`}></i></Button>
+											<Button variant="" className={`btn ${!!(loginForm.errors.password && loginForm.touched.password) ? "border-danger" : "btn-light bg-transparent "}`} type="button" onClick={() => setpasswordshow1(!passwordshow1)}>
+												<i className={`${passwordshow1 ? "ri-eye-line" : "ri-eye-off-line"} align-middle`}></i>
+											</Button>
 										</div>
-
-										{/* <div className="mt-2">
-											<div className="form-check">
-												<input className="form-check-input" type="checkbox" value="" id="defaultCheck1" />
-												<label className="form-check-label text-muted fw-normal" htmlFor="defaultCheck1">
-													Remember password ?
-												</label>
-											</div>
-										</div> */}
-										{loginForm.errors.password && loginForm.touched.password && <div style={{ color: 'red', margin: '0', padding: '1% 2%' }}>{loginForm.errors.password}!</div>}
-
 									</div>
 
 									<div className="col-xl-12 d-grid mt-3 p-0">
 										<Button type='submit' variant="primary" className="btn btn-lg">Sign In</Button>
 									</div>
-								</form>
 
+									<div className="d-flex justify-content-end mt-3">
+										<Link to="/forgot-password" className="text-primary">Forgot Password?</Link>
+									</div>
+
+								</form>
 								<div className="text-center">
-									<p className="fs-12 text-muted mt-4">Dont have an account? <Link to="#" className="text-primary">Sign Up</Link></p>
+									<p className="fs-12 text-muted mt-4">Don't have an account? <Link to="/signup" className="text-primary">Sign Up</Link></p>
 								</div>
 							</div>
 						</Card>
@@ -148,4 +121,4 @@ const Login = () => {
 	)
 }
 
-export default Login
+export default Login;
