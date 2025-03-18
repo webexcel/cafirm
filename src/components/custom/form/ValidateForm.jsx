@@ -14,7 +14,7 @@ const validateCustomForm = (data, formFields) => {
         (Array.isArray(fieldValue) && fieldValue.length === 0) || 
         (typeof fieldValue === "object" && !Array.isArray(fieldValue) && !fieldValue.value)
       ) {
-        errors[field.name] = `This field is required!`;
+        errors[field.name] = `${field.label.charAt(0).toUpperCase() + field.label.slice(1).toLowerCase()} is required!`;
       }
     }
   });

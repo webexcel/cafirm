@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form } from "react-bootstrap";
-
-const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive,onCopyTo }) => {
+import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } from "react-bootstrap";
+import ColumnPopOver from '../popover/ColumnPopOver'
+const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,6 +63,8 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
     return items;
   };
 
+  // console.log("table datttaaaaaa", data)
+
   return (
     <>
       <div className="table-responsive">
@@ -78,8 +80,10 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
           </thead>
           <tbody>
             {currentData.map((row, rowIndex) => (
+              // <ColumnPopOver data={row}>
               <tr key={rowIndex}>
                 {columns.map((col, colIndex) => (
+
                   <td key={colIndex} className="px-3">
                     {col.accessor === "Actions" ? (
                       rowIndex === editingIndex ? (
@@ -111,6 +115,18 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                                 href="#"
                                 className="btn btn-icon btn-sm btn-info d-flex justify-content-center align-items-center"
                                 onClick={() => handleEditClick(row, rowIndex)}
+                              >
+                                <i className="ri-edit-line"></i>
+                              </a>
+                            </OverlayTrigger>
+                          )}
+
+                          {handlerEdit && (
+                            <OverlayTrigger placement="top" overlay={<Tooltip>Edit</Tooltip>}>
+                              <a
+                                href="#"
+                                className="btn btn-icon btn-sm btn-info d-flex justify-content-center align-items-center"
+                                onClick={() => handlerEdit(row, rowIndex)}
                               >
                                 <i className="ri-edit-line"></i>
                               </a>
@@ -154,7 +170,8 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                               </a>
                             </OverlayTrigger>
                           )}
-                          
+
+
                           {onCopyTo && (
                             <OverlayTrigger placement="top" overlay={<Tooltip>Copy To</Tooltip>}>
                               <a
@@ -166,7 +183,9 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                               </a>
                             </OverlayTrigger>
                           )}
+
                         </div>
+
                       )
                     ) : editingIndex === rowIndex && col.editable ? (
                       col.options ? (
@@ -193,11 +212,32 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                         />
                       )
                     ) : (
-                      <span>{row[col.accessor]}</span>
+                      <span>
+                        {(col.accessor === "assignTo" || col.accessor === "assigned_to")
+                          ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
+                          : String(row[col.accessor] || "").trim().toLowerCase() === "pending"
+                            ? (<span className="badge bg-danger">{row[col.accessor]}</span>)
+                            : String(row[col.accessor] || "").trim().toLowerCase() === "in-progress"
+                              ? (<span className="badge bg-warning">{row[col.accessor]}</span>)
+                              : String(row[col.accessor] || "").trim().toLowerCase() === "completed"
+                                ? (<span className="badge bg-success">{row[col.accessor]}</span>)
+                                : String(row[col.accessor] || "").trim().toLowerCase() === "critical"
+                                  ? (<span className="badge bg-danger">{row[col.accessor]}</span>)
+                                  : String(row[col.accessor] || "").trim().toLowerCase() === "low"
+                                    ? (<span className="badge bg-info">{row[col.accessor]}</span>)
+                                    : String(row[col.accessor] || "").trim().toLowerCase() === "medium"
+                                      ? (<span className="badge bg-warning">{row[col.accessor]}</span>)
+                                      : row[col.accessor]}
+                      </span>
+
                     )}
                   </td>
+
                 ))}
+
               </tr>
+              // </ColumnPopOver>
+              // String(row[col.accessor][0]?.label || "" )
             ))}
           </tbody>
         </Table>
@@ -223,4 +263,4 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   );
 };
 
-export default CustomTable;
+export default React.memo(CustomTable);

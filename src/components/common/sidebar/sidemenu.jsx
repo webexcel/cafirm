@@ -16,6 +16,9 @@ export const MENUITEMS = [
 	{ path: `${import.meta.env.BASE_URL}dashboard`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Dashboard" },
 
 
+	// Dashboard 
+	{ path: `${import.meta.env.BASE_URL}calender`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Calender" },
+
 
 	//Configuration	
 	// {
@@ -46,21 +49,22 @@ export const MENUITEMS = [
 	},
 
 	//Task Management.
-	{
-		title: "Tasks", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
-		children: [
-			{ path: `${import.meta.env.BASE_URL}taskTracking`, type: "link", active: false, selected: false, dirchange: false, title: "Create Tasks" },
-			{ path: `${import.meta.env.BASE_URL}addTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Time Sheet" },
-		],
-	},
+	// {
+	// 	title: "Tasks", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+	// 	children: [
+	// 		{ path: `${import.meta.env.BASE_URL}taskTracking`, type: "link", active: false, selected: false, dirchange: false, title: "Create Tasks" },
+	// 	],
+	// },
 
 	//Employee Time Tracking
 
 	{
 		title: "TimeSheet", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}timeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Employee TimeSheet" },
-			{ path: `${import.meta.env.BASE_URL}clientTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Client TimeSheet" },
+			{ path: `${import.meta.env.BASE_URL}addTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Create Task" },
+			{ path: `${import.meta.env.BASE_URL}viewtask`, type: "link", active: false, selected: false, dirchange: false, title: "View Task" },
+			{ path: `${import.meta.env.BASE_URL}timeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Timesheet" },
+			{ path: `${import.meta.env.BASE_URL}clientTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Timesheet" },
 		],
 	},
 	//Reporting
@@ -78,9 +82,17 @@ export const MENUITEMS = [
 	{
 		title: "Reports & Analytics", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Performance" },
-			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Service Completion" },
-			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Revenue generation" },
+
+			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+		],
+	},
+
+	//Configuration
+	{
+		title: "Configuration", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		children: [
+			{ path: `${import.meta.env.BASE_URL}permissions`, type: "link", active: false, selected: false, dirchange: false, title: "Permissions" },
+
 		],
 	},
 
@@ -88,7 +100,8 @@ export const MENUITEMS = [
 	{
 		title: "Attendance Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			// { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+			{ path: `${import.meta.env.BASE_URL}activityTracker`, type: "link", active: false, selected: false, dirchange: false, title: "Add Attendance" },
+			{ path: `${import.meta.env.BASE_URL}workTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Attendance" },
 		],
 	},
 

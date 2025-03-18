@@ -26,4 +26,22 @@ const getTimeDifferenceInMinutes = (startTime, endTime) => {
 
     return Math.floor(diffMs / (1000 * 60));
 };
-export { formatDate, getTimeDifferenceInMinutes };
+
+const createImage = (url) =>
+    new Promise((resolve, reject) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.src = url;
+        image.onload = () => resolve(image);
+        image.onerror = (error) => reject(error);
+    });
+
+const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
+};
+export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64 };

@@ -5,15 +5,14 @@ import CustomForm from "../../components/custom/form/CustomForm";
 import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
-import { deleteTimesheet, } from "../../service/client_management/addTimeSheet";
 import { getClient } from "../../service/client_management/createClientServices";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { ViewEmpTimeSheetField } from "../../constants/fields/timesheetFields";
-import { getEmpTimeSheet, viewEmpTimeSheet } from "../../service/timesheet/employeeTimeSheet";
+import { addTimeSheet, getEmployeeByService, getTaskByEmployee, getTimeSheetService, } from "../../service/timesheet/employeeTimeSheet";
+import { getTimeDifferenceInMinutes } from "../../utils/generalUtils";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
-
+import Cookies from 'js-cookie';
 
 const AddTimeSheet = () => {
 
@@ -23,29 +22,31 @@ const AddTimeSheet = () => {
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(ViewEmpTimeSheetField);
   const columns = [
-    { header: "Client ID", accessor: "sno", editable: false },
-    { header: "Name", accessor: "name", editable: false },
-    { header: "Service", accessor: "service", editable: true },
+    { header: "S No", accessor: "sno", editable: false },
+    { header: "Emp Name", accessor: "employee_name", editable: false },
+    { header: "Task Name", accessor: "task_name", editable: false },
+    // { header: "Client Name", accessor: "client_name", editable: false },
+    // { header: "Service", accessor: "service_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Mins", accessor: "total_minutes", editable: true },
-    { header: "Description", accessor: "descripition", editable: true },
-    { header: "Actions", accessor: "Actions", editable: false },
+    // { header: "Actions", accessor: "Actions", editable: false },
   ];
 
   // Initialize form state from field definitions
   const initialFormState = ViewEmpTimeSheetField.reduce((acc, field) => {
+
     acc[field.name] = "";
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, ViewEmpTimeSheetField)
   );
 
-  const getEmpTimeSheetData = async () => {
+  const getTimeSheetData = async () => {
     try {
-      const response = await viewEmpTimeSheet()
+      const response = await getTimeSheetService()
       const addSno = response.data.data.map((data, index) => ({
         ...data,
         sno: index + 1,
@@ -64,25 +65,54 @@ const AddTimeSheet = () => {
     // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
+        const payload = {
+        };
         const clientresponse = await getClient();
-        const employeeresponse = await getEmployee();
+        const employeeresponse = await getEmployeeByService(payload);
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
 
         const updatedFormFields = ViewEmpTimeSheetField.map((field) => {
-          if (field.name === "employee") {
-            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
-                value: item.employee_id,
-                label: item.name,
+
+          if (field.name === "client") {
+            if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
+              const clientOption = clientresponse.data.data.map((item) => ({
+                value: item.client_id,
+                label: item.client_name,
               }));
-              console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions };
+              console.log("Mapped Employee Options:", clientOption);
+              return { ...field, options: clientOption };
             } else {
               console.error("Employee data response is not an array or is empty.");
             }
 
           }
+
+          if (field.name === "employee") {
+            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+              const userData = JSON.parse(Cookies.get('user'));
+              if (userData?.role !== 'S') {
+                setFieldValue("employee", userData.employee_id);
+                console.log("userData111111111111111", userData);
+              }
+              console.log("userDatauserDatauserData", userData)
+              const employeeOptions = employeeresponse.data.data.map((item) => ({
+                value: item.employee_id,
+                label: item.name,
+              }));
+              console.log("Mapped Employee Options:", userData, field,
+                employeeOptions);
+              return {
+                ...field,
+                options: employeeOptions,
+                disabled: userData?.role !== 'S' ? true : false
+              };
+            } else {
+              console.error("Employee data response is not an array or is empty.");
+            }
+
+          }
+
           return field;
         });
         setFormFields(updatedFormFields);
@@ -93,8 +123,64 @@ const AddTimeSheet = () => {
     fetchFieldOptionData()
   }, []);
 
+
   useEffect(() => {
-    getEmpTimeSheetData()
+    console.log("Mapped Student Options:", formFields);
+  }, [formFields]);
+
+
+  useEffect(() => {
+
+    if (formData.employee) {
+      const fetchClientOptionData = async () => {
+        console.log('formm data', formData)
+        try {
+          const payload = {
+            "client_id": Number(formData?.client) || '',
+            "service_id": Number(formData?.service) || '',
+            "emp_id": Number(formData?.employee) || ''
+          };
+          const employeeresponse = await getTaskByEmployee(payload);
+
+          console.log("Task API Response:", employeeresponse.data.data);
+
+          const updatedFormFields = await formFields.map((field) => {
+
+            if (field.name === "task") {
+              console.log('task', formFields)
+              if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+                const employeeOptions = employeeresponse.data.data.map((item) => ({
+                  value: item.task_id,
+                  label: item.task_name,
+                }));
+
+                console.log('employeeOptions : ', employeeOptions, formFields)
+                return {
+                  ...field,
+                  options: employeeOptions
+                };
+              } else {
+                console.error("Student data response is not an array or is empty.");
+              }
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
+          console.log("Mapped Student Options:", formFields);
+
+        } catch (error) {
+          console.error("Error fetching Student data:", error);
+        }
+      };
+
+      fetchClientOptionData();
+    }
+  }, [formData.employee]);
+
+
+  useEffect(() => {
+    getTimeSheetData()
+
   }, [])
 
   // Handle pagination
@@ -106,26 +192,76 @@ const AddTimeSheet = () => {
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    try {
-      console.log("Selected form:", formData);
-      const { start_date, end_date, employee } = formData;
-      const payload = {
-        "emp_id": employee,
-        "start_date": start_date,
-        "end_date": end_date,
+    const result = await Swal.fire({
+      title: "Are you sure about add timesheet ?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Add it!",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true,
+    });
+    if (result.isConfirmed) {
+      try {
+        console.log("Selected form:", formData);
+        const payload = {
+          "emp_id": formData?.employee || '',
+          "task_id": formData?.task || '',
+          "date": formData?.date || '',
+          "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)
+        }
+        const response = await addTimeSheet(payload);
+        getTimeSheetData()
+        if (!response.data.status) {
+          return Swal.fire("Error", response.data.message || "Failed to get employee timesheet.", "error");
+        }
+        Swal.fire("Success", `Timesheet added successfully`, "success");
+        resetForm()
+      } catch (err) {
+        console.error("Error while get employee timesheet data:", err.stack);
+        Swal.fire("Error", err.response?.data?.message || "Failed to get employee timesheet data.", "error");
       }
-      const response = await getEmpTimeSheet(payload);
-      if (!response.data.status) {
-        return Swal.fire("Error", response.data.message || "Failed to get employee timesheet.", "error");
-      }
-      setTableData(response?.data?.data || [])
-      setFilteredData(response?.data?.data || [])
-    } catch (err) {
-      console.error("Error while get employee timesheet data:", err.stack);
-      Swal.fire("Error", err.response?.data?.message || "Failed to get employee timesheet data.", "error");
     }
 
   };
+
+  // const onDelete = useCallback(async (updatedData, index) => {
+  //   console.log("update dataaa", updatedData)
+  //   const result = await Swal.fire({
+  //     title: "Are you sure about delete timesheet?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Yes, delete it!",
+  //     cancelButtonText: "No, cancel!",
+  //     reverseButtons: true,
+  //   });
+  //   if (result.isConfirmed) {
+  //     try {
+  //       const payload = { id: updatedData.time_sheet_id };
+  //       const response = await deleteTimeSheet(payload);
+  //       if (response.data.status) {
+  //         setFilteredData((prevFilteredData) =>
+  //           prevFilteredData
+  //             .filter((item, ind) => ind !== index)
+  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
+  //         );
+
+  //         setTableData((prevTableData) =>
+  //           prevTableData
+  //             .filter((item, ind) => ind !== index)
+  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
+  //         );
+
+  //         Swal.fire("Deleted!", response?.data?.message || "Timesheet deleted successfully.", "success");
+  //       }
+  //     } catch (error) {
+  //       Swal.fire("Error", error.response?.data?.message || "Failed to delete time sheet.", "error");
+  //     }
+
+  //   }
+
+  // }, []);
 
 
   return (
@@ -160,6 +296,7 @@ const AddTimeSheet = () => {
               recordsPerPage={recordsPerPage}
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
+            // onDelete={onDelete}
             />
           </Suspense>
         </Card.Body>

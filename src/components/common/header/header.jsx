@@ -4,7 +4,7 @@ import { Button, Card, Dropdown, InputGroup, ListGroup, Modal, Nav, Offcanvas, T
 import { MENUITEMS } from "../sidebar/sidemenu";
 import DatePicker from "react-datepicker";
 import store from "../../../redux/store";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { ThemeChanger } from "../../../redux/action";
 import Cookies from 'js-cookie';
@@ -28,6 +28,7 @@ import faces9 from "../../../assets/images/faces/9.jpg";
 import faces6 from "../../../assets/images/faces/6.jpg";
 import faces14 from "../../../assets/images/faces/14.jpg";
 import faces11 from "../../../assets/images/faces/11.jpg";
+import { usePermission } from "../../../contexts";
 
 const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
@@ -36,12 +37,12 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 	const [show1, setShow1] = useState(false);
 
 	const handleClose1 = () => setShow1(false);
-
+	const { fetchPermissions } = usePermission();
 	const [userdata] = useState(() => {
 		const userData = Cookies.get('user');
 		return userData ? JSON.parse(userData) : null;
 	});
-
+	const navigate = useNavigate()
 
 	const [show3, setShow3] = useState(false);
 
@@ -256,6 +257,24 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 		window.addEventListener("scroll", Topup);
 	}
 
+	useEffect(() => {
+		if (userdata) {
+			fetchPermissions(userdata.userId);
+		}
+	}, [userdata]);
+
+	const logout = async () => {
+		console.log("logout successfully")
+		const logoutFiter = await Object.keys(localStorage).forEach((key) => {
+			if (key !== "time") {
+				localStorage.removeItem(key);
+			}
+			console.log("keys", key)
+		});
+		navigate('/login');
+
+	}
+
 
 	return (
 		<Fragment>
@@ -385,7 +404,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 							<Dropdown.Menu as="ul" className="dropdown-menu  border-0 main-header-dropdown  overflow-hidden header-profile-dropdown" aria-labelledby="mainHeaderProfile">
 								<Dropdown.Item as="li" className="border-0">
 									<Link to="#"><i className="fs-13 me-2 bx bx-user"></i>Profile</Link></Dropdown.Item>
-								<Dropdown.Item as="li" className="border-0">
+								<Dropdown.Item as="li" className="border-0" onClick={() => { logout() }}>
 									<Link to="#">
 										<i className="fs-13 me-2 bx bx-arrow-to-right"></i>Log Out
 									</Link>

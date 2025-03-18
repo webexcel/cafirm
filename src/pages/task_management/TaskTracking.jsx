@@ -7,10 +7,10 @@ import { getEmployee } from "../../service/employee_management/createEmployeeSer
 import Swal from "sweetalert2";
 import { addTask, deleteTaskService, getAllTask, updateTaskStatus } from "../../service/task_management/createTaskServices";
 import CreateTaskModel from "./model/CreateTaskModel";
-import Search from "../../components/common/search/Search";
 import TaskCard from "./card/TaskCard";
 import CreateTicketModel from "./model/CreateTicketModel";
 import { addTicket, getAllTicket, updateTicketStatus } from "../../service/task_management/createTicketServices";
+import Search from "../../components/common/search/Search";
 
 const TaskTracking = () => {
 
@@ -674,6 +674,14 @@ const TaskTracking = () => {
         }
     }, []);
 
+    const setFilteredData = useCallback((searchdata) => {
+        console.log("searchdata", searchdata)
+        setTasks((prev) => ({
+            ...prev,
+            all: searchdata
+        }))
+    }, [])
+
     return (
         <Fragment>
             <Row>
@@ -725,7 +733,8 @@ const TaskTracking = () => {
                                                     <div className="d-flex p-0 justify-content-between pl-4">
                                                         <div className="d-flex align-items-center">
                                                             <div className="p-3 border-bottom border-block-end-dashed">
-                                                                <Search />
+                                                                <Search list={tasks?.all || []} onSearch={(result) => setFilteredData(result)} />
+
                                                             </div>
                                                         </div>
                                                         <div className="d-flex p-3 align-items-center justify-content-end">

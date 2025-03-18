@@ -17,7 +17,7 @@ const ViewEditProfileEmp = () => {
     "client_type": "",
     "contact_person": "",
     "email": "",
-    "phone": "9876543219",
+    "phone": "",
     "address": "",
     "city": "",
     "state": "",
@@ -112,7 +112,7 @@ const ViewEditProfileEmp = () => {
 
     }
   }
-  const handleFieldUpdate = async (key, value, userData, type) => {
+  const handleFieldUpdate = async (key, value, userData) => {
     console.log("Checkk : ", key, value, userData)
     try {
       const payload = {
@@ -128,7 +128,7 @@ const ViewEditProfileEmp = () => {
         ...prev,
         [key]: value,
       }))
-
+      Swal.fire("Success", `Client edit successfully`, "success");
     }
     catch (err) {
       Swal.fire("Error", err.response?.data?.message || "Failed to edit employee data.", "error");

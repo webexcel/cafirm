@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import Select from "react-select";
 import CustomMultiPanelSelect from "../panel/CustomMultiPanelSelect";
@@ -19,8 +19,14 @@ const CustomForm = ({
   customOnClick,
   btnText
 }) => {
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
   const handleDateChange = (date, name) => {
-    // Store the date as a string in ISO format (YYYY-MM-DD)
+    if (String(name) === "dates") {
+      setDateRange(date)
+      onChange({ target: { name, value: date ? date : "" } }, name);
+      return;
+    }
     onChange({ target: { name, value: date ? date.toISOString().split("T")[0] : "" } }, name);
   };
 
@@ -78,7 +84,9 @@ const CustomForm = ({
             value={formData[field.name] || ""}
             onChange={(e) => onChange(e, field.name)}
             isInvalid={!!errors[field.name]}
-            style={{ width: "100%" }}>
+            style={{ width: "100%" }}
+            disabled={field?.disabled && field.disabled}
+          >
             {
               field.name == "staffperiodtype" ? null : <option value={""}>Select {field.label}</option>
             }
@@ -89,6 +97,31 @@ const CustomForm = ({
             ))}
           </Form.Select>
         );
+
+      case "searchable_dropdown":
+        return (
+          <Select
+            name={field.name}
+            value={field.options.find(option => option.value === formData[field.name]) || null}
+            onChange={(selectedOption) =>
+              onChange({ target: { name: field.name, value: selectedOption?.value || "" } }, field.name)
+            }
+            options={field.options}
+            isSearchable
+            placeholder={`Select ${field.label}`}
+            styles={{
+              control: (provided, state) => ({
+                ...provided,
+                width: '100%',
+                borderColor: state.isFocused ? 'transparent' : provided.borderColor,
+                '&:hover': {
+                  borderColor: provided.borderColor
+                }
+              })
+            }}
+          />
+        );
+
       case "textarea":
         return (
           <Form.Control
@@ -169,6 +202,36 @@ const CustomForm = ({
                 color: "#6c757d",
               }}
             />
+          </div>
+
+        );
+
+      case "daterange":
+        return (
+          <div
+            style={{ position: "relative", display: "inline-block", width: '100%' }}
+          >
+            <DatePicker
+              selectsRange
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(date) => handleDateChange(date, field.name)}
+              isClearable
+              dateFormat="yyyy/MM/dd"
+              placeholderText="Select date range"
+              className="form-control"
+              isInvalid={formData[field.name] || ""}
+            />
+            {/* <FaCalendarAlt
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+                color: "#6c757d",
+              }}
+            /> */}
           </div>
 
         );

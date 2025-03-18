@@ -7,35 +7,25 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateServiceFields } from "../../constants/fields/masterClassFields";
+import { addService, deleteService, getService } from "../../service/masterDetails/serviceApi";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
 
 
 const CreateService = () => {
-    const [tableData, setTableData] = useState([
-        { sno: 1, client: "Alice Johnson",  service: "Testing", Actions: "" },
-        { sno: 2, client: "David Brown",  service: "Testing", Actions: "" },
-        { sno: 3, client: "Emma Wilson",  service: "Testing", Actions: "" },
-        { sno: 4, client: "Michael Clark",  service: "Testing", Actions: "" },
-        { sno: 5, client: "Sophia Martinez",  service: "Testing", Actions: "" },
-        { sno: 6, client: "James Anderson",  service: "Testing", Actions: "" },
-        { sno: 7, client: "Olivia Scott",  service: "Testing", Actions: "" },
-        { sno: 8, client: "William Rodriguez",  service: "Testing", Actions: "" },
-    ]);
+    const [tableData, setTableData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(15);
-    const [filteredData, setFilteredData] = useState(tableData);
+    const [filteredData, setFilteredData] = useState([]);
     const [formFields, setFormFields] = useState(CreateServiceFields);
-    const [file, setFile] = useState(null);
 
     const columns = [
         { header: "S.No", accessor: "sno", editable: false },
-        { header: "Client", accessor: "client", editable: false },
-        { header: "Service", accessor: "service", editable: true },
+        { header: "Service", accessor: "service_name", editable: true },
+        { header: "Short Name", accessor: "service_short_name", editable: true },
         { header: "Actions", accessor: "Actions", editable: false },
     ];
-
 
     // Initialize form state from field definitions
     const initialFormState = CreateServiceFields.reduce((acc, field) => {
@@ -48,20 +38,37 @@ const CreateService = () => {
         (data) => validateCustomForm(data, CreateServiceFields)
     );
 
+    const fetchServiceData = async () => {
+        try {
+            const response = await getService()
+            const addSno = response?.data?.data.map((data, index) => ({
+                sno: index + 1,
+                ...data
+            }))
+            setTableData(addSno || '')
+            setFilteredData(addSno || '')
+            console.log("response : ", response)
+        }
+        catch (error) {
+            console.log("Error occurs getting service data : ", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchServiceData()
+    }, [])
 
     // Handle pagination
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
 
-    // Handle add class teacher
+    // Handle add
     const handleAdd = async (e) => {
         e.preventDefault();
-
         if (!validateForm()) return;
-
         const result = await Swal.fire({
-            title: "Are you sure about add student ?",
+            title: "Are you sure about add service ?",
             text: "You won't be able to revert this!",
             icon: "warning",
             showCancelButton: true,
@@ -71,40 +78,32 @@ const CreateService = () => {
         });
         if (result.isConfirmed) {
             try {
-                // console.log("Selected form:", formData);
-                // const { CLASS_ID, FATHER_NAME, NAME, contact, feegroupid, gender } = formData;
-                // const payload = {
-                //   studentname: NAME,
-                //   fathername: FATHER_NAME,
-                //   classid: CLASS_ID,
-                //   gender: gender,
-                //   feegroupid: feegroupid,
-                //   contact: contact,
-                //   yearid: year.YearId
-                // }
-                // const response = await addStudent(payload);
-                // if (!response.data.status) {
-                //   return Swal.fire("Error", response.data.message || "Failed to add student.", "error");
-                // }
-                // console.log("admission numberrr", response)
-                // Swal.fire("Success", `Student added successfully with Admission No: ${response?.data?.data?.admissionNo}`, "success");
-                // resetForm()
-                // fetchViewClassStudData("All");
+                console.log("Selected form:", formData);
+                const { service,service_short_name } = formData;
+                const payload = {
+                    service_name: service,
+                    short_name: service_short_name
+                }
+                const response = await addService(payload);
+                if (!response.data.status) {
+                    return Swal.fire("Error", response.data.message || "Failed to add service.", "error");
+                }
+                Swal.fire("Success", `Service added successfully`, "success");
+                resetForm()
+                fetchServiceData()
             } catch (err) {
-                console.error("Error while get student data:", err.stack);
-                Swal.fire("Error", err.response?.data?.message || "Failed to add student data.", "error");
+                console.error("Error while get service data:", err.stack);
+                Swal.fire("Error", err.response?.data?.message || "Failed to add service data.", "error");
             }
         }
 
     };
 
-    // Handle delete class teacher
     const onDelete = useCallback(async (updatedData, index) => {
-
-        console.log("update dataaa", updatedData, formData)
-
+        console.log("update dataaa", updatedData);
+    
         const result = await Swal.fire({
-            title: "Are you sure about switch student to inactive?",
+            title: "Are you sure you want to delete this service?",
             text: "You won't be able to revert this!",
             icon: "warning",
             showCancelButton: true,
@@ -112,78 +111,34 @@ const CreateService = () => {
             cancelButtonText: "No, cancel!",
             reverseButtons: true,
         });
+    
         if (result.isConfirmed) {
             try {
-                // const payload = { student_id: updatedData.ADMISSION_ID, Year_Id: year.YearId };
-                // const response = await deleteStudent(payload);
+                const payload = { id: updatedData?.service_id };
+                const response = await deleteService(payload);
+    
                 if (response.data.status) {
-                    // const newFilteredData = filteredData.filter(
-                    //   (item, ind) => ind !== index
-                    // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-                    // console.log("newFilteredData", newFilteredData)
-                    // setFilteredData(newFilteredData);
-
-                    // const newTableData = tableData.filter(
-                    //   (item, ind) => ind !== index
-                    // ).map((item, ind) => ({ ...item, sno: ind + 1 }));
-                    // console.log("newFilteredData", newTableData)
-                    // setTableData(newTableData);
-                    Swal.fire("Deleted!", response?.data?.message || "Student deleted successfully.", "success");
+                    // Use functional state updates to get the latest data
+                    setFilteredData((prevFilteredData) =>
+                        prevFilteredData
+                            .filter((item, ind) => ind !== index) // Remove the item
+                            .map((item, ind) => ({ ...item, sno: ind + 1 })) // Re-index
+                    );
+    
+                    setTableData((prevTableData) =>
+                        prevTableData
+                            .filter((item, ind) => ind !== index)
+                            .map((item, ind) => ({ ...item, sno: ind + 1 }))
+                    );
+    
+                    Swal.fire("Deleted!", response?.data?.message || "Service deleted successfully.", "success");
                 }
             } catch (error) {
-                Swal.fire("Error", error.response?.data?.message || "Failed to delete student.", "error");
-            }
-
-        }
-
-    }, []);
-
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const result = await Swal.fire({
-            title: "Are you sure about add student bulk upload?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Add it!",
-            cancelButtonText: "No, cancel!",
-            reverseButtons: true,
-        });
-        if (result.isConfirmed) {
-            if (!file) {
-                Swal.fire("Error", "Please select a file.", "error");
-                return;
-            }
-            try {
-                // const formData = new FormData();
-                // formData.append("students", file);
-                // formData.append(
-                //   "yearid", year.YearId
-                // );
-                // const response = await bulkUpload(formData);
-                // if (!response.data.status) {
-                //   return Swal.fire("Error", response.data.message || "Failed to add student bulk upload.", "error");
-
-                // }
-                // Swal.fire("Success", "Student bulk upload added successfully!", "success");
-                // fetchViewClassStudData("All");
-            }
-            catch (error) {
-                console.error("Error while get student data:", error.stack);
-                Swal.fire("Error", error.response?.data?.message || "Failed to add student bulk upload.", "error");
+                Swal.fire("Error", error.response?.data?.message || "Failed to delete service.", "error");
             }
         }
-
-
-    }
-    const onEdit = () => {
-
-    }
+    }, []); // Keep dependencies empty, but functional updates fix the stale state issue
+    
 
     return (
         <Fragment>

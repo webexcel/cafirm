@@ -1,0 +1,98 @@
+{
+  "tasksample": [
+    {
+      "sno": 1,
+      "client_name": "Acme Corp",
+      "employee_name": "John Doe",
+      "task_name": "Design UI",
+      "service_name": "Web Design",
+      "priority": "High",
+      "status": "Pending",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    },
+    {
+      "sno": 2,
+      "client_name": "Beta Ltd",
+      "employee_name": "Jane Smith",
+      "task_name": "Develop API",
+      "service_name": "Backend Development",
+      "priority": "Medium",
+      "status": "Completed",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    },
+    {
+      "sno": 3,
+      "client_name": "Gamma Inc",
+      "employee_name": "Alice Brown",
+      "task_name": "Database Optimization",
+      "service_name": "Database Management",
+      "priority": "Low",
+      "status": "Pending",
+      "assignedDate": "2025/03/25",
+      "targetDate": "2025/03/27",
+      "Actions": ""
+    }
+  ],
+
+  "activityTrackersample": [
+    {
+      "sno": 1,
+      "start_time": "2025-03-15",
+      "end_time": "2025-03-16",
+      "minutes": 120
+    },
+    {
+      "sno": 2,
+      "start_time": "2025-03-16",
+      "end_time": "2025-03-17",
+      "minutes": 90
+    },
+    {
+      "sno": 3,
+      "start_time": "2025-03-17",
+      "end_time": "2025-03-18",
+      "minutes": 150
+    },
+    {
+      "sno": 4,
+      "start_time": "2025-03-18",
+      "end_time": "2025-03-19",
+      "minutes": 180
+    }
+  ],
+
+  "worksheetsample": [
+    {
+      "sno": 1,
+      "start_date": "2025-03-15",
+      "end_date": "2025-03-16",
+      "minutes": 120,
+      "employee": "Balaji"
+    },
+    {
+      "sno": 2,
+      "start_date": "2025-03-16",
+      "end_date": "2025-03-17",
+      "minutes": 90,
+      "employee": "Balaji"
+    },
+    {
+      "sno": 3,
+      "start_date": "2025-03-17",
+      "end_date": "2025-03-18",
+      "minutes": 150,
+      "employee": "Balaji"
+    },
+    {
+      "sno": 4,
+      "start_date": "2025-03-18",
+      "end_date": "2025-03-19",
+      "minutes": 180,
+      "employee": "Balaji"
+    }
+  ]
+}

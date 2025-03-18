@@ -30,7 +30,7 @@ endpoint.interceptors.response.use(
     if (error.response && [401, 403].includes(error.response.status)) {
       console.error("Unauthorized, please login again.");
       localStorage.clear();
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

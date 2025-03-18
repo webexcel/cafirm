@@ -23,7 +23,7 @@ const AddManageClient = () => {
 
   const columns = [
     { header: "S.No", accessor: "sno", editable: false },
-    { header: "Name", accessor: "client_name", editable: false },
+    { header: "Name", accessor: "display_name", editable: false },
     { header: "Client Type", accessor: "client_type", editable: true },
     { header: "Contact Person", accessor: "contact_person", editable: true },
     { header: "Email", accessor: "email", editable: true },
@@ -87,6 +87,7 @@ const AddManageClient = () => {
         console.log("Selected form:", formData);
         const payload = {
           "name": formData?.name || '',
+          "dis_name": formData?.displayname,
           "type": formData?.clientType || '',
           "cont_person": formData?.contactPerson || '',
           "mail": formData?.email || '',
@@ -119,13 +120,10 @@ const AddManageClient = () => {
 
   };
 
-  // Handle delete
   const onDelete = useCallback(async (updatedData, index) => {
-
-    // console.log("update dataaa", updatedData.client_id)
-
+    console.log("update dataaa", updatedData)
     const result = await Swal.fire({
-      title: "Are you sure about remove client?",
+      title: "Are you sure about delete client?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -138,23 +136,29 @@ const AddManageClient = () => {
         console.log("update dataa", updatedData.client_id)
         const payload = { id: updatedData?.client_id || '' };
         const response = await deleteClient(payload);
+
         if (response.data.status) {
-          const newFilteredData = filteredData
-            .filter((item, ind) => ind !== index)
-            .map((item, ind) => ({ ...item, sno: ind + 1 }));
-          setFilteredData(newFilteredData);
-          setTableData(newFilteredData);
+          setFilteredData((prevFilteredData) =>
+            prevFilteredData
+              .filter((item, ind) => ind !== index)
+              .map((item, ind) => ({ ...item, sno: ind + 1 }))
+          );
+
+          setTableData((prevTableData) =>
+            prevTableData
+              .filter((item, ind) => ind !== index)
+              .map((item, ind) => ({ ...item, sno: ind + 1 }))
+          );
+
           Swal.fire("Deleted!", response?.data?.message || "Client deleted successfully.", "success");
         }
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.message || "Failed to client employee.", "error");
+        Swal.fire("Error", error.response?.data?.message || "Failed to delete client.", "error");
       }
 
     }
 
   }, []);
-
-
 
   return (
     <Fragment>

@@ -7,7 +7,18 @@ const useForm = (initialState, validate) => {
 
   // Handle input change
   const handleInputChange = (e, fieldName) => {
-    console.log('eeeeeeeee', e,fieldName);
+    console.log('eeeeeeeee', e, fieldName);
+
+    if (String(fieldName) === "dates") {
+      console.log("formdata eeeeeeeeeeeeeeeeeeee", formData, e.target.value)
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: e.target.value.map(data => new Date(data).toISOString().split('T')[0]).join('/'),
+      }));
+
+      return;
+    }
+
     if (Array.isArray(e)) {
       setFormData((prev) => ({
         ...prev,
@@ -15,7 +26,7 @@ const useForm = (initialState, validate) => {
       }));
 
       if (fieldName && errors[fieldName]) {
-        console.log('fieldName',errors[fieldName]);
+        console.log('fieldName', errors[fieldName]);
         setErrors((prev) => ({
           ...prev,
           [fieldName]: undefined,
@@ -43,6 +54,7 @@ const useForm = (initialState, validate) => {
   };
 
   const setFieldValue = (key, value) => {
+    console.log("key value: ", key, value)
     setFormData((prev) => ({
       ...prev,
       [key]: value
