@@ -311,15 +311,13 @@ export default function ActivityTracker() {
   };
 
   const handleAttendance = () => {
-    
-    if (isRunning) {
-      handleLogout();
-      getTrackerAttendanceData(selectedDate.toISOString().split('T')[0])
-    } else {
-      handleLogin();
-      getTrackerAttendanceData(selectedDate.toISOString().split('T')[0])
-    }
+    const date = selectedDate.toISOString().split('T')[0];
+
+    const action = isRunning ? handleLogout() : handleLogin();
+
+    return action.then(() => getTrackerAttendanceData(date));
   };
+
 
   const getTrackerAttendanceData = async (date) => {
     try {

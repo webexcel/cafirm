@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import { MENUITEMS } from "../components/common/sidebar/sidemenu";
 import useDocumentTitle from "../hooks/useDocumentTitle";
-// import { AttendanceProvider } from "../contexts";
+import { AttendanceProvider } from "../contexts";
 
 // Lazy-loaded components
 const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop"));
@@ -73,8 +73,9 @@ const AdminLayout = () => {
         // Render the main layout after loading is complete
         <>
           {/* <AttendanceProvider> */}
-            <ScrollToTop /> {/* This component handles scrolling to the top on route change */}
-            <PublicRoutes>
+          <ScrollToTop /> {/* This component handles scrolling to the top on route change */}
+          <PublicRoutes>
+            <AttendanceProvider>
               <Switcher />
               <div className="main-page">
                 {/* Header component */}
@@ -93,8 +94,8 @@ const AdminLayout = () => {
                   </div>
                 </div>
               </div>
-
-            </PublicRoutes>
+            </AttendanceProvider>
+          </PublicRoutes>
           {/* </AttendanceProvider> */}
         </>
       )}
