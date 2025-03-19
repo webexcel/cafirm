@@ -349,7 +349,7 @@ const ViewTask = () => {
                 "dueDate": values?.targetDate || '',
                 "priority": values?.priority || '',
                 "description": '',
-                "status": values?.status || ''
+                "status": String(values?.status) || ''
             }
             const response = await editTaskData(payload)
             if (!response.data.status) {

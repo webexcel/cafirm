@@ -13,6 +13,7 @@ const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 import Cookies from 'js-cookie';
+import { getEmployee } from "../../service/employee_management/createEmployeeService";
 
 const AddTimeSheet = () => {
 
@@ -68,8 +69,8 @@ const AddTimeSheet = () => {
         const payload = {
         };
         const clientresponse = await getClient();
-        const employeeresponse = await getEmployeeByService(payload);
-        console.log("Client API Response:", clientresponse);
+        const employeeresponse = await getEmployee();
+        console.log("Client API Response 111111111111111111111:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
 
         const updatedFormFields = ViewEmpTimeSheetField.map((field) => {
@@ -89,8 +90,10 @@ const AddTimeSheet = () => {
           }
 
           if (field.name === "employee") {
+            console.log("Inner.....")
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
               const userData = JSON.parse(Cookies.get('user'));
+              console.log("userData111111111111111", userData);
               if (userData?.role !== 'S') {
                 setFieldValue("employee", userData.employee_id);
                 console.log("userData111111111111111", userData);
@@ -100,7 +103,7 @@ const AddTimeSheet = () => {
                 value: item.employee_id,
                 label: item.name,
               }));
-              console.log("Mapped Employee Options:", userData, field,
+              console.log("Mapped Employee Options111111111111111111111111111:", userData, field,
                 employeeOptions);
               return {
                 ...field,

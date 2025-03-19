@@ -110,7 +110,7 @@ export const TimesheetModalFields = [
     type: "dropdown",
     options: [],
     required: false,
-    disable: true,
+    disable: false,
     collength: 12,
   },
   {

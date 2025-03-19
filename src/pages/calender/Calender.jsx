@@ -98,7 +98,7 @@ const Calender = () => {
                     getCalenderObj(
                         data.cal_id,
                         data.title,
-                        "blue",
+                        data.color,
                         data.start_date,
                         data.end_date,
                         data.description
@@ -203,7 +203,7 @@ const Calender = () => {
                             // calendarImage: "Test URL",
                             start_date: formik.values.start,
                             end_date: formik.values.end,
-                            // color: selectedColor,
+                            color: selectedColor,
                             description: formik.values.description
                         };
 
