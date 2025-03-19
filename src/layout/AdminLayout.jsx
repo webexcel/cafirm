@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import { MENUITEMS } from "../components/common/sidebar/sidemenu";
 import useDocumentTitle from "../hooks/useDocumentTitle";
+// import { AttendanceProvider } from "../contexts";
 
 // Lazy-loaded components
 const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop"));
@@ -71,28 +72,30 @@ const AdminLayout = () => {
       ) : (
         // Render the main layout after loading is complete
         <>
-          <ScrollToTop /> {/* This component handles scrolling to the top on route change */}
-          <PublicRoutes>
-            <Switcher />
-            <div className="main-page">
-              {/* Header component */}
-              <Header headerTitle={headerTitle} />
+          {/* <AttendanceProvider> */}
+            <ScrollToTop /> {/* This component handles scrolling to the top on route change */}
+            <PublicRoutes>
+              <Switcher />
+              <div className="main-page">
+                {/* Header component */}
+                <Header headerTitle={headerTitle} />
 
-              {/* Page header with dynamic title */}
-              <Pageheader />
+                {/* Page header with dynamic title */}
+                <Pageheader />
 
-              {/* Sidebar with a handler to update the header title */}
-              <Sidebar onHeaderTitleChange={handleHeaderTitleChange} />
+                {/* Sidebar with a handler to update the header title */}
+                <Sidebar onHeaderTitleChange={handleHeaderTitleChange} />
 
-              {/* Main content area */}
-              <div className="main-content app-content" style={{ marginBlockStart: '3.5rem' }}>
-                <div className="container-fluid">
-                  <Outlet /> {/* Nested routes will be rendered here */}
+                {/* Main content area */}
+                <div className="main-content app-content" style={{ marginBlockStart: '3.5rem' }}>
+                  <div className="container-fluid">
+                    <Outlet /> {/* Nested routes will be rendered here */}
+                  </div>
                 </div>
               </div>
-            </div>
 
-          </PublicRoutes>
+            </PublicRoutes>
+          {/* </AttendanceProvider> */}
         </>
       )}
     </>

@@ -263,4 +263,4 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   );
 };
 
-export default React.memo(CustomTable);
+export default CustomTable;
