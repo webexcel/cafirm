@@ -12,7 +12,16 @@ const CustomModalBox = React.memo(({
     initialValues,
     formFields
 }) => {
-    console.log("checkk", initialValues, formFields)
+    const [menuIsOpen, setMenuIsOpen] = React.useState({});
+
+    const handleMenuOpen = (name) => {
+        setMenuIsOpen((prev) => ({ ...prev, [name]: true }));
+    };
+
+    const handleMenuClose = (name) => {
+        setMenuIsOpen((prev) => ({ ...prev, [name]: false }));
+    };
+
     return (
         <Modal show={show} onHide={handleClose} className="fade" id="addtask" tabIndex={-1} aria-hidden="true">
             <Formik
@@ -33,37 +42,44 @@ const CustomModalBox = React.memo(({
                                             {label}
                                         </label>
                                         {(() => {
-
                                             switch (type) {
-
-
-                                                case 'dropdown':
+                                                case 'dropdown': {
                                                     return (
                                                         <Select
                                                             options={options}
                                                             classNamePrefix="Select2"
                                                             menuPlacement="auto"
                                                             isSearchable
-                                                            onChange={(selected) => setFieldValue(name, selected.value)}
+                                                            onChange={(selected) => setFieldValue(name, selected?.value || "")}
                                                             isDisabled={disable}
-                                                            defaultInputValue={options.find(option => String(option.value) === String(values[name]))?.label}
+                                                            defaultValue={options.find(option => String(option.value) === String(values[name]))}
+                                                            menuIsOpen={menuIsOpen[name] || false}
+                                                            onMenuOpen={() => handleMenuOpen(name)}
+                                                            onMenuClose={() => handleMenuClose(name)}
                                                         />
                                                     );
-                                                case "multiSelect":
+                                                }
+
+                                                case "multiSelect": {
                                                     return (
                                                         <Select
                                                             isMulti
                                                             name={name}
                                                             options={options}
-                                                            value={values[name] || ""}
+                                                            value={values[name] || []}
                                                             className="js-example-placeholder-multiple w-full js-states"
                                                             menuPlacement="auto"
                                                             classNamePrefix="Select2"
                                                             placeholder={placeholder}
                                                             isDisabled={disable}
                                                             onChange={(selected) => setFieldValue(name, selected)}
+                                                            menuIsOpen={menuIsOpen[name] || false}
+                                                            onMenuOpen={() => handleMenuOpen(name)}
+                                                            onMenuClose={() => handleMenuClose(name)}
+                                                            isClearable
                                                         />
                                                     );
+                                                }
 
                                                 case 'date':
                                                     return (
@@ -82,6 +98,7 @@ const CustomModalBox = React.memo(({
                                                             </InputGroup>
                                                         </Form.Group>
                                                     );
+
                                                 case "text":
                                                     return (
                                                         <Field
@@ -105,14 +122,12 @@ const CustomModalBox = React.memo(({
                                                     );
 
                                                 default:
-
                                                     return null;
                                             }
                                         })()}
                                         <ErrorMessage name={name} component="div" className="text-danger mt-1" />
                                     </Col>
                                 ))}
-
                             </div>
                         </Modal.Body>
                         <Modal.Footer>

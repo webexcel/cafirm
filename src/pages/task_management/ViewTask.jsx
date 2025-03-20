@@ -356,7 +356,7 @@ const ViewTask = () => {
                 return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
             }
             fetchViewTaksData("All", "All", "All", "All", "ALL")
-            Swal.fire("Success", `Task added successfully`, "success");
+            Swal.fire("Success", `Task edited successfully`, "success");
         }
         catch (err) {
             Swal.fire("Error", err.response?.data?.message || "Failed to edit task data.", "error");
@@ -409,7 +409,7 @@ const ViewTask = () => {
                                     recordsPerPage={recordsPerPage}
                                     totalRecords={filteredData.length}
                                     handlePageChange={handlePageChange}
-                                    onDelete={onDelete}
+                                    // onDelete={onDelete}
                                     handlerEdit={handlerEdit}
                                 />
                             </Suspense>

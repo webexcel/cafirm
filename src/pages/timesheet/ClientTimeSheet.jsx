@@ -9,7 +9,6 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
 import { ViewCliTimeSheetField } from "../../constants/fields/timesheetFields";
-import { getCliTimeSheet, viewCliTimeSheet } from "../../service/timesheet/clientTimeSheet";
 import { deleteTimeSheet, editTimeSheet, getEmployeeByService, getServiceByClient, getTaskByEmployee, viewSelectTimeSheet } from "../../service/timesheet/employeeTimeSheet";
 import CustomModalBox from "../task_management/model/custom/CustomModalBox";
 import { TimesheetModalFields } from "../../constants/fields/ModelBoxFields";
@@ -334,15 +333,19 @@ const ClientTimeSheet = () => {
         return data;
       })
     );
+
     console.log("updatedFields", updatedFields)
     setTimesheetFormFields(updatedFields);
-  }
+  };
 
-  const handlerEdit = (data, index) => {
-    console.log("dataaaa", data, index, timesheetFormFileds, initialModelValues)
-    updateEmployeeOptions()
-    console.log("dataaaa", data, index, timesheetFormFileds, timesheetFormFileds)
-    const date1 = new Date()
+  const handlerEdit = async (data, index) => {
+    console.log("dataaaa", data, index, timesheetFormFileds, initialModelValues);
+
+    await updateEmployeeOptions();
+
+    console.log("dataaaa", data, index, timesheetFormFileds, timesheetFormFileds);
+
+    const date1 = new Date();
     setInitialModelValues((prev) => ({
       ...prev,
       taskName: String(data?.task_id || ""),
@@ -354,10 +357,11 @@ const ClientTimeSheet = () => {
       date: data?.date || date1,
       minutes: data?.total_minutes || '',
       time_sheet_id: data?.time_sheet_id || ''
-    }))
+    }));
 
-    setShowModal(true)
-  }
+    setShowModal(true);
+  };
+
 
   const handleSubmit = async (values) => {
     console.log("Submitted values:", values);
@@ -372,6 +376,10 @@ const ClientTimeSheet = () => {
       if (!response.data.status) {
         return Swal.fire("Error", response.data.message || "Failed to edit timesheet.", "error");
       }
+      fetchViewTicketData(formData?.employee || 'All',
+        formData?.client || "All", formData?.service || 'All', formData?.start_date || date.toISOString().split('T')[0],
+        formData?.enddate || date.toISOString().split('T')[0]
+      )
       Swal.fire("Success", `Timesheet edit successfully`, "success");
     }
     catch (err) {

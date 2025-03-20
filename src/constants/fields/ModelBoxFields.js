@@ -111,7 +111,7 @@ export const TimesheetModalFields = [
     options: [],
     required: false,
     disable: false,
-    collength: 12,
+    collength: 6,
   },
   {
     name: "employee",
@@ -121,7 +121,7 @@ export const TimesheetModalFields = [
     options: [],
     required: false,
     disable: false,
-    collength: 12,
+    collength: 6,
   },
   {
     name: "date",
@@ -130,7 +130,7 @@ export const TimesheetModalFields = [
     type: "date",
     required: true,
     disable: false,
-    collength: 12,
+    collength: 6,
   },
   {
     name: "minutes",
@@ -139,6 +139,6 @@ export const TimesheetModalFields = [
     type: "number",
     required: true,
     disable: false,
-    collength: 12,
+    collength: 6,
   },
 ];
