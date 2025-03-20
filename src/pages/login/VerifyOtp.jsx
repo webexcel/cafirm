@@ -18,8 +18,11 @@ const VerifyOtp = () => {
 	const handleVerify = async (e) => {
 		e.preventDefault();
 
+		console.log(otp,'--correctOtp');
+		
+
 		// Check if OTP matches
-		if (otp !== correctOtp) {
+		if (Number(otp) !== Number(correctOtp)) {
 			setError("Invalid OTP.");
 			return;
 		}

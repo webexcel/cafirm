@@ -10,5 +10,5 @@ export const ForgotPasswordService = async (data) => {
 };
 
 export const ResetPasswordService = async (data) => {
-	return axios.post('/api/auth/reset_password', data);
+	return await endpoint.post(`${mainUrl.AUTH}/reset_password`, data);
 };
