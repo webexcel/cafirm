@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } from "react-bootstrap";
 import ColumnPopOver from '../popover/ColumnPopOver'
-const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit }) => {
+const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit,disableOnEdit = false }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,8 +14,16 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   const currentData = data.slice(indexOfFirstRecord, indexOfLastRecord);
 
   const handleEditClick = (row, index) => {
-    setEditingIndex(index);
-    setEditingData(row);
+    if(disableOnEdit)
+    {
+      onEdit(row,index);
+    }
+    else{
+      setEditingIndex(index);
+      setEditingData(row);
+    }
+  
+    
   };
 
   const handleInputChange = (e, accessor) => {

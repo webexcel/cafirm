@@ -74,7 +74,7 @@ export const CreateUserAccountFields = [
     label: "Is Admin",
     placeholder: "Select Is Admin",
     type: "dropdown",
-    options: [],
+    options: [{label:'Yes',value:'A'},{label:'No',value:'E'}],
     required: true,
   },
 
