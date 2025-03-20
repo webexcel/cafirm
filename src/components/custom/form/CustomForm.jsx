@@ -70,6 +70,7 @@ const CustomForm = ({
             onChange={(e) => onChange(e, field.name)}
             isInvalid={!!errors[field.name]}
             style={{ width: "100%" }}
+            maxLength={field.maxLength || 100}
           />
         );
       case "timer":

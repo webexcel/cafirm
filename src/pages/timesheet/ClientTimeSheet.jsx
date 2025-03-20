@@ -9,7 +9,6 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
 import { ViewCliTimeSheetField } from "../../constants/fields/timesheetFields";
-import { getCliTimeSheet, viewCliTimeSheet } from "../../service/timesheet/clientTimeSheet";
 import { deleteTimeSheet, editTimeSheet, getEmployeeByService, getServiceByClient, getTaskByEmployee, viewSelectTimeSheet } from "../../service/timesheet/employeeTimeSheet";
 import CustomModalBox from "../task_management/model/custom/CustomModalBox";
 import { TimesheetModalFields } from "../../constants/fields/ModelBoxFields";
@@ -70,7 +69,7 @@ const ClientTimeSheet = () => {
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm,setFieldValue } = useForm(
+  const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, ViewCliTimeSheetField)
   );
@@ -82,7 +81,7 @@ const ClientTimeSheet = () => {
         const payload = {
         };
         const clientresponse = await getClient();
-        const employeeresponse = await getEmployeeByService(payload);
+        const employeeresponse = await getEmployee();
         console.log("Client API Response:", clientresponse);
         const updatedFormFields = ViewCliTimeSheetField.map((field) => {
           if (field.name === "client") {
@@ -161,7 +160,7 @@ const ClientTimeSheet = () => {
   }
   const date = new Date()
   useEffect(() => {
-    fetchViewTicketData("All", "All", "All", "2025/03/01", "2025/03/13")
+    fetchViewTicketData("All", "All", "All", date.toISOString().split('T')[0], date.toISOString().split('T')[0])
   }, [])
 
   useEffect(() => {
@@ -277,13 +276,12 @@ const ClientTimeSheet = () => {
     if (!validateForm()) return;
     try {
       console.log("Selected form:", formData);
-      const { start_date, end_date, client } = formData;
       const payload = {
         "emp_id": formData?.employee || "",
         "client_id": formData?.client || "",
         "service_id": formData?.service || "",
-        "startdate": start_date,
-        "enddate": end_date
+        "startdate": formData?.start_date || new Date(),
+        "enddate": formData?.end_date || new Date()
       }
       const response = await viewSelectTimeSheet(payload);
       if (!response.data.status) {
@@ -310,6 +308,7 @@ const ClientTimeSheet = () => {
       timesheetFormFileds.map(async (data) => {
         if (data.name === "employee") {
           const employeedata = await getEmployee();
+          console.log("employeeeee check : ", employeedata)
           return {
             ...data,
             options: employeedata.data.data.map((emp) => ({
@@ -318,45 +317,51 @@ const ClientTimeSheet = () => {
             }))
           };
         }
-        // if (data.name === "taskName") {
-        //   const employeedata = await getTaskByEmployee();
-        //   return {
-        //     ...data,
-        //     options: employeedata.data.data.map((emp) => ({
-        //       label: emp.name,
-        //       value: emp.employee_id
-        //     }))
-        //   };
-        // }
+
+        if (data.name === "taskName") {
+          const payload = {}
+          const taskdata = await getTaskByEmployee(payload);
+          console.log("task checkk : ", taskdata)
+          return {
+            ...data,
+            options: taskdata.data.data.map((emp) => ({
+              label: emp.task_name,
+              value: emp.task_id
+            }))
+          };
+        }
         return data;
       })
     );
+
     console.log("updatedFields", updatedFields)
     setTimesheetFormFields(updatedFields);
-  }
+  };
 
-  const handlerEdit = (data, index) => {
-    console.log("dataaaa", data, index, timesheetFormFileds, initialModelValues)
-    updateEmployeeOptions()
-    console.log("dataaaa", data, index, timesheetFormFileds, timesheetFormFileds)
-    const date1 = new Date()
+  const handlerEdit = async (data, index) => {
+    console.log("dataaaa", data, index, timesheetFormFileds, initialModelValues);
+
+    await updateEmployeeOptions();
+
+    console.log("dataaaa", data, index, timesheetFormFileds, timesheetFormFileds);
+
+    const date1 = new Date();
     setInitialModelValues((prev) => ({
       ...prev,
-      taskName: { value: data?.task_name || '', label: data?.task_name || '' },
-      employee: data?.employee_name || "",
-      //  {
-      //   label: data?.employee_name,
-      //   value: data?.employee_id
-      // } || '',
+      taskName: String(data?.task_id || ""),
+      employee: String(data?.employee_id) || "",
+      client: data?.client || "",
+      service: data?.service || "",
       service: data?.service_name || '',
       client: data?.client_name || '',
       date: data?.date || date1,
       minutes: data?.total_minutes || '',
       time_sheet_id: data?.time_sheet_id || ''
-    }))
+    }));
 
-    setShowModal(true)
-  }
+    setShowModal(true);
+  };
+
 
   const handleSubmit = async (values) => {
     console.log("Submitted values:", values);
@@ -371,6 +376,10 @@ const ClientTimeSheet = () => {
       if (!response.data.status) {
         return Swal.fire("Error", response.data.message || "Failed to edit timesheet.", "error");
       }
+      fetchViewTicketData(formData?.employee || 'All',
+        formData?.client || "All", formData?.service || 'All', formData?.start_date || date.toISOString().split('T')[0],
+        formData?.enddate || date.toISOString().split('T')[0]
+      )
       Swal.fire("Success", `Timesheet edit successfully`, "success");
     }
     catch (err) {

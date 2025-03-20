@@ -74,7 +74,7 @@ const AddTimeSheet = () => {
             if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
               const serviceOptions = serviceresponse.data.data.map((item) => ({
                 value: item.service_id,
-                label: item.service_short_name,
+                label: item.service_name,
               }));
               console.log("Mapped Client Options:", serviceOptions);
               setServiceData(serviceOptions)
@@ -107,25 +107,26 @@ const AddTimeSheet = () => {
     fetchFieldOptionData()
   }, []);
 
-  useEffect(() => {
-    const getPriorityBased = async () => {
-      try {
-        const response = await getTasksByPriority()
-        console.log("Priority based task data : ", response)
-        const addSno = response?.data?.data.map((data, index) => ({
-          ...data,
-          sno: index + 1,
-          startdate: data?.assigned_date.split('T')[0],
-          enddate: data?.due_date.split('T')[0],
-          assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
-        }))
-        setTableData(addSno)
-        setFilteredData(addSno)
-      }
-      catch (error) {
-        console.log("Error Occures while getting tasks by priority : ", error.stack)
-      }
+  const getPriorityBased = async () => {
+    try {
+      const response = await getTasksByPriority()
+      console.log("Priority based task data : ", response)
+      const addSno = response?.data?.data.map((data, index) => ({
+        ...data,
+        sno: index + 1,
+        startdate: data?.assigned_date.split('T')[0],
+        enddate: data?.due_date.split('T')[0],
+        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
+      }))
+      setTableData(addSno)
+      setFilteredData(addSno)
     }
+    catch (error) {
+      console.log("Error Occures while getting tasks by priority : ", error.stack)
+    }
+  }
+
+  useEffect(() => {
     getPriorityBased()
   }, [])
 
@@ -142,7 +143,7 @@ const AddTimeSheet = () => {
           );
 
           if (client) {
-            setFieldValue("task", `${client.display_name || '' }-${formData.task}`);
+            setFieldValue("task", `${client.display_name || ''}-${formData.task}`);
           }
 
           console.log("form data:", formData, formFields, clientdata);
@@ -158,7 +159,7 @@ const AddTimeSheet = () => {
 
   useEffect(() => {
     if (formData.service) {
-            
+
       const fetchClientOptionData = async () => {
         try {
           const serviceresponse = await getService()
@@ -169,10 +170,10 @@ const AddTimeSheet = () => {
 
           if (service) {
             const taskValidation = formData.task.split("-")
-            if(taskValidation.length > 1){
+            if (taskValidation.length > 1) {
               const taskval = taskValidation[0]
-              setFieldValue("task", `${taskval}-${service.service_name}`);
-              console.log("taskval",taskval,"taskValidation",taskValidation)
+              setFieldValue("task", `${taskval}-${service.service_short_name}`);
+              console.log("taskval", taskval, "taskValidation", taskValidation)
               return;
             }
             setFieldValue("task", `${formData.task}${service.service_name}`);
@@ -204,24 +205,19 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, employee, priority, task } = formData;
+        const { client, service, description, employee, priority, task, startdate, end } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
         const empIds = employee.map((data) => data.value)
-        // const date1 = new Date()
-        // const userData = JSON.parse(Cookies.get('user'));
         console.log("clientval", clientval)
         console.log("serviceval", serviceval)
-        // console.log("employee", employee)
         const payload = {
           "client": clientval[0]?.value || '',
           "name": task || '',
           "service": serviceval[0].value || '',
           "assignTo": empIds,
-          // "assignDate": start_time,
-          // "dueDate": end_time,
-          "assignDate": "2025-03-14",
-          "dueDate": "2025-03-15",
+          "assignDate": startdate,
+          "dueDate": end,
           "priority": priority,
           "description": description
         }
@@ -230,6 +226,7 @@ const AddTimeSheet = () => {
           return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
         }
         Swal.fire("Success", `Task added successfully`, "success");
+        getPriorityBased()
         resetForm()
 
       } catch (err) {

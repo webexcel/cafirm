@@ -56,7 +56,11 @@ const ViewTask = () => {
         TaskModalFields.reduce((schema, field) => {
             if (field.required) {
                 if (field.type === "dropdown") {
-                    schema[field.name] = Yup.string().required(`${field.label} is required`);
+                    schema[field.name] = Yup.mixed().test(
+                        'dropdown-required',
+                        `${field.label} is required`,
+                        value => value !== null && value !== undefined && value !== ''
+                    );
                 } else if (field.type === "date") {
                     schema[field.name] = Yup.date().nullable().required(`${field.label} is required`);
                 } else {
@@ -349,14 +353,14 @@ const ViewTask = () => {
                 "dueDate": values?.targetDate || '',
                 "priority": values?.priority || '',
                 "description": '',
-                "status": values?.status || ''
+                "status": String(values?.status) || ''
             }
             const response = await editTaskData(payload)
             if (!response.data.status) {
                 return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
             }
             fetchViewTaksData("All", "All", "All", "All", "ALL")
-            Swal.fire("Success", `Task added successfully`, "success");
+            Swal.fire("Success", `Task edited successfully`, "success");
         }
         catch (err) {
             Swal.fire("Error", err.response?.data?.message || "Failed to edit task data.", "error");
@@ -409,7 +413,7 @@ const ViewTask = () => {
                                     recordsPerPage={recordsPerPage}
                                     totalRecords={filteredData.length}
                                     handlePageChange={handlePageChange}
-                                    onDelete={onDelete}
+                                    // onDelete={onDelete}
                                     handlerEdit={handlerEdit}
                                 />
                             </Suspense>

@@ -28,9 +28,9 @@ const WorkTimeSheet = () => {
         { header: "Emp Name", accessor: "employee_name", editable: false },
         { header: "Start Date", accessor: "login_date", editable: false },
         { header: "End Date", accessor: "logout_date", editable: false },
-        { header: "Start Time", accessor: "logout_date", editable: false },
+        { header: "Start Time", accessor: "login_time", editable: false },
         { header: "End Time", accessor: "logout_time", editable: false },
-        { header: "Total Minutes", accessor: "total_minutes", editable: true },
+        { header: "Total Time", accessor: "total_time", editable: true },
     ];
 
     // Initialize form state from field definitions

@@ -311,11 +311,11 @@ const AddPermissions = () => {
 
     const handleAssignUser = async () => {
         try {
-            const { permission_id, userId } = assignData;
+            const { permission_id, employee_id } = assignData;
 
             const payload = {
                 permission_id,
-                user_id: userId,
+                employee_id: employee_id,
             };
 
             const response = await assignPermission(payload);
@@ -333,7 +333,7 @@ const AddPermissions = () => {
             setAssignData([]);
             Swal.fire("Success", "Permission assigned successfully!", "success").then(
                 () => {
-                    navigate("/schoolTreeMenu");
+                    navigate("/permissions");
                 }
             );
         } catch (err) {
@@ -489,13 +489,13 @@ const AddPermissions = () => {
                     <Form>
                         <Form.Group className="mb-3" controlId="formTextBox1">
                             <Form.Select
-                                name="userId"
-                                value={assignData.userId}
+                                name="employee_id"
+                                value={assignData.employee_id}
                                 onChange={handleInputAssignChange}>
-                                <option value="">Select a User</option>
+                                <option value="">Select a Employee</option>
                                 {usersList.map((user) => (
-                                    <option key={user.UserId} value={user.UserId}>
-                                        {user.DisplayName}
+                                    <option key={user.employee_id} value={user.employee_id}>
+                                        {user.name}
                                     </option>
                                 ))}
                             </Form.Select>

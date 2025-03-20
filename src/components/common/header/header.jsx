@@ -221,7 +221,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 
 	const handleClick = (event) => {
-		const searchInput = searchRef.current;
+		const searchInput = searchRef?.current;
 
 		if (searchInput && (searchInput === event.target || searchInput.contains(event.target))) {
 			document.querySelector(".header-search")?.classList.add("searchdrop");
@@ -274,6 +274,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 		navigate('/login');
 
 	}
+
 
 
 	return (

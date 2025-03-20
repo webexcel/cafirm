@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from 'js-cookie';
-import { addAttendanceLogin, addAttendanceLogout, checkTodayAttendance, getActivityAttendance } from "../service/attendance/activityTracker";
+import { addAttendanceLogin, addAttendanceLogout, checkTodayAttendance } from "../service/attendance/activityTracker";
 
 export const AttendanceContext = createContext(undefined);
 
@@ -47,13 +47,40 @@ export const AttendanceProvider = ({ children }) => {
             }
         };
         checkInitialData();
-        console.log("check attendance context")
+        console.log("check attendance context");
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("time", time);
-        localStorage.setItem("isRunning", isRunning);
+        const now = new Date();
+        const todayDate = now.toISOString().split('T')[0];
+        const lastDate = localStorage.getItem("lastDate");
+
+        if (!lastDate || lastDate !== todayDate) {
+            setTime(0);
+            localStorage.setItem("lastDate", todayDate);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (time !== Number(localStorage.getItem("time")) || isRunning !== (localStorage.getItem("isRunning") === "true")) {
+            localStorage.setItem("time", time);
+            localStorage.setItem("isRunning", isRunning);
+        }
     }, [time, isRunning]);
+
+    useEffect(() => {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+
+        const timeUntilMidnight = midnight - now;
+        const resetTimer = setTimeout(() => {
+            setTime(0);
+            localStorage.setItem("lastDate", new Date().toISOString().split('T')[0]);
+        }, timeUntilMidnight);
+
+        return () => clearTimeout(resetTimer);
+    }, []);
 
     const handleLogin = async () => {
         try {
