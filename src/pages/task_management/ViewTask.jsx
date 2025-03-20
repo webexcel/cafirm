@@ -56,7 +56,11 @@ const ViewTask = () => {
         TaskModalFields.reduce((schema, field) => {
             if (field.required) {
                 if (field.type === "dropdown") {
-                    schema[field.name] = Yup.string().required(`${field.label} is required`);
+                    schema[field.name] = Yup.mixed().test(
+                        'dropdown-required',
+                        `${field.label} is required`,
+                        value => value !== null && value !== undefined && value !== ''
+                    );
                 } else if (field.type === "date") {
                     schema[field.name] = Yup.date().nullable().required(`${field.label} is required`);
                 } else {

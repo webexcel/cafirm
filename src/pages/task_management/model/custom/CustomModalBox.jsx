@@ -50,7 +50,10 @@ const CustomModalBox = React.memo(({
                                                             classNamePrefix="Select2"
                                                             menuPlacement="auto"
                                                             isSearchable
-                                                            onChange={(selected) => setFieldValue(name, selected?.value || "")}
+                                                            onChange={(selected) => {
+                                                                console.log("selected", selected)
+                                                                setFieldValue(name, String(selected?.value) || "")
+                                                            }}
                                                             isDisabled={disable}
                                                             defaultValue={options.find(option => String(option.value) === String(values[name]))}
                                                             menuIsOpen={menuIsOpen[name] || false}
