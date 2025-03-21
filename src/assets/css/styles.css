@@ -29495,6 +29495,10 @@ code[class*=language-] {
   min-height: 34px !important;
 }
 
+.css-18ds7zr-control{
+  max-height: 34px !important;
+}
+
 @media (min-width: 1000px) {
   /* Styles for xxl and larger screens */
   .dashboard-card-val {

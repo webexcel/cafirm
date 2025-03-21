@@ -37,10 +37,10 @@ const ViewTask = () => {
 
     const columns = [
         { header: "S No", accessor: "sno", editable: false },
-        { header: "Client", accessor: "client_name", editable: false },
+        // { header: "Client", accessor: "client_name", editable: false },
         { header: "Employee", accessor: "assignTo", editable: false },
         { header: "Task", accessor: "task_name", editable: false },
-        { header: "Service", accessor: "service_name", editable: true },
+        // { header: "Service", accessor: "service_name", editable: true },
         { header: "Priority", accessor: "priority", editable: true },
         { header: "Status", accessor: "status_name", editable: true },
         { header: "Actions", accessor: "Actions", editable: false },
@@ -91,7 +91,7 @@ const ViewTask = () => {
                 ...data,
                 due_date: String(data.due_date)?.split('T')[0] || '',
                 assigned_date: String(data?.assigned_date).split('T')[0] || '',
-                assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
+                assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name,image:empdata.photo }))
             }))
             setTableData(addSno)
             setFilteredData(addSno)

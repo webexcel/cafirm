@@ -116,7 +116,7 @@ const AddTimeSheet = () => {
         sno: index + 1,
         startdate: data?.assigned_date.split('T')[0],
         enddate: data?.due_date.split('T')[0],
-        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name }))
+        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name,image:empdata.photo}))
       }))
       setTableData(addSno)
       setFilteredData(addSno)

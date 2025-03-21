@@ -52,7 +52,6 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 		}
 	}
 
-
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
 			items?.forEach((item) => {
@@ -246,6 +245,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 			});
 		}
 	};
+
 	if (typeof window !== "undefined") {
 		window.addEventListener("scroll", Topup);
 	}
@@ -268,7 +268,16 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 	}
 
-
+	const getUserData = () => {
+		const userData = JSON.parse(Cookies.get('user'));
+		console.log("Redirect")
+		try {
+			navigate(`/vieweditprofile?${userData?.employee_id}`);
+		}
+		catch (error) {
+			console.log("Error occurs while getting userdata : ", error.stack)
+		}
+	}
 
 	return (
 		<Fragment>
@@ -397,7 +406,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 							</Dropdown.Toggle>
 							<Dropdown.Menu as="ul" className="dropdown-menu  border-0 main-header-dropdown  overflow-hidden header-profile-dropdown" aria-labelledby="mainHeaderProfile">
 								<Dropdown.Item as="li" className="border-0">
-									<Link to="#"><i className="fs-13 me-2 bx bx-user"></i>Profile</Link></Dropdown.Item>
+									<Link to="#" onClick={() => { getUserData }}><i className="fs-13 me-2 bx bx-user"></i>Profile</Link></Dropdown.Item>
 								<Dropdown.Item as="li" className="border-0" onClick={() => { logout() }}>
 									<Link to="#">
 										<i className="fs-13 me-2 bx bx-arrow-to-right"></i>Log Out
