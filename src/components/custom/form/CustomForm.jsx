@@ -22,13 +22,29 @@ const CustomForm = ({
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
   const handleDateChange = (date, name) => {
+
+    console.log("datee", date)
     if (String(name) === "dates") {
-      setDateRange(date)
-      onChange({ target: { name, value: date ? date : "" } }, name);
+      setDateRange(date);
+      onChange({ target: { name, value: date || "" } }, name);
       return;
     }
-    onChange({ target: { name, value: date ? date.toISOString().split("T")[0] : "" } }, name);
+
+    if (date) {
+      // Ensure the date is stored in 'YYYY-MM-DD' format without time zone issues
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Ensure two digits
+      const day = String(date.getDate()).padStart(2, "0"); // Ensure two digits
+
+      const formattedDate = `${year}-${month}-${day}`;
+
+      onChange({ target: { name, value: formattedDate } }, name);
+    } else {
+      onChange({ target: { name, value: "" } }, name);
+    }
   };
+
+
 
   // console.log("errorrrr", errors);
 

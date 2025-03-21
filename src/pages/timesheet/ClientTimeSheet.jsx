@@ -114,7 +114,7 @@ const ClientTimeSheet = () => {
                 employeeOptions);
               return {
                 ...field,
-                options: employeeOptions,
+                options: [{ value: 'All', label: 'All' }, ...employeeOptions],
                 disabled: userData?.role !== 'S' ? true : false
               };
             } else {
@@ -193,11 +193,6 @@ const ClientTimeSheet = () => {
                 };
               } else {
                 console.error("Student data response is not an array or is empty.");
-
-                return {
-                  ...field,
-                  options: [{ value: "All", label: "All" }]
-                };
               }
             }
             return field;

@@ -29496,6 +29496,7 @@ code[class*=language-] {
 }
 
 .css-18ds7zr-control{
+  min-height: 0px !important;
   max-height: 34px !important;
 }
 
