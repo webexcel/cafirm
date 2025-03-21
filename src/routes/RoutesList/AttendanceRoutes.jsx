@@ -3,7 +3,7 @@ const ActivityTracker = React.lazy(() => import("../../pages/attendance/Activity
 const WorkTimeSheet = React.lazy(() => import("../../pages/attendance/WorkTimeSheet"));
 export const AttendanceRoutes = {
     "childRoutes": [
-        { path: "activityTracker", element: <ActivityTracker /> },
-        { path: "workTimeSheet", element: <WorkTimeSheet /> }
+        { path: "addAttendance", element: <ActivityTracker /> },
+        { path: "viewAttendance", element: <WorkTimeSheet /> }
     ]
 }
