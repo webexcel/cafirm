@@ -294,7 +294,6 @@ const CustomForm = ({
             </Form.Group>
           </Col>
         ))}
-        {showAddButton && (
           <Col md={3} sm={12} className="justify-content-start">
             <Button
               type="submit"
@@ -303,7 +302,6 @@ const CustomForm = ({
               {onEdit ? "Update" : "Add"}
             </Button>
           </Col>
-        )}
       </Row>
     </Form>
   );
