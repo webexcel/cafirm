@@ -118,7 +118,6 @@ const Permissions = () => {
               handlePageChange={handlePageChange}
               onEdit={handleSaveEdit}
               editingIndex={editingIndex}
-              onDelete={onDelete}
               disableOnEdit={true}
             />
           </Suspense>

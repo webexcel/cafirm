@@ -9,9 +9,16 @@ import { connect } from "react-redux";
 import { ThemeChanger } from "../../../redux/action";
 import Cookies from 'js-cookie';
 //IMAGES
-import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.png";
+import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.jpg";
 import togglelogo from "../../../assets/images/brand-logos/toggle-logo.png";
-import desktopdark from "../../../assets/images/brand-logos/desktop-dark.png";
+import desktopdark from "../../../assets/images/brand-logos/desktop-dark.jpg";
+import toggledark from "../../../assets/images/brand-logos/toggle-dark.png";
+import spainflag from "../../../assets/images/flags/spain_flag.jpg";
+import usflag from "../../../assets/images/flags/us_flag.jpg";
+import frenchflag from "../../../assets/images/flags/french_flag.jpg";
+import germanyflag from "../../../assets/images/flags/germany_flag.jpg";
+import russiaflag from "../../../assets/images/flags/russia_flag.jpg";
+import italyflag from "../../../assets/images/flags/italy_flag.jpg";
 import media34 from "../../../assets/images/media/media-34.jpg";
 import media35 from "../../../assets/images/media/media-35.jpg";
 import media36 from "../../../assets/images/media/media-36.jpg";

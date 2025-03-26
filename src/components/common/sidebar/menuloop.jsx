@@ -1,93 +1,134 @@
-
-import { use, useEffect } from "react";
-import { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-function Menuloop({ MENUITEMS, toggleSidemenu, level, onHeaderTitleChange }) {
+function Menuloop({ MENUITEMS, toggleSidemenu, level, onHeaderTitleChange, MENUFULLITMS }) {
+  const [menuState, setMenuState] = useState(MENUITEMS);
 
-	useEffect(() => {
+  useEffect(() => {
+    getHeaderTitle();
+  }, []);
 
-		if (MENUITEMS?.children) {
-			MENUITEMS.children.map((firstlevel) => {
-				if (firstlevel.selected) {
-					onHeaderTitleChange(firstlevel.title);
-				}
-			})
-			return;
-		}
+  async function getHeaderTitle() {
+    MENUFULLITMS.map(async (data) => {
+      if (data.active) {
+        if (data.children) {
+          data.children.map(async (child) => {
+            if (child.active) {
+              await onHeaderTitleChange(child.title);
+            }
+          });
+        } else {
+          await onHeaderTitleChange(data.title);
+        }
+      }
+    });
 
-	}, [onHeaderTitleChange]);
+    if (MENUITEMS.active && MENUITEMS.children) {
+      MENUITEMS.children.map(async (child) => {
+        if (child.selected) {
+          await onHeaderTitleChange(child.title);
+        }
+      });
+    }
+  }
 
-	return (
-		<Fragment>
-			<Link to="#" className={`side-menu__item ${MENUITEMS?.selected ? "active" : ""}`} onClick={(event) => { event.preventDefault(); toggleSidemenu(event, MENUITEMS); }}>
+  function handleToggleMenu(event) {
+    event.preventDefault();
+    event.stopPropagation(); // Prevent event from bubbling up
 
-				{level <= 1 ?
-					<span className='side-menu__icon'>
-						{MENUITEMS.icon}
-					</span>
-					: " "}
-				<span className={`${level == 1 ? "side-menu__label" : ""}`}>
-					{MENUITEMS.title}
-					{MENUITEMS.badgetxt ? (
-						<span className={MENUITEMS.class}>
-							{MENUITEMS.badgetxt}
-						</span>
-					) : (
-						""
-					)}
-				</span>
-				<i className="fe fe-chevron-right side-menu__angle"></i>
-			</Link>
-			<ul className={`slide-menu child${level}  ${MENUITEMS.active ? "double-menu-active" : ""} ${MENUITEMS?.dirchange ? "force-left" : ""}  `} style={
-				MENUITEMS.active
-					? { display: "block" }
-					: { display: "none" }
-			}>
-				{level <= 1 ? <li className='slide side-menu__label1'>
-					<Link to="#">{MENUITEMS.title}</Link>
-				</li> : ""}
-				{MENUITEMS.children.map((firstlevel) =>
-					<li key={Math.random()} className={`${firstlevel.menutitle ? "slide__category" : ""} ${firstlevel?.type == "empty" ? "slide" : ""} ${firstlevel?.type == "link" ? "slide" : ""} ${firstlevel?.type == "sub" ? "slide has-sub" : ""} ${firstlevel?.active ? "open" : ""} ${firstlevel?.selected ? "active" : ""}`} >
-						{firstlevel.type === "link" ?
-							<Link to={firstlevel.path} className={`side-menu__item ${firstlevel.selected ? "active" : ""}`}>
-								{firstlevel.icon}
-								<span className="">
-									{firstlevel.title}
-									{firstlevel.badgetxt ? (
-										<span className={firstlevel.class}>
-											{firstlevel.badgetxt}
-										</span>
-									) : (
-										""
-									)}
-								</span>
-							</Link>
-							: ""}
-						{firstlevel.type === "empty" ?
-							<Link to="#" className='side-menu__item'>
-								<span className="">
-									{firstlevel.title}
-									{firstlevel.badgetxt ? (
-										<span className={firstlevel.class}>
-											{firstlevel.badgetxt}
-										</span>
-									) : (
-										""
-									)}
-								</span>
-							</Link>
-							: ""}
-						{firstlevel.type === "sub" ?
-							<Menuloop MENUITEMS={firstlevel} toggleSidemenu={toggleSidemenu} level={level + 1} />
-							: ""}
+    // Toggle submenu only when clicking the parent
+    setMenuState((prev) => ({ ...prev, active: !prev.active }));
+  }
 
-					</li>
-				)}
+  return (
+    <Fragment>
+      {/* Main Menu Item */}
+      <Link
+        to="#"
+        className={`side-menu__item ${menuState.selected ? "active" : ""}`}
+        onClick={handleToggleMenu}
+      >
+        {/* Show Icon Only at Level 1 or Below */}
+        {level <= 1 && <span className="side-menu__icon">{menuState.icon}</span>}
 
-			</ul>
-		</Fragment>
-	);
+        {/* Show Menu Title */}
+        <span className={`${level === 1 ? "side-menu__label" : ""}`}>
+          {menuState.title}
+          {menuState.badgetxt && <span className={menuState.class}>{menuState.badgetxt}</span>}
+        </span>
+
+        {/* Toggle Submenu on Arrow Click */}
+        {menuState.children && menuState.children.length > 0 && (
+          <i
+            className={`fe fe-chevron-right side-menu__angle ${menuState.active ? "rotated" : ""}`}
+            onClick={handleToggleMenu}
+          ></i>
+        )}
+      </Link>
+
+      {/* Submenu Container */}
+      {menuState.children && (
+        <ul
+          className={`slide-menu child${level} ${menuState.active ? "double-menu-active" : ""} ${
+            menuState.dirchange ? "force-left" : ""
+          }`}
+          style={{ display: menuState.active ? "block" : "none" }}
+          onClick={(event) => event.stopPropagation()} // Keep submenu open when clicking inside
+        >
+          {/* Category Label for Top-Level Menus */}
+          {level <= 1 && (
+            <li className="slide side-menu__label1">
+              <Link to="#">{menuState.title}</Link>
+            </li>
+          )}
+
+          {/* Render Child Menu Items */}
+          {menuState.children.map((child) => (
+            <li
+              key={child.path}
+              className={`${child.menutitle ? "slide__category" : ""} ${
+                child.type === "empty" ? "slide" : ""
+              } ${child.type === "link" ? "slide" : ""} ${child.type === "sub" ? "slide has-sub" : ""} ${
+                child.active ? "open" : ""
+              } ${child.selected ? "active" : ""}`}
+            >
+              {/* Render Link Type */}
+              {child.type === "link" && (
+                <Link to={child.path} className={`side-menu__item ${child.selected ? "active" : ""}`}>
+                  {child.icon}
+                  <span>
+                    {child.title}
+                    {child.badgetxt && <span className={child.class}>{child.badgetxt}</span>}
+                  </span>
+                </Link>
+              )}
+
+              {/* Render Empty Type */}
+              {child.type === "empty" && (
+                <Link to="#" className="side-menu__item">
+                  <span>
+                    {child.title}
+                    {child.badgetxt && <span className={child.class}>{child.badgetxt}</span>}
+                  </span>
+                </Link>
+              )}
+
+              {/* Recursively Render Submenus */}
+              {child.type === "sub" && (
+                <Menuloop
+                  MENUITEMS={child}
+                  toggleSidemenu={toggleSidemenu}
+                  level={level + 1}
+                  onHeaderTitleChange={onHeaderTitleChange}
+                  MENUFULLITMS={MENUFULLITMS}
+                />
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Fragment>
+  );
 }
 
-export default Menuloop;
+export default React.memo(Menuloop);

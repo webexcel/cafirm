@@ -53,7 +53,7 @@ export const PermissionProvider = ({ children }) => {
           selected: false,
           dirchange: false,
           children: parent.submenus.map((submenu) => ({
-            path: `${import.meta.env.BASE_URL}${submenu.submenu.replace(/\s+/g, "")}`,
+            path: `${import.meta.env.BASE_URL}${submenu.submenu.replace(/[\s/]+/g, "")}`,
             type: "link",
             active: false,
             selected: false,
@@ -63,7 +63,7 @@ export const PermissionProvider = ({ children }) => {
         };
       } else {
         return {
-          path: `${import.meta.env.BASE_URL}${parent.parent_menu.replace(/\s+/g, "")}`,
+          path: `${import.meta.env.BASE_URL}${parent.parent_menu.replace(/[\s/]+/g, "")}`,
           icon: iconMap[parent.parent_menu] || icon6,
           type: "link",
           active: false,

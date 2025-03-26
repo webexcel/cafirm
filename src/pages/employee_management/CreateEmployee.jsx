@@ -7,6 +7,7 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddEmployeeField } from "../../constants/fields/employeeFields";
+import { usePermission } from "../../contexts";
 import { addEmployee, deleteEmployee, getEmployee } from "../../service/employee_management/createEmployeeService";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
@@ -19,6 +20,12 @@ const CreateEmployee = () => {
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState([]);
   const [formFields, setFormFields] = useState(AddEmployeeField);
+  const { permissions } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
+  console.log(permissions,'--permissions');
+  
+
 
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
@@ -49,12 +56,43 @@ const CreateEmployee = () => {
       }))
       setTableData(addSno)
       setFilteredData(addSno)
-      console.log("response : ", response)
+
+      const permissionFlags = getPermissions(menuData, "Employee Management", "Create Employee");
+      console.log(permissionFlags,'--permissionFlag--------s');
+      
+      setPermissionFlags(permissionFlags);
+
     }
     catch (err) {
       console.log("Error occurs while getting employee data : ", err)
     }
   }
+
+  const getPermissions = (menuData, parentMenuName, subMenuName) => {
+    // Find the parent menu (e.g., "Employee Management")
+    const parentMenu = menuData.find(menu => menu.parent_menu === parentMenuName);
+    
+    if (!parentMenu) return {}; // Return empty if the parent menu is not found
+
+    let operations = [];
+
+    if (subMenuName) {
+        // If submenu is provided, find it inside parent menu
+        const subMenu = parentMenu.submenus?.find(sub => sub.submenu === subMenuName);
+        if (subMenu) {
+            operations = subMenu.operations.map(op => op.operation);
+        }
+    } else {
+        // If no submenu, use parent menu operations
+        operations = parentMenu.operations?.map(op => op.operation) || [];
+    }
+
+    // Generate permission flags dynamically
+    return operations.reduce((acc, op) => {
+        acc[`show${op}`] = true;
+        return acc;
+    }, {});
+};
 
   useEffect(() => {
     getEmployeeData()
@@ -146,6 +184,7 @@ const CreateEmployee = () => {
     }
   }, [filteredData]);
   
+console.log(permissionFlags,'--permissionFlags');
 
 
   return (
@@ -161,6 +200,7 @@ const CreateEmployee = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
+                  showAddButton={true}
                 />
 
               </Col>

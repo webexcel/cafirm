@@ -3,19 +3,19 @@ import { connect } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeChanger } from "../../../redux/action";
 import store from "../../../redux/store";
-import logo1 from "../../../assets/images/brand-logos/desktop-logo.png";
+import logo1 from "../../../assets/images/brand-logos/desktop-logo.jpg";
 import logo2 from "../../../assets/images/brand-logos/toggle-logo.png";
-import logo3 from "../../../assets/images/brand-logos/desktop-dark.png";
+import logo3 from "../../../assets/images/brand-logos/desktop-dark.jpg";
 import logo4 from "../../../assets/images/brand-logos/toggle-dark.png";
 import SimpleBar from "simplebar-react";
 import { MENUITEMS } from "./sidemenu";
 import Menuloop from "./menuloop";
 import { usePermission } from "../../../contexts";
 
-const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
-	const [menuitems, setMenuitems] = useState(MENUITEMS);
+const Sidebar = ({ local_varaiable, ThemeChanger,onHeaderTitleChange}) => {
 	const { menuItems } = usePermission();
-	console.log(menuItems,'---menuItemscontext');
+
+	const [menuitems, setMenuitems] = useState(menuItems);
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
 			items?.forEach((item) => {
@@ -23,13 +23,14 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				closeMenuRecursively(item.children);
 			});
 		};
-		closeMenuRecursively(MENUITEMS);
+		closeMenuRecursively(menuItems);
 		setMenuitems((arr) => [...arr]);
 	}
 
 	useEffect(() => {
 		window.addEventListener("resize", menuResizeFn);
 	}, []);
+
 
 	// const location = useLocation();
 	const location = useLocation();
@@ -40,6 +41,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 			ThemeChanger({ ...theme, "iconOverlay": "open" });
 		}
 	}
+
 	function Outhover() {
 		const theme = store.getState();
 		if ((theme.toggled == "icon-overlay-close" || theme.toggled == "detached-close") && theme.iconOverlay == "open") {
@@ -255,6 +257,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 			});
 		}
 	};
+
 	window.addEventListener("scroll", Topup);
 
 	const level = 0;
@@ -288,6 +291,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 
 		setMenuitems((arr) => [...arr]);
 	}
+
 	function getParentObject(obj, childObject) {
 		for (const key in obj) {
 			if (obj.hasOwnProperty(key)) {
@@ -304,6 +308,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 		}
 		return null; // Object not found
 	}
+
 	function setMenuAncestorsActive(targetObject) {
 		const parent = getParentObject(menuitems, targetObject);
 		const theme = store.getState();
@@ -324,6 +329,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 			}
 		}
 	}
+
 	function removeActiveOtherMenus(item) {
 		if (item) {
 			if (Array.isArray(item)) {
@@ -359,7 +365,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				setSubmenuRecursively(item.children);
 			});
 		};
-		setSubmenuRecursively(MENUITEMS);
+		setSubmenuRecursively(menuItems);
 	}
 	const [previousUrl, setPreviousUrl] = useState("/");
 
@@ -535,14 +541,9 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	}
 
 	const test = (data) => {
-		if (data?.children) {
-			console.log("Children", data.children)
-			const filterData = data.children.filter((item) => item.selected)
-			console.log("filterData", filterData)
-		}
-		// onHeaderTitleChange(data.title)
-		console.log('test', data)
+		console.log('testtt')
 	}
+
 	return (
 		<Fragment>
 			<div id="responsive-overlay"
@@ -554,9 +555,9 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				<div className="main-sidebar-header">
 					<Link to={`${import.meta.env.BASE_URL}dashboards/sales/`} className="header-logo">
 						<img src={logo1} alt="logo" className="desktop-logo" />
-						<img src={logo2} alt="logo" className="toggle-logo" />
-						<img src={logo3} alt="logo" className="desktop-dark" />
-						<img src={logo4} alt="logo" className="toggle-dark" />
+						<img src={logo1} alt="logo" className="toggle-logo" />
+						<img src={logo1} alt="logo" className="desktop-dark" />
+						<img src={logo1} alt="logo" className="toggle-dark" />
 					</Link>
 				</div>
 				<SimpleBar className="main-sidebar" id="sidebar-scroll" style={{ height: "100%" }}>
@@ -568,12 +569,12 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 						</svg></div>
 
 						<ul className="main-menu" onClick={() => Sideclick()}>
-							{MENUITEMS.map((levelone) => (
+							{menuItems.map((levelone) => (
 								<Fragment key={Math.random()}>
 									<li className={`${levelone.menutitle ? "slide__category" : ""} ${levelone.type === "link" ? "slide" : ""}
-                       ${levelone.type === "sub" ? "slide has-sub" : ""} ${levelone?.active ? "open" : ""} ${levelone?.selected ? "active" : ""}`}>
+                       				${levelone.type === "sub" ? "slide has-sub" : ""} ${levelone?.active ? "open" : ""} ${levelone?.selected ? "active" : ""}`}>
 										{levelone.menutitle ?
-											<span className='category-name'>
+											<span className='category-name' >
 												{levelone.menutitle}
 											</span>
 											: ""}
@@ -610,7 +611,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 											</Link>
 											: ""}
 										{levelone.type === "sub" ?
-											<Menuloop MENUITEMS={levelone} level={level + 1} toggleSidemenu={toggleSidemenu} onHeaderTitleChange={onHeaderTitleChange} />
+											<Menuloop MENUITEMS={levelone}  MENUFULLITMS={menuItems} level={level + 1} toggleSidemenu={toggleSidemenu} onHeaderTitleChange={onHeaderTitleChange} />
 											: ""}
 									</li>
 								</Fragment>

@@ -69,6 +69,9 @@ const AddPermissions = () => {
         fetchData();
     }, [permissionId]);
 
+    console.log(menuOperations,'---transformedData');
+    
+
     const initialFormState = CafirmUserMenuField.reduce(
         (acc, field) => ({
             ...acc,
@@ -153,14 +156,18 @@ const AddPermissions = () => {
         e.preventDefault();
 
         if (!validateForm()) return;
-
-        const checkedOperationIds = menuOperations.flatMap((menu) =>
-            menu.subMenus.flatMap((subMenu) =>
+        
+        const checkedOperationIds = menuOperations.flatMap((menu) => [
+            ...menu.operations
+                .filter((operation) => operation.checked)
+                .map((operation) => operation.menu_operation_id),
+        
+            ...menu.subMenus.flatMap((subMenu) =>
                 subMenu.operations
                     .filter((operation) => operation.checked)
                     .map((operation) => operation.menu_operation_id)
             )
-        );
+        ]);
 
         if (checkedOperationIds.length === 0) {
             Swal.fire({
@@ -186,6 +193,9 @@ const AddPermissions = () => {
             try {
 
                 const { permission_name, description } = formData;
+
+                console.log(checkedOperationIds,'---checkedOperationIds');
+                
 
                 const payload = {
                     permission_name,
