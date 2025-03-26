@@ -366,7 +366,8 @@ const WeeklyTimeSheet = () => {
                                 </td>
                             </tr>
                         ))}
-                          <tr className="bg-gray-200">
+                        <tr className="bg-gray-200">
+                        {/* <th className="border border-gray-300 p-2 text-center">Total</th> */}
                             {headerData.map((header, index) => (
                                 <th key={index} className="border border-gray-300 p-2 text-center">
                                     <span className="font-bold">
@@ -374,10 +375,8 @@ const WeeklyTimeSheet = () => {
                                     </span>
                                 </th>
                             ))}
-
-                            <th className="border border-gray-300 p-2 text-center">Actions</th>
                         </tr>
-                        
+
                     </tbody>
 
                 </table>

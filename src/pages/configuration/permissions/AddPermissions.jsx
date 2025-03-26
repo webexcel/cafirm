@@ -45,7 +45,6 @@ const AddPermissions = () => {
                 const permissions = permissionsResponse.data.data;
                 setPermissionList(permissions);
                 setUsersList(employeeResponse.data.data);
-                console.log("user list",usersResponse)
 
                 let currentEditData = null;
                 if (permissionId) {

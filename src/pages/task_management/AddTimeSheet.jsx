@@ -11,7 +11,7 @@ import { getEmployee } from "../../service/employee_management/createEmployeeSer
 import { getService } from "../../service/masterDetails/serviceApi";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
-import { addTask, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
+import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 
 
 const AddTimeSheet = () => {
@@ -271,9 +271,43 @@ const AddTimeSheet = () => {
     setCurrentPage(pageNumber);
   };
 
-  const onDelete = () => {
+ const onDelete = useCallback(async (updatedData, index) => {
+        console.log("update dataaa", updatedData)
+        const result = await Swal.fire({
+            title: "Are you sure about delete task?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = { id: updatedData.task_id };
+                const response = await deleteTaskData(payload);
+                if (response.data.status) {
+                    setFilteredData((prevFilteredData) =>
+                        prevFilteredData
+                            .filter((item, ind) => ind !== index)
+                            .map((item, ind) => ({ ...item, sno: ind + 1 }))
+                    );
 
-  }
+                    setTableData((prevTableData) =>
+                        prevTableData
+                            .filter((item, ind) => ind !== index)
+                            .map((item, ind) => ({ ...item, sno: ind + 1 }))
+                    );
+
+                    Swal.fire("Deleted!", response?.data?.message || "Task deleted successfully.", "success");
+                }
+            } catch (error) {
+                Swal.fire("Error", error.response?.data?.message || "Failed to delete task.", "error");
+            }
+
+        }
+
+    }, []);
 
   return (
     <Fragment>
