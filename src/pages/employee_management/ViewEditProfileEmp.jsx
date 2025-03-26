@@ -6,8 +6,7 @@ import UserCard from "../../components/custom/card/UserCard";
 import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { editEmployeeDetails, getEmployeeDetails } from "../../service/employee_management/viewEditEmployeeService";
-
-
+import { useSearchParams } from "react-router-dom";
 const ViewEditProfileEmp = () => {
   const [employeesData, setEmployeesData] = useState([]);
   const [employeeData, setEmployeeData] = useState({
@@ -18,6 +17,45 @@ const ViewEditProfileEmp = () => {
     "phone": "",
     "role": "",
   })
+  const [searchParams] = useSearchParams();
+  const empid = searchParams.get("id");
+
+
+  const getEmpData = async (item) => {
+    console.log("Item : ", item)
+    try {
+      const payload = {
+        "id": item?.employee_id || ""
+      }
+      const response = await getEmployeeDetails(payload)
+      const userData = response.data.data[0]
+      console.log("User data : ", userData)
+      setEmployeeData(prev => ({
+        ...prev,
+        email: userData?.email,
+        password: userData?.password_hash,
+        employee_id: userData?.employee_id,
+        name: userData?.name,
+        phone: userData?.phone,
+        role: userData?.role,
+        photo: userData?.photo
+      }))
+      console.log("Response : ", response)
+    }
+    catch (err) {
+      console.log("Error occurs while getting employee data : ", err.stack)
+      Swal.fire("Error", err.response?.data?.message || "Failed to get employee data.", "error");
+
+    }
+  }
+
+  useEffect(() => {
+    console.log("params check : ",empid)
+    if (empid) {
+      const payload = { employee_id: empid };
+      getEmpData(payload);
+    }
+  }, [empid]);
 
   const getEmployeeData = async () => {
     try {
@@ -47,33 +85,7 @@ const ViewEditProfileEmp = () => {
     { key: "phone", label: "Contact" },
     { key: "photo", label: "photo" },
   ];
-  const getEmpData = async (item) => {
-    console.log("Item : ", item)
-    try {
-      const payload = {
-        "id": item?.employee_id || ""
-      }
-      const response = await getEmployeeDetails(payload)
-      const userData = response.data.data[0]
-      console.log("User data : ", userData)
-      setEmployeeData(prev => ({
-        ...prev,
-        email: userData?.email,
-        password: userData?.password_hash,
-        employee_id: userData?.employee_id,
-        name: userData?.name,
-        phone: userData?.phone,
-        role: userData?.role,
-        photo: userData?.photo
-      }))
-      console.log("Response : ", response)
-    }
-    catch (err) {
-      console.log("Error occurs while getting employee data : ", err.stack)
-      Swal.fire("Error", err.response?.data?.message || "Failed to get employee data.", "error");
 
-    }
-  }
   const handleFieldUpdate = async (key, value, userData, type) => {
     console.log("Checkk : ", key, value, userData)
     try {

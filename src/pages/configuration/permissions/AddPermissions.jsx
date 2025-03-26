@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import { useParams, useNavigate } from "react-router-dom";
 import useForm from "../../../hooks/useForm";
 import { usePermission } from "../../../contexts";
+import { getEmployee } from "../../../service/employee_management/createEmployeeService";
 
 const AddPermissions = () => {
     const { permissionId } = useParams();
@@ -34,16 +35,17 @@ const AddPermissions = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [permissionsResponse, menuOperationsData, usersResponse] =
+                const [permissionsResponse, menuOperationsData, employeeResponse] =
                     await Promise.all([
                         getPermissionsList(),
                         getMenuOperationsList(),
-                        getUsersList(),
+                        getEmployee(),
                     ]);
 
                 const permissions = permissionsResponse.data.data;
                 setPermissionList(permissions);
-                setUsersList(usersResponse.data.data);
+                setUsersList(employeeResponse.data.data);
+                console.log("user list",usersResponse)
 
                 let currentEditData = null;
                 if (permissionId) {
@@ -325,7 +327,7 @@ const AddPermissions = () => {
 
             const payload = {
                 permission_id,
-                employee_id: employee_id,
+                user_id: employee_id,
             };
 
             const response = await assignPermission(payload);

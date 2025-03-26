@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } from "react-bootstrap";
 import ColumnPopOver from '../popover/ColumnPopOver'
-const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit,disableOnEdit = false }) => {
+import demoimage from '../../../assets/images/apps/calender.png'
+
+const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit, disableOnEdit = false }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-
   const recordsPerPage = 10;
   const totalRecords = data.length;
   const totalPages = Math.ceil(totalRecords / recordsPerPage);
@@ -14,16 +15,15 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   const currentData = data.slice(indexOfFirstRecord, indexOfLastRecord);
 
   const handleEditClick = (row, index) => {
-    if(disableOnEdit)
-    {
-      onEdit(row,index);
+    if (disableOnEdit) {
+      onEdit(row, index);
     }
-    else{
+    else {
       setEditingIndex(index);
       setEditingData(row);
     }
-  
-    
+
+
   };
 
   const handleInputChange = (e, accessor) => {
@@ -73,8 +73,12 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
 
   // console.log("table datttaaaaaa", data)
 
+
   return (
+
     <>
+
+
       <div className="table-responsive">
         <Table className="table table-hover text-nowrap table-striped">
           <thead>
@@ -224,7 +228,24 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                         ) : (
                           <span>
                             {(col.accessor === "assignTo" || col.accessor === "assigned_to")
-                              ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
+                              // ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
+                              ?
+                              <div className="avatar-list-stacked"> {
+                                row[col.accessor]?.map((data, index) => (
+                                  <OverlayTrigger placement="top" overlay={<Tooltip>{data.label}</Tooltip>}>
+                                    <span key={data.value} className="avatar avatar-sm avatar-rounded"
+                                      style={{ width: '30px', height: '30px' }}>
+                                      <img src={data.image || demoimage} alt={data.image || 'img'} />
+                                    </span>
+                                  </OverlayTrigger>
+                                ))
+                              }
+                                {/* <a className="avatar avatar-sm bg-primary text-fixed-white avatar-rounded"
+                                  href="#">
+                                  +5
+                                </a> */}
+                              </div>
+                              // .filter(Boolean).join(', ')
                               : String(row[col.accessor] || "").trim().toLowerCase() === "pending"
                                 ? (<span className="badge bg-danger">{row[col.accessor]}</span>)
                                 : String(row[col.accessor] || "").trim().toLowerCase() === "in-progress"
@@ -237,6 +258,7 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                                         ? (<span className="badge bg-info">{row[col.accessor]}</span>)
                                         : String(row[col.accessor] || "").trim().toLowerCase() === "medium"
                                           ? (<span className="badge bg-warning">{row[col.accessor]}</span>)
+
                                           : row[col.accessor]}
                           </span>
 

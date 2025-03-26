@@ -26,16 +26,9 @@ export const ViewEmpTimeSheetField = [
   },
 
   {
-    name: "start_time",
-    label: "Start time",
-    placeholder: "Enter Start time",
-    type: "timer",
-    required: true,
-  },
-  {
-    name: "end_time",
-    label: "End time",
-    placeholder: "Enter End time",
+    name: "time",
+    label: "Time",
+    placeholder: "Enter time",
     type: "timer",
     required: true,
   },

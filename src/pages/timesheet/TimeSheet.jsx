@@ -29,7 +29,7 @@ const AddTimeSheet = () => {
     // { header: "Client Name", accessor: "client_name", editable: false },
     // { header: "Service", accessor: "service_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
-    { header: "Total Mins", accessor: "total_minutes", editable: true },
+    { header: "Total Time", accessor: "total_time", editable: true },
     // { header: "Actions", accessor: "Actions", editable: false },
   ];
 
@@ -210,8 +210,9 @@ const AddTimeSheet = () => {
         const payload = {
           "emp_id": formData?.employee || '',
           "task_id": formData?.task || '',
-          "date": formData?.date || '',
-          "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)
+          "date": formData?.date || new Date(),
+          // "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)
+          time : formData?.time || ''
         }
         const response = await addTimeSheet(payload);
         getTimeSheetData()
