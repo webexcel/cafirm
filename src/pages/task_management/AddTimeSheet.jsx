@@ -237,19 +237,20 @@ const AddTimeSheet = () => {
         console.log("Selected form:", formData);
         const { client, service, description, employee, priority, task, startdate, end } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
+        console.log("servicedata",servicedata)
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
         const empIds = employee.map((data) => data.value)
         console.log("clientval", clientval)
         console.log("serviceval", serviceval)
         const payload = {
-          "client": clientval[0]?.value || '',
+          "client": client || '',
           "name": task || '',
-          "service": serviceval[0].value || '',
-          "assignTo": empIds,
-          "assignDate": startdate,
-          "dueDate": end,
-          "priority": priority,
-          "description": description
+          "service": service || '',
+          "assignTo": empIds || [],
+          "assignDate": startdate || new Date(), 
+          "dueDate": end || new Date(),
+          "priority": priority || '',
+          "description": description || '',
         }
         const response = await addTask(payload);
         if (!response.data.status) {
