@@ -76,3 +76,17 @@ export const ViewCliTimeSheetField = [
     required: true,
   },
 ];
+
+export const WeeklyTimeSheetField = [
+
+  {
+    name: "employee",
+    label: "Employee",
+    placeholder: "Select Employee",
+    type: "dropdown",
+    options: [],
+    required: true,
+    // disabled:true
+  },
+
+];

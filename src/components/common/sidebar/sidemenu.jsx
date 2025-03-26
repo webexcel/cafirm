@@ -65,6 +65,7 @@ export const MENUITEMS = [
 			{ path: `${import.meta.env.BASE_URL}viewtask`, type: "link", active: false, selected: false, dirchange: false, title: "View Task" },
 			{ path: `${import.meta.env.BASE_URL}timeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Timesheet" },
 			{ path: `${import.meta.env.BASE_URL}clientTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Timesheet" },
+			{ path: `${import.meta.env.BASE_URL}weeklyTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Weekly Timesheet" },
 		],
 	},
 	//Reporting

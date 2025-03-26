@@ -412,7 +412,7 @@ const ViewTask = () => {
                                     recordsPerPage={recordsPerPage}
                                     totalRecords={filteredData.length}
                                     handlePageChange={handlePageChange}
-                                    // onDelete={onDelete}
+                                    onDelete={onDelete}
                                     handlerEdit={handlerEdit}
                                 />
                             </Suspense>

@@ -160,7 +160,11 @@ const UserCard = ({
                         <div
                             key={`${key}-${index}`}
                             ref={containerRef}
-                            className="d-flex justify-content-between align-items-center mb-1 py-1 user-selectable-card"
+                            className="d-flex justify-content-between align-items-center py-3 px-2 user-selectable-card"
+                            style={{
+                                borderBottom: "1px solid rgb(242 242 242)",
+                                backgroundColor: index % 2 !== 0 ? "rgb(242 242 242)" : "white" // Apply background to odd rows
+                            }}
                         >
                             <span
                                 className="text-muted"
@@ -176,7 +180,7 @@ const UserCard = ({
                                         {userData[key] || "Empty"}
                                     </span>
                                 </div>
-                            ) : editingField === key && !["employee_id","client_id"].includes(key) ? (
+                            ) : editingField === key && !["employee_id", "client_id"].includes(key) ? (
                                 <div className="d-flex align-items-center justify-content-end">
                                     {(() => {
                                         switch (key.toLowerCase()) {
@@ -216,7 +220,7 @@ const UserCard = ({
                                             case "dob":
                                                 return (
                                                     <>
-                                                        <div style={{ position: "relative", display: "inline-block", width: '75%' }}>
+                                                        <div style={{ position: "relative", display: "inline-block", width: "75%" }}>
                                                             <DatePicker
                                                                 selected={tempValue}
                                                                 onChange={handleSelectChange}
@@ -289,11 +293,11 @@ const UserCard = ({
                                 <div
                                     onClick={() =>
                                         userData &&
-                                        typeof userData === 'object' &&
+                                        typeof userData === "object" &&
                                         Object.keys(userData).length > 1 &&
                                         handleEditClick(key)
                                     }
-                                    style={{ cursor: "pointer", maxWidth: '65%' }}
+                                    style={{ cursor: "pointer", maxWidth: "65%" }}
                                 >
                                     <span className="fw-normal">
                                         {key.toLowerCase() === "dob" ? formatDate(userData[key]) : userData[key] || "Empty"}
@@ -303,7 +307,6 @@ const UserCard = ({
                         </div>
                     ) : null
                 ))}
-
 
 
             </div>
