@@ -11,7 +11,7 @@ import { getEmployee } from "../../service/employee_management/createEmployeeSer
 import { getService } from "../../service/masterDetails/serviceApi";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
-import { addTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
+import { addTask, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 
 
 const AddTimeSheet = () => {
@@ -30,6 +30,7 @@ const AddTimeSheet = () => {
     { header: "Total Minutes", accessor: "total_minutes", editable: true },
     { header: "Status", accessor: "status_name", editable: true },
     { header: "Priority", accessor: "priority", editable: true },
+    { header: "Actions", accessor: "Actions", editable: false },
   ];
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
@@ -49,7 +50,7 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
-        const serviceresponse = await getService()
+        // const serviceresponse = await getService()
         const employeeresponse = await getEmployee();
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
@@ -70,20 +71,20 @@ const AddTimeSheet = () => {
             }
 
           }
-          if (field.name === "service") {
-            if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
-              const serviceOptions = serviceresponse.data.data.map((item) => ({
-                value: item.service_id,
-                label: item.service_name,
-              }));
-              console.log("Mapped Client Options:", serviceOptions);
-              setServiceData(serviceOptions)
-              return { ...field, options: serviceOptions };
-            } else {
-              console.error("Service data response is not an array or is empty.");
-            }
+          // if (field.name === "service") {
+          //   if (Array.isArray(serviceresponse.data.data) && serviceresponse.data.data.length > 0) {
+          //     const serviceOptions = serviceresponse.data.data.map((item) => ({
+          //       value: item.service_id,
+          //       label: item.service_name,
+          //     }));
+          //     console.log("Mapped Client Options:", serviceOptions);
+          //     setServiceData(serviceOptions)
+          //     return { ...field, options: serviceOptions };
+          //   } else {
+          //     console.error("Service data response is not an array or is empty.");
+          //   }
 
-          }
+          // }
           if (field.name === "employee") {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
               const employeeOptions = employeeresponse.data.data.map((item) => ({
@@ -116,7 +117,7 @@ const AddTimeSheet = () => {
         sno: index + 1,
         startdate: data?.assigned_date.split('T')[0],
         enddate: data?.due_date.split('T')[0],
-        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name,image:empdata.photo}))
+        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name, image: empdata.photo }))
       }))
       setTableData(addSno)
       setFilteredData(addSno)
@@ -144,6 +145,7 @@ const AddTimeSheet = () => {
 
           if (client) {
             setFieldValue("task", `${client.display_name || ''}-${formData.task}`);
+            getServiceDataByClient()
           }
 
           console.log("form data:", formData, formFields, clientdata);
@@ -154,6 +156,7 @@ const AddTimeSheet = () => {
 
       fetchClientOptionData();
     }
+
   }, [formData.client]);
 
 
@@ -188,6 +191,33 @@ const AddTimeSheet = () => {
       fetchClientOptionData();
     }
   }, [formData.service]);
+
+  const getServiceDataByClient = async () => {
+    try {
+      const response = await getServicesForTask({ client_id: formData.client });
+      const updatedFormFields = formFields.map((field) => {
+        if (field.name === "service") {
+          if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+            const serviceOptions = response.data.data.map((item) => ({
+              value: item.service_id,
+              label: item.service_name,
+            }));
+            console.log("Mapped Client Options:", serviceOptions);
+            // setServiceData(serviceOptions)
+            return { ...field, options: serviceOptions };
+          } else {
+            console.error("Service data response is not an array or is empty.");
+          }
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
+
+    }
+    catch (error) {
+      console.log("Error Occures while getting services by client : ", error.stack)
+    }
+  }
 
   // Handle add
   const handleAdd = async (e) => {
@@ -241,6 +271,9 @@ const AddTimeSheet = () => {
     setCurrentPage(pageNumber);
   };
 
+  const onDelete = () => {
+
+  }
 
   return (
     <Fragment>
@@ -275,7 +308,7 @@ const AddTimeSheet = () => {
                   recordsPerPage={recordsPerPage}
                   totalRecords={filteredData.length}
                   handlePageChange={handlePageChange}
-                // onDelete={onDelete}
+                  onDelete={onDelete}
                 />
               </Suspense>
             </Card.Body>

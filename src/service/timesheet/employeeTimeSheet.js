@@ -43,3 +43,12 @@ export const editTimeSheet = async (data) => {
 export const viewSelectTimeSheet = async (data) => {
   return await endpoint.post(`${mainUrl.TIMESHEET}/viewTimesheet`, data);
 };
+
+export const viewWeeklyTimesheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/viewWeeklyTimesheet`, data);
+};
+
+export const updateWeeklyTimesheet = async (data) => {
+  return await endpoint.post(`${mainUrl.TIMESHEET}/updateWeeklyTimesheet`, data);
+};
+
