@@ -7,6 +7,7 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateUserAccountFields } from "../../constants/fields/employeeFields";
 import { addEmployee, deleteEmployee, getEmployee } from "../../service/employee_management/createEmployeeService";
+import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
 
 const CustomTable = React.lazy(() => import("../../components/custom/table/CustomTable"));
 
@@ -38,38 +39,50 @@ const CreateUserAccount = () => {
 
   const getEmployeeData = async () => {
     try {
-      const response = await getEmployee();
-      const formattedData = response.data.data.map((data, index) => ({
-        sno: index + 1,
-        ...data,
-      }));
+      const response = await getEmployeesNotPassword();
       const updatedFormFields = CreateUserAccountFields.map((field) => {
-                          if (field.name === "employee") {
-                              if (Array.isArray(response.data.data) && response.data.data.length > 0) {
-                                  const employeeOptions = response.data.data.map((item) => ({
-                                      value: item.employee_id,
-                                      label: item.name,
-                                  }));
-                                  console.log("Mapped Employee Options:", employeeOptions);
-                                  return { ...field, options: employeeOptions };
-                              } else {
-                                  console.error("Employee data response is not an array or is empty.");
-                              }
-      
-                          }
-                          return field;
-                      });
-                      setFormFields(updatedFormFields);
-      setTableData(formattedData);
-      setFilteredData(formattedData);
+        if (field.name === "employee") {
+          if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+            const employeeOptions = response.data.data.map((item) => ({
+              value: item.employee_id,
+              label: item.name,
+            }));
+            console.log("Mapped Employee Options:", employeeOptions);
+            return { ...field, options: employeeOptions };
+          } else {
+            console.error("Employee data response is not an array or is empty.");
+          }
+
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
     } catch (err) {
       console.error("Error fetching employee data:", err);
     }
   };
+  const getEmployeeTableData = async () => {
+    try {
+      const response = await getUserAccounts()
+      const formattedData = response.data.data.map((data, index) => ({
+        sno: index + 1,
+        ...data,
+      }));
+      setTableData(formattedData);
+      setFilteredData(formattedData);
+    }
+    catch (error) {
+      console.log("Error occurs while getting employee table data : ", error.stack)
+    }
+  }
 
   useEffect(() => {
-    getEmployeeData();
+    const fetchInitial = async () => {
+      await Promise.all([getEmployeeData(), getEmployeeTableData()]);
+    };
+    fetchInitial();
   }, []);
+
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -91,11 +104,11 @@ const CreateUserAccount = () => {
 
     if (result.isConfirmed) {
       try {
-        const { username, password, isadmin, employee } = formData;
-        console.log(formData,'---formData');
-        
-        const payload = { name: username, password, role: isadmin, employee_id: employee };
-        const response = await addEmployee(payload);
+        const { password, employee, emprole } = formData;
+        console.log(formData, '---formData');
+
+        const payload = { password: password, id: employee, role: emprole };
+        const response = await updatePassword(payload);
 
         if (!response.data.status) {
           return Swal.fire("Error", response.data.message || "Failed to add employee.", "error");
@@ -103,7 +116,7 @@ const CreateUserAccount = () => {
 
         Swal.fire("Success", "Employee added successfully.", "success");
         resetForm();
-        getEmployeeData();
+        getEmployeeTableData();
       } catch (err) {
         Swal.fire("Error", err.response?.data?.message || "Failed to add employee.", "error");
       }

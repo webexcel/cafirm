@@ -7,13 +7,12 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
 import { ViewEmpTimeSheetField } from "../../constants/fields/timesheetFields";
-import { addTimeSheet, getEmployeeByService, getTaskByEmployee, getTimeSheetService, } from "../../service/timesheet/employeeTimeSheet";
-import { getTimeDifferenceInMinutes } from "../../utils/generalUtils";
+import { addTimeSheet, getTaskByEmployee, getTimeSheetService, } from "../../service/timesheet/employeeTimeSheet";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 import Cookies from 'js-cookie';
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 
 const AddTimeSheet = () => {
 
@@ -66,10 +65,13 @@ const AddTimeSheet = () => {
     // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
+        const userData = JSON.parse(Cookies.get('user'));
+
         const payload = {
+          emp_id: userData?.employee_id
         };
         const clientresponse = await getClient();
-        const employeeresponse = await getEmployee();
+        const employeeresponse = await getEmployeesByPermission(payload);
         console.log("Client API Response 111111111111111111111:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
 
@@ -92,23 +94,20 @@ const AddTimeSheet = () => {
           if (field.name === "employee") {
             console.log("Inner.....")
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const userData = JSON.parse(Cookies.get('user'));
-              console.log("userData111111111111111", userData);
-              if (userData?.role !== 'S') {
-                setFieldValue("employee", userData.employee_id);
-                console.log("userData111111111111111", userData);
+              if (employeeresponse.data.data.length === 1) {
+                setFieldValue("employee", employeeresponse.data.data[0].employee_id);
+                console.log("userData111111111111111", employeeresponse.data.data);
               }
-              console.log("userDatauserDatauserData", userData)
               const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
                 label: item.name,
               }));
-              console.log("Mapped Employee Options111111111111111111111111111:", userData, field,
+              console.log("Mapped Employee :", field,
                 employeeOptions);
               return {
                 ...field,
                 options: employeeOptions,
-                disabled: userData?.role !== 'S' ? true : false
+                disabled: employeeresponse.data.data.length === 1 ? true : false
               };
             } else {
               console.error("Employee data response is not an array or is empty.");
@@ -212,7 +211,7 @@ const AddTimeSheet = () => {
           "task_id": formData?.task || '',
           "date": formData?.date || new Date(),
           // "totalMinutes": getTimeDifferenceInMinutes(formData?.start_time, formData?.end_time)
-          time : formData?.time || ''
+          time: formData?.time || ''
         }
         const response = await addTimeSheet(payload);
         getTimeSheetData()

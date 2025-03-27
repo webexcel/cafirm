@@ -6,14 +6,13 @@ import CustomForm from "../../components/custom/form/CustomForm";
 import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
-import { viewSelectTimeSheet } from "../../service/timesheet/employeeTimeSheet";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
-import { worksheetsample } from '../../../sampledata.json'
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { WorkTimesheetFields } from "../../constants/fields/attendanceFields";
 import { getAttendanceByDate } from "../../service/attendance/activityTracker";
+import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
+import Cookies from 'js-cookie';
 
 
 const WorkTimeSheet = () => {
@@ -39,7 +38,7 @@ const WorkTimeSheet = () => {
         return acc;
     }, {});
 
-    const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
+    const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
         initialFormState,
         (data) => validateCustomForm(data, WorkTimesheetFields)
     );
@@ -47,17 +46,29 @@ const WorkTimeSheet = () => {
     useEffect(() => {
         const fetchFieldOptionData = async () => {
             try {
-                const employeeresponse = await getEmployee();
+                const userData = JSON.parse(Cookies.get('user'));
+
+                const payload = {
+                    emp_id: userData?.employee_id
+                };
+                const employeeresponse = await getEmployeesByPermission(payload);
                 console.log("Employee API Response:", employeeresponse);
                 const updatedFormFields = WorkTimesheetFields.map((field) => {
                     if (field.name === "employee") {
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
+                            if (employeeresponse.data.data.length === 1) {
+                                setFieldValue("employee", employeeresponse.data.data[0].employee_id);
+                                console.log("userData111111111111111", employeeresponse.data.data);
+                            }
                             const employeeOptions = employeeresponse.data.data.map((item) => ({
                                 value: item.employee_id,
                                 label: item.name,
                             }));
                             console.log("Mapped Employee Options:", employeeOptions);
-                            return { ...field, options: employeeOptions };
+                            return {
+                                ...field, options: employeeOptions,
+                                disabled: employeeresponse.data.data.length === 1 ? true : false
+                            };
                         } else {
                             console.error("Employee data response is not an array or is empty.");
                         }

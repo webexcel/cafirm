@@ -157,9 +157,12 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                                       if (row.total_minutes <= 0) {
                                         onDelete(row, rowIndex);
                                       }
+                                      if (!row?.total_minutes) {
+                                        onDelete(row, rowIndex);
+                                      }
                                     }}
                                     style={{
-                                      pointerEvents: row.total_minutes > 0 ? "none" : "auto", 
+                                      pointerEvents: row.total_minutes > 0 ? "none" : "auto",
                                       opacity: row.total_minutes > 0 ? 0.5 : 1,
                                     }}
                                   >
