@@ -12,3 +12,7 @@ export const addEmployee = async (data) => {
 export const deleteEmployee = async (data) => {
   return await endpoint.post(`${mainUrl.EMPLOYEE}/deleteEmployee`, data);
 };
+
+export const createUserAccount = async (data) => {
+  return await endpoint.post(`${mainUrl.EMPLOYEE}/addUserAccount`, data);
+};

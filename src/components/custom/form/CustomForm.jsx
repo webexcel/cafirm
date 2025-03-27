@@ -17,7 +17,9 @@ const CustomForm = ({
   onPanelStateChange,
   showCheckedTable,
   customOnClick,
-  btnText
+  btnText,
+  onEdit = false,
+  showAddButton
 }) => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -278,7 +280,13 @@ const CustomForm = ({
           <Col
             key={idx}
             md={
-              field.type === "textarea" ? 6 : field.type === "multiPanelSelect" ? 12 : field.type === "checktable" ? 12 : 3
+              field.type === "textarea"
+                ? 6
+                : field.type === "multiPanelSelect"
+                ? 12
+                : field.type === "checktable"
+                ? 12
+                : 3
             }
             sm={12}
             className="">
@@ -286,29 +294,30 @@ const CustomForm = ({
             <Form.Group
               controlId={field.name}
               className={
-                field.type === "multiPanelSelect" || "" ? "custom-full-width" : ""
+                field.type === "multiPanelSelect" || ""
+                  ? "custom-full-width"
+                  : ""
               }>
               {/* <Form.Label>{field.label}</Form.Label> */}
               {renderField(field)}
               {errors[field.name] &&
                 (console.log(errors, "test"),
-                  (
-                    <Form.Control.Feedback type="invalid">
-                      {errors[field.name]}
-                    </Form.Control.Feedback>
-                  ))}
+                (
+                  <Form.Control.Feedback type="invalid">
+                    {errors[field.name]}
+                  </Form.Control.Feedback>
+                ))}
             </Form.Group>
           </Col>
         ))}
-
-        <Col md={3} sm={12} className="justify-content-start">
-          <Button
-            type="submit"
-            variant="primary"
-            className="btn btn-wave mb-3 w-50 py-1">
-            {btnText || "Add"}
-          </Button>
-        </Col>
+          <Col md={3} sm={12} className="justify-content-start">
+            <Button
+              type="submit"
+              variant="primary"
+              className="btn btn-wave mb-3 w-50 py-1">
+              {onEdit ? "Update" : "Add"}
+            </Button>
+          </Col>
       </Row>
     </Form>
   );

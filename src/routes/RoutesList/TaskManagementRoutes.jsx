@@ -6,6 +6,6 @@ export const TaskRoutesList = {
     "childRoutes": [
         { path: "taskTracking", element: <TaskTracking /> },
         { path: "viewtask", element: <ViewTask /> },
-        { path: "addTimeSheet", element: <AddTimeSheet /> },
+        { path: "CreateTask", element: <AddTimeSheet /> },
     ]
 }

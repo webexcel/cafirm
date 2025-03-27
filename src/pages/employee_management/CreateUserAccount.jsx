@@ -1,4 +1,10 @@
-import React, { Fragment, useCallback, useState, useEffect, Suspense } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useState,
+  useEffect,
+  Suspense,
+} from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomForm from "../../components/custom/form/CustomForm";
@@ -6,10 +12,17 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateUserAccountFields } from "../../constants/fields/employeeFields";
-import { addEmployee, deleteEmployee, getEmployee } from "../../service/employee_management/createEmployeeService";
-import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
 
-const CustomTable = React.lazy(() => import("../../components/custom/table/CustomTable"));
+import {
+  addEmployee,
+  deleteEmployee,
+  getEmployee,
+  createUserAccount,
+} from "../../service/employee_management/createEmployeeService";
+
+const CustomTable = React.lazy(() =>
+  import("../../components/custom/table/CustomTable")
+);
 
 const CreateUserAccount = () => {
   const [tableData, setTableData] = useState([]);
@@ -32,10 +45,10 @@ const CreateUserAccount = () => {
     return acc;
   }, {});
 
-  const { formData, errors, handleInputChange, validateForm, resetForm } = useForm(
-    initialFormState,
-    (data) => validateCustomForm(data, CreateUserAccountFields)
-  );
+  const { formData, errors, handleInputChange, validateForm, resetForm } =
+    useForm(initialFormState, (data) =>
+      validateCustomForm(data, CreateUserAccountFields)
+    );
 
   const getEmployeeData = async () => {
     try {
@@ -68,6 +81,29 @@ const CreateUserAccount = () => {
         sno: index + 1,
         ...data,
       }));
+
+      const updatedFormFields = CreateUserAccountFields.map((field) => {
+        if (field.name === "employee") {
+          if (
+            Array.isArray(response.data.data) &&
+            response.data.data.length > 0
+          ) {
+            const employeeOptions = response.data.data.map((item) => ({
+              value: item.employee_id,
+              label: item.name,
+            }));
+            console.log("Mapped Employee Options:", employeeOptions);
+            return { ...field, options: employeeOptions };
+          } else {
+            console.error(
+              "Employee data response is not an array or is empty."
+            );
+          }
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
+
       setTableData(formattedData);
       setFilteredData(formattedData);
     }
@@ -104,21 +140,34 @@ const CreateUserAccount = () => {
 
     if (result.isConfirmed) {
       try {
-        const { password, employee, emprole } = formData;
-        console.log(formData, '---formData');
 
-        const payload = { password: password, id: employee, role: emprole };
-        const response = await updatePassword(payload);
+        const { username, password, isadmin, employee } = formData;
+        const payload = {
+          name: username,
+          password,
+          role: isadmin,
+          employee_id: employee,
+        };
+        const response = await createUserAccount(payload);
+
 
         if (!response.data.status) {
-          return Swal.fire("Error", response.data.message || "Failed to add employee.", "error");
+          return Swal.fire(
+            "Error",
+            response.data.message || "Failed to create user.",
+            "error"
+          );
         }
 
-        Swal.fire("Success", "Employee added successfully.", "success");
+        Swal.fire("Success", "User Created successfully.", "success");
         resetForm();
         getEmployeeTableData();
       } catch (err) {
-        Swal.fire("Error", err.response?.data?.message || "Failed to add employee.", "error");
+        Swal.fire(
+          "Error",
+          err.response?.data?.message || "Failed to create user.",
+          "error"
+        );
       }
     }
   };
@@ -141,7 +190,9 @@ const CreateUserAccount = () => {
 
         if (response.data.status) {
           setFilteredData((prevData) => {
-            const newFilteredData = prevData.filter((item, ind) => ind !== index).map((item, ind) => ({ ...item, sno: ind + 1 }));
+            const newFilteredData = prevData
+              .filter((item, ind) => ind !== index)
+              .map((item, ind) => ({ ...item, sno: ind + 1 }));
             setTableData(newFilteredData);
             return newFilteredData;
           });
@@ -149,7 +200,11 @@ const CreateUserAccount = () => {
           Swal.fire("Deleted!", "Employee deleted successfully.", "success");
         }
       } catch (error) {
-        Swal.fire("Error", error.response?.data?.message || "Failed to delete employee.", "error");
+        Swal.fire(
+          "Error",
+          error.response?.data?.message || "Failed to delete employee.",
+          "error"
+        );
       }
     }
   }, []);
