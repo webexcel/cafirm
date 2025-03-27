@@ -7,14 +7,6 @@ export const AddEmployeeField = [
     required: true,
   },
 
-  {
-    name: "emprole",
-    label: "Employee Role",
-    placeholder: "Select Employee Role",
-    type: "dropdown",
-    options: [{label:'Employee',value:'E'},{label:'Admin',value:'A'},{label:'Super Admin ',value:'S'}],
-    required: true,
-  },
 
   {
     name: "email",
@@ -24,14 +16,6 @@ export const AddEmployeeField = [
     required: true,
   },
 
- 
-  // {
-  //   name: "password",
-  //   label: "Password",
-  //   placeholder: "Enter Password",
-  //   type: "text",
-  //   required: true,
-  // },
 
   {
     name: "phone",
@@ -53,13 +37,6 @@ export const CreateUserAccountFields = [
     options: [],
     required: true,
   },
-  {
-    name: "username",
-    label: "User Name",
-    placeholder: "Enter User Name",
-    type: "text",
-    required: true,
-  },
  
   {
     name: "password",
@@ -70,11 +47,11 @@ export const CreateUserAccountFields = [
   },
 
   {
-    name: "isadmin",
-    label: "Is Admin",
-    placeholder: "Select Is Admin",
+    name: "emprole",
+    label: "Employee Role",
+    placeholder: "Select Employee Role",
     type: "dropdown",
-    options: [{label:'Yes',value:'A'},{label:'No',value:'E'}],
+    options: [{label:'Employee',value:'E'},{label:'Admin',value:'A'},{label:'Super Admin ',value:'S'}],
     required: true,
   },
 

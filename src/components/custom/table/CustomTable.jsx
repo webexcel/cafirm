@@ -147,32 +147,31 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                                 </OverlayTrigger>
                               )}
 
-                              {/* <button
-                                type="button"
-                                className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center"
-                                onClick={() => onDelete(row, rowIndex)}
-                                disabled={Number(row?.total_time) === 0}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </button> */}
-
-
                               {onDelete && (
                                 <OverlayTrigger placement="top" overlay={<Tooltip>Delete</Tooltip>}>
                                   <a
                                     href="#"
-                                    className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${row.total_minutes <= 0 ? 'disabled' : ''}`}
+                                    className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${row.total_minutes > 0 ? "disabled" : ""
+                                      }`}
                                     onClick={() => {
-                                      if (row.total_minutes > 0) {
+                                      if (row.total_minutes <= 0) {
+                                        onDelete(row, rowIndex);
+                                      }
+                                      if (!row?.total_minutes) {
                                         onDelete(row, rowIndex);
                                       }
                                     }}
-                                    style={{ pointerEvents: row.total_minutes <= 0 ? "none" : "auto", opacity: row.total_minutes <= 0 ? 0.5 : 1 }}
+                                    style={{
+                                      pointerEvents: row.total_minutes > 0 ? "none" : "auto",
+                                      opacity: row.total_minutes > 0 ? 0.5 : 1,
+                                    }}
                                   >
                                     <i className="ri-delete-bin-line"></i>
                                   </a>
                                 </OverlayTrigger>
                               )}
+
+
 
 
                               {onCheck && <Form.Check type="checkbox" />}

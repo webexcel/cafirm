@@ -8,3 +8,7 @@ export const getEmployeeDetails = async (data) => {
 export const editEmployeeDetails = async (data) => {
   return await endpoint.post(`${mainUrl.EMPLOYEE}/editEmployee`, data);
 };
+
+export const getEmployeesByPermission = async (data) => {
+  return await endpoint.post(`${mainUrl.EMPLOYEE}/getEmployeesByPermission`, data);
+};

@@ -44,4 +44,8 @@ const convertToBase64 = (file) => {
         reader.onerror = (error) => reject(error);
     });
 };
-export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64 };
+const formatDateIntl = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(date);
+};
+export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl };

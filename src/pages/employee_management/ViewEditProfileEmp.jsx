@@ -5,8 +5,9 @@ import SelectableSearch from "../../components/custom/search/SelectableSearch";
 import UserCard from "../../components/custom/card/UserCard";
 import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
-import { editEmployeeDetails, getEmployeeDetails } from "../../service/employee_management/viewEditEmployeeService";
+import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { useSearchParams } from "react-router-dom";
+import Cookies from 'js-cookie';
 const ViewEditProfileEmp = () => {
   const [employeesData, setEmployeesData] = useState([]);
   const [employeeData, setEmployeeData] = useState({
@@ -19,7 +20,6 @@ const ViewEditProfileEmp = () => {
   })
   const [searchParams] = useSearchParams();
   const empid = searchParams.get("id");
-
 
   const getEmpData = async (item) => {
     console.log("Item : ", item)
@@ -50,7 +50,7 @@ const ViewEditProfileEmp = () => {
   }
 
   useEffect(() => {
-    console.log("params check : ",empid)
+    console.log("params check : ", empid)
     if (empid) {
       const payload = { employee_id: empid };
       getEmpData(payload);
@@ -59,7 +59,11 @@ const ViewEditProfileEmp = () => {
 
   const getEmployeeData = async () => {
     try {
-      const response = await getEmployee()
+      const userData = JSON.parse(Cookies.get('user'));
+      const payload = {
+        "emp_id": userData?.employee_id || ''
+      };
+      const response = await getEmployeesByPermission(payload)
       const addSno = response.data.data.map((data, index) => ({
         sno: index + 1,
         ...data
