@@ -37,7 +37,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 	const [show1, setShow1] = useState(false);
 
 	const handleClose1 = () => setShow1(false);
-	const { fetchPermissions } = usePermission();
+	const { fetchPermissions,resetPermissions } = usePermission();
 	const [userdata] = useState(() => {
 		const userData = Cookies.get('user');
 		return userData ? JSON.parse(userData) : null;
@@ -265,12 +265,16 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 	const logout = async () => {
 		console.log("logout successfully")
+
 		const logoutFiter = await Object.keys(localStorage).forEach((key) => {
 			if (key !== "time") {
 				localStorage.removeItem(key);
 			}
+			
 			console.log("keys", key)
 		});
+		resetPermissions();
+		Cookies.remove();
 		navigate('/login');
 
 	}
