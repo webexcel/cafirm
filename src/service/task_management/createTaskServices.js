@@ -36,3 +36,7 @@ export const deleteTaskData = async (data) => {
 export const getServicesForTask = async (data) => {
   return await endpoint.post(`${mainUrl.SERVICETASK}/getServicesForTask`, data);
 };
+
+export const getLatestTasks = async () => {
+  return await endpoint.get(`${mainUrl.SERVICETASK}/getLatestTasks`);
+};

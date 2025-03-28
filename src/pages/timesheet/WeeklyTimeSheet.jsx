@@ -169,11 +169,11 @@ const WeeklyTimeSheet = () => {
 
     };
 
-    const getWeeklyData = async () => {
+    const getWeeklyData = async (emp_id) => {
         try {
             const userData = JSON.parse(Cookies.get('user'));
             const payload = {
-                emp_id: userData?.employee_id || ''
+                emp_id: emp_id || userData?.employee_id || ''
             };
             const response = await viewWeeklyTimesheet(payload);
             setWeeklyData(response?.data?.data);
@@ -255,7 +255,7 @@ const WeeklyTimeSheet = () => {
         e.preventDefault();
         if (!validateForm()) return;
         try {
-            getWeeklyData();
+            getWeeklyData(formData?.employee);
         } catch (err) {
             console.error("Error while get weekly timesheet data:", err.stack);
             Swal.fire("Error", err.response?.data?.message || "Failed to get weekly timesheet data.", "error");
@@ -285,7 +285,7 @@ const WeeklyTimeSheet = () => {
             </Row>
 
             <Card>
-                <table className="border-collapse border border-gray-300">
+                <table className="border-collapse border border-gray-300 w-full">
                     <thead>
                         <tr>
                             <th colSpan={headerData.length + 1} className="border border-gray-300 p-2">
@@ -301,87 +301,92 @@ const WeeklyTimeSheet = () => {
                                     </span>
                                 </th>
                             ))}
-
                             <th className="border border-gray-300 p-2 text-center">Actions</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {weeklyAllData.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="text-center">
-                                {headerData.map((header, index) => {
-                                    const currentDate = new Date().getDate();
-                                    const isEditable = editRowIndex === rowIndex && !["task_id", "task_name"].includes(header) && Number(header) <= currentDate;
-                                    return (
-                                        <td key={index} className="border border-gray-300 text-center" style={{
-                                            width: ["task_id", "task_name"].includes(header) ? '160px' : '80px',
-                                        }}>
-                                            {isEditable ? (
-                                                <InputMask
-                                                    mask="99:99"  // Allows typing two digits for HH and MM
-                                                    maskChar={null} // Prevents automatic placeholders
-                                                    value={editedData[header] || ""}
-                                                    onChange={(e) => handleInputChangeInline(header, e.target.value)}
-                                                    placeholder="HH:MM"
-                                                    pattern="^([01]\d|2[0-3]):([0-5]\d)$"  // Ensures valid HH:MM (00-23:00-59)
-                                                    title="Enter time in HH:MM format (24-hour)"
-                                                    style={{
-                                                        width: '50px',
-                                                        border: '1px solid #ccc',
-                                                        borderRadius: '5px',
-                                                        padding: '5px',
-                                                        outline: 'none',
-                                                        boxShadow: '0 1px 1px rgba(0, 0, 0, 0.1)',
-                                                        textAlign: 'center',
-                                                        boxSizing: 'border-box',
-                                                        fontSize: '11px'
-                                                    }}
-                                                    inputMode="numeric"
-                                                />
+                        {weeklyAllData.length > 0 ? (
+                            weeklyAllData.map((row, rowIndex) => (
+                                <tr key={rowIndex} className="text-center">
+                                    {headerData.map((header, index) => {
+                                        const currentDate = new Date().getDate();
+                                        const isEditable = editRowIndex === rowIndex && !["task_id", "task_name"].includes(header) && Number(header) <= currentDate;
 
-
-                                            ) : (
-                                                <span>
-                                                    {row[header] || ""}
-                                                </span>
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                                <td className="border border-gray-300 p-2">
-                                    {editRowIndex === rowIndex ? (
-                                        <>
-                                            <Button variant="success" size="sm" onClick={() => handleSaveClick(row)} className="me-2">
-                                                <i className="bi bi-check-lg"></i>
+                                        return (
+                                            <td key={index} className="border border-gray-300 text-center" style={{
+                                                width: ["task_id", "task_name"].includes(header) ? '160px' : '80px',
+                                            }}>
+                                                {isEditable ? (
+                                                    <InputMask
+                                                        mask="99:99"
+                                                        maskChar={null}
+                                                        value={editedData[header] || ""}
+                                                        onChange={(e) => handleInputChangeInline(header, e.target.value)}
+                                                        placeholder="HH:MM"
+                                                        pattern="^([01]\d|2[0-3]):([0-5]\d)$"
+                                                        title="Enter time in HH:MM format (24-hour)"
+                                                        style={{
+                                                            width: '50px',
+                                                            border: '1px solid #ccc',
+                                                            borderRadius: '5px',
+                                                            padding: '5px',
+                                                            outline: 'none',
+                                                            boxShadow: '0 1px 1px rgba(0, 0, 0, 0.1)',
+                                                            textAlign: 'center',
+                                                            boxSizing: 'border-box',
+                                                            fontSize: '11px'
+                                                        }}
+                                                        inputMode="numeric"
+                                                    />
+                                                ) : (
+                                                    <span>{row[header] || ""}</span>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                    <td className="border border-gray-300 p-2">
+                                        {editRowIndex === rowIndex ? (
+                                            <>
+                                                <Button variant="success" size="sm" onClick={() => handleSaveClick(row)} className="me-2">
+                                                    <i className="bi bi-check-lg"></i>
+                                                </Button>
+                                                <Button variant="danger" size="sm" onClick={handleCancelClick}>
+                                                    <i className="bi bi-x-lg"></i>
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <Button variant="primary" size="sm" onClick={() => handleEditClick(rowIndex)}>
+                                                <i className="bi bi-pencil-square"></i>
                                             </Button>
-                                            <Button variant="danger" size="sm" onClick={handleCancelClick}>
-                                                <i className="bi bi-x-lg"></i>
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <Button variant="primary" size="sm" onClick={() => handleEditClick(rowIndex)}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </Button>
-                                    )}
+                                        )}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            // Show this row when weeklyAllData is empty
+                            <tr>
+                                <td colSpan={headerData.length + 1} className="border border-gray-300 p-4 text-center text-gray-500">
+                                    No weekly data found
                                 </td>
                             </tr>
-                        ))}
-                          <tr className="bg-gray-200">
-                            {headerData.map((header, index) => (
-                                <th key={index} className="border border-gray-300 p-2 text-center">
-                                    <span className="font-bold">
-                                        {weeklyTotal[header] === "task_name" ? 'Total' : weeklyTotal[header]}
-                                    </span>
-                                </th>
-                            ))}
+                        )}
 
-                            <th className="border border-gray-300 p-2 text-center">Actions</th>
-                        </tr>
-                        
+                        {weeklyAllData.length > 0 && (
+                            <tr className="bg-gray-200">
+                                {headerData.map((header, index) => (
+                                    <th key={index} className="border border-gray-300 p-2 text-center">
+                                        <span className="font-bold">
+                                            {weeklyTotal[header] === "task_name" ? 'Total' : weeklyTotal[header]}
+                                        </span>
+                                    </th>
+                                ))}
+                            </tr>
+                        )}
                     </tbody>
-
                 </table>
             </Card>
+
 
         </>
     );

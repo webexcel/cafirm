@@ -157,16 +157,7 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                               </OverlayTrigger>
                             )}
 
-                            {/* <button
-                                type="button"
-                                className="btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center"
-                                onClick={() => onDelete(row, rowIndex)}
-                                disabled={Number(row?.total_time) === 0}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </button> */}
-
-                            {onDelete && showDeleteButton && (
+                                    {onDelete && showDeleteButton && (
                               <OverlayTrigger
                                 placement="top"
                                 overlay={<Tooltip>Delete</Tooltip>}>
@@ -191,6 +182,7 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                             )}
 
                             {onCheck && <Form.Check type="checkbox" />}
+
 
                             {onActive && (
                               <OverlayTrigger

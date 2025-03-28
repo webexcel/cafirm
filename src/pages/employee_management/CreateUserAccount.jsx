@@ -12,6 +12,7 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateUserAccountFields } from "../../constants/fields/employeeFields";
+
 import {
   addEmployee,
   deleteEmployee,
@@ -51,11 +52,36 @@ const CreateUserAccount = () => {
 
   const getEmployeeData = async () => {
     try {
-      const response = await getEmployee();
+      const response = await getEmployeesNotPassword();
+      const updatedFormFields = CreateUserAccountFields.map((field) => {
+        if (field.name === "employee") {
+          if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+            const employeeOptions = response.data.data.map((item) => ({
+              value: item.employee_id,
+              label: item.name,
+            }));
+            console.log("Mapped Employee Options:", employeeOptions);
+            return { ...field, options: employeeOptions };
+          } else {
+            console.error("Employee data response is not an array or is empty.");
+          }
+
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
+    } catch (err) {
+      console.error("Error fetching employee data:", err);
+    }
+  };
+  const getEmployeeTableData = async () => {
+    try {
+      const response = await getUserAccounts()
       const formattedData = response.data.data.map((data, index) => ({
         sno: index + 1,
         ...data,
       }));
+
       const updatedFormFields = CreateUserAccountFields.map((field) => {
         if (field.name === "employee") {
           if (
@@ -77,16 +103,22 @@ const CreateUserAccount = () => {
         return field;
       });
       setFormFields(updatedFormFields);
+
       setTableData(formattedData);
       setFilteredData(formattedData);
-    } catch (err) {
-      console.error("Error fetching employee data:", err);
     }
-  };
+    catch (error) {
+      console.log("Error occurs while getting employee table data : ", error.stack)
+    }
+  }
 
   useEffect(() => {
-    getEmployeeData();
+    const fetchInitial = async () => {
+      await Promise.all([getEmployeeData(), getEmployeeTableData()]);
+    };
+    fetchInitial();
   }, []);
+
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -108,6 +140,7 @@ const CreateUserAccount = () => {
 
     if (result.isConfirmed) {
       try {
+
         const { username, password, isadmin, employee } = formData;
         const payload = {
           name: username,
@@ -116,6 +149,7 @@ const CreateUserAccount = () => {
           employee_id: employee,
         };
         const response = await createUserAccount(payload);
+
 
         if (!response.data.status) {
           return Swal.fire(
@@ -127,7 +161,7 @@ const CreateUserAccount = () => {
 
         Swal.fire("Success", "User Created successfully.", "success");
         resetForm();
-        getEmployeeData();
+        getEmployeeTableData();
       } catch (err) {
         Swal.fire(
           "Error",

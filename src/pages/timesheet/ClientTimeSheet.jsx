@@ -18,6 +18,7 @@ const CustomTable = React.lazy(() =>
 import * as Yup from "yup";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import Cookies from 'js-cookie';
+import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 
 
 const ClientTimeSheet = () => {
@@ -78,10 +79,13 @@ const ClientTimeSheet = () => {
     // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
+        const userData = JSON.parse(Cookies.get('user'));
+
         const payload = {
+          emp_id: userData?.employee_id
         };
         const clientresponse = await getClient();
-        const employeeresponse = await getEmployee();
+        const employeeresponse = await getEmployeesByPermission(payload);
         console.log("Client API Response:", clientresponse);
         const updatedFormFields = ViewCliTimeSheetField.map((field) => {
           if (field.name === "client") {
@@ -101,12 +105,11 @@ const ClientTimeSheet = () => {
           if (field.name === "employee") {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
               const userData = JSON.parse(Cookies.get('user'));
-              if (userData?.role !== 'S') {
-                setFieldValue("employee", userData.employee_id);
-                console.log("userData111111111111111", userData);
-              }
-              console.log("userDatauserDatauserData", userData)
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
+
+              if (employeeresponse.data.data.length === 1) {
+                setFieldValue("employee", employeeresponse.data.data[0].employee_id);
+                console.log("userData111111111111111", employeeresponse.data.data);
+              } const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
                 label: item.name,
               }));
@@ -115,8 +118,7 @@ const ClientTimeSheet = () => {
               return {
                 ...field,
                 options: [{ value: 'All', label: 'All' }, ...employeeOptions],
-                disabled: userData?.role !== 'S' ? true : false
-              };
+                disabled: employeeresponse.data.data.length === 1 ? true : false              };
             } else {
               console.error("Employee data response is not an array or is empty.");
             }

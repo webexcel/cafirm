@@ -11,7 +11,7 @@ import { getEmployee } from "../../service/employee_management/createEmployeeSer
 import { getService } from "../../service/masterDetails/serviceApi";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
-import { addTask, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
+import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 
 
 const AddTimeSheet = () => {
@@ -237,19 +237,20 @@ const AddTimeSheet = () => {
         console.log("Selected form:", formData);
         const { client, service, description, employee, priority, task, startdate, end } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
+        console.log("servicedata",servicedata)
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
         const empIds = employee.map((data) => data.value)
         console.log("clientval", clientval)
         console.log("serviceval", serviceval)
         const payload = {
-          "client": clientval[0]?.value || '',
+          "client": client || '',
           "name": task || '',
-          "service": serviceval[0].value || '',
-          "assignTo": empIds,
-          "assignDate": startdate,
-          "dueDate": end,
-          "priority": priority,
-          "description": description
+          "service": service || '',
+          "assignTo": empIds || [],
+          "assignDate": startdate || new Date(), 
+          "dueDate": end || new Date(),
+          "priority": priority || '',
+          "description": description || '',
         }
         const response = await addTask(payload);
         if (!response.data.status) {
@@ -271,9 +272,43 @@ const AddTimeSheet = () => {
     setCurrentPage(pageNumber);
   };
 
-  const onDelete = () => {
+ const onDelete = useCallback(async (updatedData, index) => {
+        console.log("update dataaa", updatedData)
+        const result = await Swal.fire({
+            title: "Are you sure about delete task?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+        });
+        if (result.isConfirmed) {
+            try {
+                const payload = { id: updatedData.task_id };
+                const response = await deleteTaskData(payload);
+                if (response.data.status) {
+                    setFilteredData((prevFilteredData) =>
+                        prevFilteredData
+                            .filter((item, ind) => ind !== index)
+                            .map((item, ind) => ({ ...item, sno: ind + 1 }))
+                    );
 
-  }
+                    setTableData((prevTableData) =>
+                        prevTableData
+                            .filter((item, ind) => ind !== index)
+                            .map((item, ind) => ({ ...item, sno: ind + 1 }))
+                    );
+
+                    Swal.fire("Deleted!", response?.data?.message || "Task deleted successfully.", "success");
+                }
+            } catch (error) {
+                Swal.fire("Error", error.response?.data?.message || "Failed to delete task.", "error");
+            }
+
+        }
+
+    }, []);
 
   return (
     <Fragment>

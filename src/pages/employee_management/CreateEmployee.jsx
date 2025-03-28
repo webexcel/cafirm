@@ -94,13 +94,12 @@ const CreateEmployee = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { name, emprole, email, password, phone } = formData;
+        const { name,email, phone } = formData;
         const payload = {
           "name": name,
           "email": email,
-          "password": password,
           "phone": phone,
-          "role": emprole
+
         }
 
         const response = await addEmployee(payload);

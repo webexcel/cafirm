@@ -52,3 +52,6 @@ export const updateWeeklyTimesheet = async (data) => {
   return await endpoint.post(`${mainUrl.TIMESHEET}/updateWeeklyTimesheet`, data);
 };
 
+export const getTimesheetLimited = async () => {
+  return await endpoint.get(`${mainUrl.TIMESHEET}/getTimesheetLimited`);
+};
