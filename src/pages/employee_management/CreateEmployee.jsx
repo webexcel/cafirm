@@ -20,12 +20,8 @@ const CreateEmployee = () => {
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState([]);
   const [formFields, setFormFields] = useState(AddEmployeeField);
-  const { permissions } = usePermission();
+  const { permissions, getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
-
-  console.log(permissions,'--permissions');
-  
-
 
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
@@ -57,8 +53,10 @@ const CreateEmployee = () => {
       setTableData(addSno)
       setFilteredData(addSno)
 
-      const permissionFlags = getPermissions(menuData, "Employee Management", "Create Employee");
-      console.log(permissionFlags,'--permissionFlag--------s');
+      const permissionFlags = getOperationFlagsById(3, 1); // paren_id , sub_menu id
+
+      console.log(permissionFlags,'---permissionFlags');
+      
       
       setPermissionFlags(permissionFlags);
 
@@ -67,32 +65,6 @@ const CreateEmployee = () => {
       console.log("Error occurs while getting employee data : ", err)
     }
   }
-
-  const getPermissions = (menuData, parentMenuName, subMenuName) => {
-    // Find the parent menu (e.g., "Employee Management")
-    const parentMenu = menuData.find(menu => menu.parent_menu === parentMenuName);
-    
-    if (!parentMenu) return {}; // Return empty if the parent menu is not found
-
-    let operations = [];
-
-    if (subMenuName) {
-        // If submenu is provided, find it inside parent menu
-        const subMenu = parentMenu.submenus?.find(sub => sub.submenu === subMenuName);
-        if (subMenu) {
-            operations = subMenu.operations.map(op => op.operation);
-        }
-    } else {
-        // If no submenu, use parent menu operations
-        operations = parentMenu.operations?.map(op => op.operation) || [];
-    }
-
-    // Generate permission flags dynamically
-    return operations.reduce((acc, op) => {
-        acc[`show${op}`] = true;
-        return acc;
-    }, {});
-};
 
   useEffect(() => {
     getEmployeeData()
@@ -182,9 +154,6 @@ const CreateEmployee = () => {
       }
     }
   }, [filteredData]);
-  
-console.log(permissionFlags,'--permissionFlags');
-
 
   return (
     <Fragment>
@@ -199,7 +168,8 @@ console.log(permissionFlags,'--permissionFlags');
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
-                  showAddButton={true}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
                 />
 
               </Col>
@@ -219,6 +189,8 @@ console.log(permissionFlags,'--permissionFlags');
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             />
           </Suspense>
         </Card.Body>

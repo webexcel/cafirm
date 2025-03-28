@@ -40,6 +40,23 @@ export const PermissionProvider = ({ children }) => {
     }
   };
 
+  const getOperationFlagsById = (menuId, submenuSeq) => {
+    const menu = permissions.find((menu) => menu.parent_menu_id === menuId);
+    const submenu = menu?.submenus?.find((sub) => sub.sequence_number === submenuSeq);
+
+    return submenu
+      ? submenu.operations.reduce((acc, { operation }) => {
+          acc[`show${operation}`] = true;
+          return acc;
+        }, {})
+      : {};
+  };
+
+  const resetPermissions = () => {
+    setPermissions([]);
+    setMenuItems([]);
+  };
+
   useEffect(() => {
     if (!permissions.length) return;
 
@@ -74,7 +91,6 @@ export const PermissionProvider = ({ children }) => {
       }
     });
 
-    console.log("Generated Menu Items---------------------------------------------:", menuData);
     setMenuItems(menuData);
   }, [permissions]);
 
@@ -84,6 +100,8 @@ export const PermissionProvider = ({ children }) => {
         permissions,
         menuItems,
         fetchPermissions,
+        getOperationFlagsById,
+        resetPermissions
       }}>
       {children}
     </PermissionContext.Provider>

@@ -119,6 +119,7 @@ const Permissions = () => {
               onEdit={handleSaveEdit}
               editingIndex={editingIndex}
               disableOnEdit={true}
+              showUpdateButton={true}
             />
           </Suspense>
         </Card.Body>

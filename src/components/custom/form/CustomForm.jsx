@@ -19,7 +19,8 @@ const CustomForm = ({
   customOnClick,
   btnText,
   onEdit = false,
-  showAddButton
+  showAddButton = false,
+  showUpdateButton = false
 }) => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -310,14 +311,27 @@ const CustomForm = ({
             </Form.Group>
           </Col>
         ))}
+        {showAddButton && !onEdit && (
           <Col md={3} sm={12} className="justify-content-start">
             <Button
               type="submit"
               variant="primary"
               className="btn btn-wave mb-3 w-50 py-1">
-              {onEdit ? "Update" : "Add"}
+              Add
             </Button>
           </Col>
+        )}
+
+        {showUpdateButton && onEdit && (
+          <Col md={3} sm={12} className="justify-content-start">
+            <Button
+              type="submit"
+              variant="primary"
+              className="btn btn-wave mb-3 w-50 py-1">
+              Update
+            </Button>
+          </Col>
+        )}
       </Row>
     </Form>
   );

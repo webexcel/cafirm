@@ -68,9 +68,6 @@ const AddPermissions = () => {
         fetchData();
     }, [permissionId]);
 
-    console.log(menuOperations,'---transformedData');
-    
-
     const initialFormState = CafirmUserMenuField.reduce(
         (acc, field) => ({
             ...acc,
@@ -284,36 +281,58 @@ const AddPermissions = () => {
             )
         );
     };
-
-    const handleOperationCheck = (operationId, parentMenu) => {
-
-        setMenuOperations((prevMenuOperations) => {
-
-            const newState = prevMenuOperations.map((menu) => {
-                if (menu.parent_menu !== parentMenu) return menu; // Only update the relevant menu
-
-                // Update operations inside parent menu
+    const handleOperationCheck = (operationId, submenuName, parentMenu) => {
+        setMenuOperations((prevMenuOperations) =>
+            prevMenuOperations.map((menu) => {
+                if (menu.parent_menu !== parentMenu) return menu;
+    
+                if (submenuName) {
+                    const updatedSubMenus = menu.subMenus?.map((submenu) => {
+                        if (submenu.submenu !== submenuName) return submenu;
+    
+                        const updatedOps = submenu.operations.map((op) =>
+                            op.menu_operation_id === operationId
+                                ? { ...op, checked: !op.checked }
+                                : op
+                        );
+    
+                        const isSubmenuChecked = updatedOps.some((op) => op.checked);
+    
+                        return {
+                            ...submenu,
+                            checked: isSubmenuChecked,
+                            operations: updatedOps,
+                        };
+                    });
+    
+                    const isParentChecked =
+                        updatedSubMenus.some((sub) => sub.checked) ||
+                        menu.operations?.some((op) => op.checked);
+    
+                    return {
+                        ...menu,
+                        subMenus: updatedSubMenus,
+                        checked: isParentChecked,
+                    };
+                }
+    
                 const updatedOperations = menu.operations.map((op) =>
                     op.menu_operation_id === operationId
                         ? { ...op, checked: !op.checked }
                         : op
                 );
-
-                // Parent is checked if any operation is checked
-                const isParentChecked =
-                    updatedOperations.some((op) => op.checked) ||
-                    menu.subMenus.some((sub) => sub.checked);
-
+    
+                const isParentChecked = updatedOperations.some((op) => op.checked);
+    
                 return {
                     ...menu,
                     operations: updatedOperations,
                     checked: isParentChecked,
                 };
-            });
-
-            return [...newState]; // Ensure new array reference
-        });
+            })
+        );
     };
+    
 
     const handleAssign = () => {
         resetForm();
@@ -326,7 +345,7 @@ const AddPermissions = () => {
 
             const payload = {
                 permission_id,
-                user_id: employee_id,
+                employee_id
             };
 
             const response = await assignPermission(payload);
@@ -376,6 +395,7 @@ const AddPermissions = () => {
                                         onSubmit={handleAdd}
                                         onEdit={permissionId ? true : false}
                                         showAddButton={true}
+                                        showUpdateButton={true}
                                     />
                                 </Col>
                                 <Col md={3}>
@@ -442,7 +462,7 @@ const AddPermissions = () => {
                                                                             onChange={() =>
                                                                                 handleOperationCheck(
                                                                                     operation.menu_operation_id,
-                                                                                    submenu.submenu,
+                                                                                    parent.subMenus.length > 0 ? submenu.submenu : null,
                                                                                     parent.parent_menu
                                                                                 )
                                                                             }
@@ -469,6 +489,7 @@ const AddPermissions = () => {
                                                                     onChange={() =>
                                                                         handleOperationCheck(
                                                                             operation.menu_operation_id,
+                                                                            parent.subMenus.length > 0 ? submenu.submenu : null,
                                                                             parent.parent_menu
                                                                         )
                                                                     }
