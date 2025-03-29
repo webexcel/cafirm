@@ -1,4 +1,3 @@
-
 import React, { Fragment, useCallback, useState, useEffect, Suspense } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -9,20 +8,22 @@ import validateCustomForm from "../../components/custom/form/ValidateForm";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
-import { WorkTimesheetFields } from "../../constants/fields/attendanceFields";
 import { getAttendanceByDate } from "../../service/attendance/activityTracker";
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import Cookies from 'js-cookie';
 import { usePermission } from "../../contexts";
+import { AssignUserFields } from "../../constants/fields/configurationFields";
+import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import { assignPermission, getPermissionsList } from "../../service/configuration/permissions";
 
 
-const WorkTimeSheet = () => {
+const AssignUser = () => {
 
     const [tableData, setTableData] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(15);
     const [filteredData, setFilteredData] = useState(tableData);
-    const [formFields, setFormFields] = useState(WorkTimesheetFields);
+    const [formFields, setFormFields] = useState(AssignUserFields);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
 
@@ -37,27 +38,23 @@ const WorkTimeSheet = () => {
     ];
 
     // Initialize form state from field definitions
-    const initialFormState = WorkTimesheetFields.reduce((acc, field) => {
+    const initialFormState = AssignUserFields.reduce((acc, field) => {
         acc[field.name] = "";
         return acc;
     }, {});
 
     const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
         initialFormState,
-        (data) => validateCustomForm(data, WorkTimesheetFields)
+        (data) => validateCustomForm(data, AssignUserFields)
     );
 
     useEffect(() => {
         const fetchFieldOptionData = async () => {
             try {
-                const userData = JSON.parse(Cookies.get('user'));
-
-                const payload = {
-                    emp_id: userData?.employee_id
-                };
-                const employeeresponse = await getEmployeesByPermission(payload);
+                const employeeresponse = await getEmployee();
+                const permissionList = await getPermissionsList();
                 console.log("Employee API Response:", employeeresponse);
-                const updatedFormFields = WorkTimesheetFields.map((field) => {
+                const updatedFormFields = AssignUserFields.map((field) => {
                     if (field.name === "employee") {
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                             if (employeeresponse.data.data.length === 1) {
@@ -72,6 +69,26 @@ const WorkTimeSheet = () => {
                             return {
                                 ...field, options: employeeOptions,
                                 disabled: employeeresponse.data.data.length === 1 ? true : false
+                            };
+                        } else {
+                            console.error("Employee data response is not an array or is empty.");
+                        }
+
+                    }
+                    if (field.name === "permissions") {
+                        if (Array.isArray(permissionList.data.data) && permissionList.data.data.length > 0) {
+                            if (permissionList.data.data.length === 1) {
+                                setFieldValue("employee", permissionList.data.data[0].employee_id);
+                                console.log("userData111111111111111", permissionList.data.data);
+                            }
+                            const permissionsOptions = permissionList.data.data.map((item) => ({
+                                value: item.permission_id,
+                                label: item.permission_name,
+                            }));
+                            console.log("Mapped Employee Options:", permissionsOptions);
+                            return {
+                                ...field, options: permissionsOptions,
+                                // disabled: permissionList.data.data.length === 1 ? true : false
                             };
                         } else {
                             console.error("Employee data response is not an array or is empty.");
@@ -94,12 +111,10 @@ const WorkTimeSheet = () => {
 
     const getWorkTimeSheetData = async () => {
         try {
-            const userData = JSON.parse(Cookies.get('user'));
             const payload = {
                 "emp_id": "",
                 "start_date": "",
-                "end_date": "",
-                "user_id" :userData?.employee_id,
+                "end_date": ""
             }
             const response = await getAttendanceByDate(payload)
             const addSno = response.data.data.map((data, index) => ({
@@ -131,30 +146,21 @@ const WorkTimeSheet = () => {
         if (!validateForm()) return;
         try {
             console.log("Selected form:", formData);
-            const { employee, dates } = formData;
-            const splitDate = String(dates).split('/')
-            const userData = JSON.parse(Cookies.get('user'));
             const payload = {
-                "emp_id": employee,
-                "user_id" :userData?.employee_id,
-                "start_date": splitDate[0],
-                "end_date": splitDate[1]
+                permission_id: formData?.employee || '',
+                employee_id: formData?.permissions || ''
             }
-            console.log("splitDate", splitDate)
-            const response = await getAttendanceByDate(payload);
+            const response = await assignPermission(payload);
             if (!response.data.status) {
-                return Swal.fire("Error", response.data.message || "Failed to get worksheet.", "error");
+                return Swal.fire("Error", response.data.message || "Failed to assign user.", "error");
             }
-            const addSno = response.data.data.map((data, index) => ({
-                ...data,
-                sno: index + 1,
-                date: data?.date?.split('T')[0] || data?.date || ""
-            }))
-            setTableData(addSno || [])
-            setFilteredData(addSno || [])
+             Swal.fire({
+                      icon: "success",
+                      title: "Assign User Successfully!",
+                      confirmButtonText: "OK",
+                    });
+            resetForm()
         } catch (err) {
-            // setTableData([])
-            // setFilteredData([])
             console.error("Error while get client timesheet data:", err.stack);
             Swal.fire("Error", err.response?.data?.message || "Failed to get client timesheet data.", "error");
         }
@@ -174,7 +180,7 @@ const WorkTimeSheet = () => {
                                     errors={errors}
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
-                                    btnText={'Submit'}
+                                    btnText={'Assign'}
                                     showAddButton={permissionFlags?.showCREATE}
                                     showUpdateButton={permissionFlags?.showUPDATE}
 
@@ -186,7 +192,7 @@ const WorkTimeSheet = () => {
                 </Col>
             </Row>
 
-            <Card className="custom-card p-3">
+            {/* <Card className="custom-card p-3">
                 <Card.Body className="overflow-auto">
                     <Suspense fallback={<Loader />}>
                         <CustomTable
@@ -202,9 +208,9 @@ const WorkTimeSheet = () => {
                         />
                     </Suspense>
                 </Card.Body>
-            </Card>
+            </Card> */}
         </Fragment>
     );
 };
 
-export default WorkTimeSheet;
+export default AssignUser;

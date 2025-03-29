@@ -14,3 +14,24 @@ export const CafirmUserMenuField = [
       required: true,
     },
   ];
+
+  export const AssignUserFields = [
+    {
+      name: "employee",
+      label: "Employee",
+      placeholder: "Select Employee",
+      type: "dropdown",
+      options: [],
+      required: false,
+      
+    },
+    {
+      name: "permissions",
+      label: "Permissions",
+      placeholder: "Select Permissions",
+      type: "dropdown",
+      options: [],
+      required: false,
+      
+    },
+  ];

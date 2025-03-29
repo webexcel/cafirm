@@ -19,6 +19,8 @@ import {
   getEmployee,
   createUserAccount,
 } from "../../service/employee_management/createEmployeeService";
+import { usePermission } from "../../contexts";
+import { getEmployeesNotPassword, getUserAccounts } from "../../service/employee_management/UserAccountService";
 
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
@@ -30,6 +32,9 @@ const CreateUserAccount = () => {
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState([]);
   const [formFields, setFormFields] = useState(CreateUserAccountFields);
+  const { permissions, getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
 
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
@@ -70,10 +75,14 @@ const CreateUserAccount = () => {
         return field;
       });
       setFormFields(updatedFormFields);
+      const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+      console.log(permissionFlags, '---permissionFlags');
+      setPermissionFlags(permissionFlags);
     } catch (err) {
       console.error("Error fetching employee data:", err);
     }
   };
+
   const getEmployeeTableData = async () => {
     try {
       const response = await getUserAccounts()
@@ -114,9 +123,16 @@ const CreateUserAccount = () => {
 
   useEffect(() => {
     const fetchInitial = async () => {
-      await Promise.all([getEmployeeData(), getEmployeeTableData()]);
+      await Promise.all([
+        getEmployeeData(),
+         getEmployeeTableData()
+      ]);
     };
     fetchInitial();
+    const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+    console.log(permissionFlags, '---permissionFlags');
+    setPermissionFlags(permissionFlags);
+
   }, []);
 
 
@@ -222,6 +238,8 @@ const CreateUserAccount = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
                 />
               </Col>
             </Card.Body>
@@ -240,6 +258,8 @@ const CreateUserAccount = () => {
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             />
           </Suspense>
         </Card.Body>

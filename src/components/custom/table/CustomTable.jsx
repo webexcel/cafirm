@@ -72,12 +72,12 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
   };
 
   const showActions =
-  (showDeleteButton && onDelete) ||
-  (showUpdateButton && (onEdit || handlerEdit)) ||
-  onCheck ||
-  onActive ||
-  inActive ||
-  onCopyTo;
+    (showDeleteButton && onDelete) ||
+    (showUpdateButton && (onEdit || handlerEdit)) ||
+    onCheck ||
+    onActive ||
+    inActive ||
+    onCopyTo;
 
 
   return (
@@ -157,17 +157,19 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                               </OverlayTrigger>
                             )}
 
-                                    {onDelete && showDeleteButton && (
+                            {onDelete && showDeleteButton && (
                               <OverlayTrigger
                                 placement="top"
                                 overlay={<Tooltip>Delete</Tooltip>}>
                                 <a
                                   href="#"
-                                  className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${
-                                    row.total_minutes <= 0 ? "disabled" : ""
-                                  }`}
+                                  className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${row.total_minutes <= 0 ? "disabled" : ""
+                                    }`}
                                   onClick={() => {
                                     if (row.total_minutes > 0) {
+                                      onDelete(row, rowIndex);
+                                    }
+                                    if (!row?.total_minutes) {
                                       onDelete(row, rowIndex);
                                     }
                                   }}
@@ -250,7 +252,7 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                       ) : (
                         <span>
                           {col.accessor === "assignTo" ||
-                          col.accessor === "assigned_to" ? (
+                            col.accessor === "assigned_to" ? (
                             // ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
                             <div className="avatar-list-stacked">
                               {" "}
@@ -275,45 +277,45 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                                 </a> */}
                             </div>
                           ) : // .filter(Boolean).join(', ')
-                          String(row[col.accessor] || "")
+                            String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "pending" ? (
-                            <span className="badge bg-danger">
-                              {row[col.accessor]}
-                            </span>
-                          ) : String(row[col.accessor] || "")
+                              <span className="badge bg-danger">
+                                {row[col.accessor]}
+                              </span>
+                            ) : String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "in-progress" ? (
-                            <span className="badge bg-warning">
-                              {row[col.accessor]}
-                            </span>
-                          ) : String(row[col.accessor] || "")
+                              <span className="badge bg-warning">
+                                {row[col.accessor]}
+                              </span>
+                            ) : String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "completed" ? (
-                            <span className="badge bg-success">
-                              {row[col.accessor]}
-                            </span>
-                          ) : String(row[col.accessor] || "")
+                              <span className="badge bg-success">
+                                {row[col.accessor]}
+                              </span>
+                            ) : String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "critical" ? (
-                            <span className="badge bg-danger">
-                              {row[col.accessor]}
-                            </span>
-                          ) : String(row[col.accessor] || "")
+                              <span className="badge bg-danger">
+                                {row[col.accessor]}
+                              </span>
+                            ) : String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "low" ? (
-                            <span className="badge bg-info">
-                              {row[col.accessor]}
-                            </span>
-                          ) : String(row[col.accessor] || "")
+                              <span className="badge bg-info">
+                                {row[col.accessor]}
+                              </span>
+                            ) : String(row[col.accessor] || "")
                               .trim()
                               .toLowerCase() === "medium" ? (
-                            <span className="badge bg-warning">
-                              {row[col.accessor]}
-                            </span>
-                          ) : (
-                            row[col.accessor]
-                          )}
+                              <span className="badge bg-warning">
+                                {row[col.accessor]}
+                              </span>
+                            ) : (
+                              row[col.accessor]
+                            )}
                         </span>
                       )}
                     </td>

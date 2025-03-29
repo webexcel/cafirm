@@ -38,6 +38,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
 	const handleClose1 = () => setShow1(false);
 	const { fetchPermissions,resetPermissions } = usePermission();
+	const searchRef = useRef(null)
 	const [userdata] = useState(() => {
 		const userData = Cookies.get('user');
 		return userData ? JSON.parse(userData) : null;

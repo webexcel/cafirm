@@ -19,6 +19,7 @@ import sampledata from '../../../sampledata.json'
 import CustomModalBox from "./model/custom/CustomModalBox";
 import { TaskModalFields } from '../../constants/fields/ModelBoxFields.js'
 import { getEmployee } from "../../service/employee_management/createEmployeeService.js";
+import { usePermission } from "../../contexts/PermissionContext.jsx";
 
 const ViewTask = () => {
 
@@ -28,6 +29,9 @@ const ViewTask = () => {
     const [filteredData, setFilteredData] = useState(tableData);
     const [showModal, setShowModal] = useState(false);
     const [taskFormFileds, setTaskFormFields] = useState(TaskModalFields)
+      const { permissions, getOperationFlagsById } = usePermission();
+      const [permissionFlags, setPermissionFlags] = useState(1);
+    
     const [initialModelValues, setInitialModelValues] = useState(
         TaskModalFields.reduce((values, field) => {
             values[field.name] = field.type === "dropdown" ? "" : field.type === "date" ? null : "";
@@ -106,6 +110,11 @@ const ViewTask = () => {
     }
     useEffect(() => {
         fetchViewTaksData("All", "All", "All", "All", "ALL")
+        const permissionFlags = getOperationFlagsById(10, 2); // paren_id , sub_menu id
+        console.log(permissionFlags, '---permissionFlags');
+        setPermissionFlags(permissionFlags);
+        // console.log("testttt")
+    
     }, [])
 
     useEffect(() => {
@@ -382,6 +391,9 @@ const ViewTask = () => {
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
                                     btnText={'Submit'}
+                                    showAddButton={permissionFlags?.showCREATE}
+                                    showUpdateButton={permissionFlags?.showUPDATE}
+                  
                                 />
                             </Col>
                         </Card.Body>
@@ -414,6 +426,9 @@ const ViewTask = () => {
                                     handlePageChange={handlePageChange}
                                     onDelete={onDelete}
                                     handlerEdit={handlerEdit}
+                                    showDeleteButton={permissionFlags?.showDELETE}
+                                    showUpdateButton={permissionFlags?.showUPDATE}
+                  
                                 />
                             </Suspense>
                         </Card.Body>

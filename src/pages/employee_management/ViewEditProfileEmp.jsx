@@ -81,13 +81,20 @@ const ViewEditProfileEmp = () => {
   }, [])
 
   const fields = [
-    { key: "name", label: "Name" },
-    { key: "role", label: "Employee Role" },
-    { key: "employee_id", label: "Employee ID" },
-    { key: "email", label: "Email" },
+    { key: "name", label: "Name", type: "text" },
+    {
+      key: "role", label: "Employee Role", type: "list",
+      options: [{ label: 'Employee', value: 'E' },
+      { label: 'Admin', value: 'A' },
+      { label: 'Super Admin ', value: 'S' }
+      ],
+
+    },
+    { key: "employee_id", label: "Employee ID", type: "Number" },
+    { key: "email", label: "Email", type: "email" },
     // { key: "password", label: "Password" },
-    { key: "phone", label: "Contact" },
-    { key: "photo", label: "photo" },
+    { key: "phone", label: "Contact", type: "number" },
+    { key: "photo", label: "photo", type: "text" },
   ];
 
   const handleFieldUpdate = async (key, value, userData, type) => {
@@ -100,8 +107,9 @@ const ViewEditProfileEmp = () => {
       }
       const response = await editEmployeeDetails(payload)
       if (!response.data.status) {
-
+        Swal.fire("Error",response?.data?.message || "Failed to edit employee data.", "error");
       }
+      Swal.fire("Updated!", "Employee data updated successfully.", "success");
       setEmployeeData(prev => ({
         ...prev,
         [key]: value,

@@ -6,13 +6,14 @@ import Select from "react-select";
 import { FaCalendarAlt } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import { formatDate } from "../../../utils/generalUtils";
-import { FaUserCheck, FaCamera } from "react-icons/fa";
+import { FaCamera } from "react-icons/fa";
 import ImageRoundedCropper from '../../custom/cropper/ImageRoundedCropper'
 
 const UserCard = ({
     userData,
     onFieldUpdate,
-    fields = []
+    fields = [],
+    setEmployeeData
 }) => {
     const [editingField, setEditingField] = useState(null);
     const [profileImage, setProfileImage] = useState(userProfile)
@@ -20,15 +21,8 @@ const UserCard = ({
     const containerRef = useRef(null);
     const fileInputRef = useRef(null);
     const [showModal, setShowModal] = useState(false);
-
-    const Gender = [
-        { label: 'Boy', value: 'Boy' },
-        { label: 'Girl', value: 'Girl' },
-    ];
-    const gender = [
-        { label: 'Male', value: 'Male' },
-        { label: 'Female', value: 'Female' },
-    ];
+    const isUserDataEmpty = !userData || Object.values(userData).every(value => !value);
+    console.log("isUserDataEmpty", isUserDataEmpty)
 
     const handleEditClick = (field) => {
         setEditingField(field);
@@ -36,12 +30,11 @@ const UserCard = ({
     };
 
     const handleChange = (e) => {
-        console.log("testttt", e.target.value)
+        // console.log("testttt", e.target.value)
         setTempValue(e.target.value);
     };
 
     const handleSelectChange = (e) => {
-        console.log("testttt111", e)
         const month = String(e.getMonth() + 1).padStart(2, "0");
         const day = String(e.getDate()).padStart(2, "0");
         const year = e.getFullYear();
@@ -62,9 +55,13 @@ const UserCard = ({
         setEditingField(null);
     };
 
-    const handlerGenderChange = (selectedOption) => {
+    const handlerGenderChange = (selectedOption, key) => {
         console.log("gender", selectedOption);
-        setTempValue(selectedOption.value);
+        setEmployeeData((prev) => ({
+            ...prev,
+            [key]: selectedOption.value
+        }))
+        // setTempValue('');
     };
 
     const handleClickOutside = (event) => {
@@ -108,54 +105,51 @@ const UserCard = ({
         <div style={{ cursor: "pointer" }} ref={containerRef}>
 
             <div>
-
-                {
-                    fields.map((item) => {
-                        return (
-                            item.key === "photo" && (
-                                <div className="d-flex align-items-center mb-3">
-
-                                    <div className="position-relative" style={{ cursor: userData?.photo ? 'pointer' : 'default' }}>
-                                        <img
-                                            src={userData?.photo || profileImage}
-                                            alt={"Profile image"}
-                                            className="rounded-circle"
-                                            width="65"
-                                            height="65"
-                                            onClick={handleProfileClick}
-                                            style={{ opacity: userData?.photo ? 0.8 : 1, transition: 'opacity 0.3s' }}
-                                            onMouseEnter={(e) => userData?.photo && (e.target.style.opacity = 0.5)}
-                                            onMouseLeave={(e) => userData?.photo && (e.target.style.opacity = 0.8)}
+                {fields.map((item) => {
+                    return (
+                        item.key === "photo" && (
+                            <div className="d-flex align-items-center mb-3">
+                                <div className="position-relative" style={{ cursor: isUserDataEmpty ? 'default' : 'pointer' }}>
+                                    <img
+                                        src={userData?.photo || profileImage}
+                                        alt={"Profile image"}
+                                        className="rounded-circle"
+                                        width="65"
+                                        height="65"
+                                        onClick={!isUserDataEmpty ? handleProfileClick : undefined}
+                                        style={{ opacity: userData?.photo ? 0.8 : 1, transition: 'opacity 0.3s' }}
+                                        onMouseEnter={(e) => userData?.photo && (e.target.style.opacity = 0.5)}
+                                        onMouseLeave={(e) => userData?.photo && (e.target.style.opacity = 0.8)}
+                                    />
+                                    {!userData?.photo && (
+                                        <FaCamera
+                                            className="position-absolute top-50 start-50 translate-middle text-white cursor-pointer"
+                                            style={{ fontSize: '20px', opacity: 0.7 }}
+                                            onClick={!isUserDataEmpty ? handleProfileClick : undefined}
                                         />
-                                        {!userData?.photo && (
-                                            <FaCamera
-                                                className="position-absolute top-50 start-50 translate-middle text-white cursor-pointer"
-                                                style={{ fontSize: '20px', opacity: 0.7 }}
-                                                onClick={handleProfileClick}
-                                            />
-                                        )}
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            style={{ display: 'none' }}
-                                            accept="image/*"
-                                            onChange={handleProfileChange}
-                                        />
-                                        <ImageRoundedCropper
-                                            imageSrc={profileImage}
-                                            show={showModal}
-                                            handleClose={() => setShowModal(false)}
-                                            onSave={onSave}
-                                        />
-                                    </div>
-
+                                    )}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        accept="image/*"
+                                        disabled={isUserDataEmpty}
+                                        onChange={!isUserDataEmpty ? handleProfileChange : undefined}
+                                    />
+                                    <ImageRoundedCropper
+                                        imageSrc={profileImage}
+                                        show={showModal}
+                                        handleClose={() => setShowModal(false)}
+                                        onSave={onSave}
+                                    />
                                 </div>
-                            )
-                        );
-                    })
-                }
 
-                {fields.map(({ key, label }, index) => (
+                            </div>
+                        )
+                    );
+                })}
+
+                {fields.map(({ key, label, options, type }, index) => (
                     label !== "photo" ? (
                         <div
                             key={`${key}-${index}`}
@@ -163,7 +157,7 @@ const UserCard = ({
                             className="d-flex justify-content-between align-items-center py-3 px-2 user-selectable-card"
                             style={{
                                 borderBottom: "1px solid rgb(242 242 242)",
-                                backgroundColor: index % 2 !== 0 ? "rgb(242 242 242)" : "white" // Apply background to odd rows
+                                backgroundColor: index % 2 !== 0 ? "rgb(242 242 242)" : "white"
                             }}
                         >
                             <span
@@ -180,24 +174,26 @@ const UserCard = ({
                                         {userData[key] || "Empty"}
                                     </span>
                                 </div>
-                            ) : editingField === key && !["employee_id", "client_id"].includes(key) ? (
+                            ) : !isUserDataEmpty && editingField === key && !["employee_id", "client_id"].includes(key) ? (
                                 <div className="d-flex align-items-center justify-content-end">
                                     {(() => {
-                                        switch (key.toLowerCase()) {
-                                            case "gender":
+                                        switch (type.toLowerCase()) {
+                                            case "list":
                                                 return (
                                                     <>
                                                         <div style={{ position: "relative", display: "inline-block" }}>
                                                             <Select
                                                                 name={key}
-                                                                options={gender}
+                                                                options={options || []}
+                                                                value={options.find(option => option.value === userData[key]) || null}
                                                                 id={key}
                                                                 className="w-100 js-example-placeholder-single js-states"
                                                                 menuPlacement="auto"
                                                                 classNamePrefix="Select2"
-                                                                placeholder="Select gender"
-                                                                onChange={handlerGenderChange}
+                                                                placeholder="Select Role"
+                                                                onChange={(e) => { handlerGenderChange(e, key) }}
                                                             />
+
                                                         </div>
                                                         <Button
                                                             variant="success"
@@ -217,7 +213,99 @@ const UserCard = ({
                                                         </Button>
                                                     </>
                                                 );
-                                            case "dob":
+
+                                            case "text":
+                                                return (
+                                                    <>
+                                                        <Form.Control
+                                                            type="text"
+                                                            name={key}
+                                                            value={tempValue}
+                                                            onChange={handleChange}
+                                                            size="sm"
+                                                            className="w-100"
+                                                        />
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            onClick={handleSave}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaCheck />
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            onClick={handleCancel}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaTimes />
+                                                        </Button>
+                                                    </>
+                                                );
+
+                                            case "email":
+                                                return (
+                                                    <>
+                                                        <Form.Control
+                                                            type="email"
+                                                            name={key}
+                                                            value={tempValue}
+                                                            onChange={handleChange}
+                                                            size="sm"
+                                                            className="w-100"
+                                                        />
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            onClick={handleSave}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaCheck />
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            onClick={handleCancel}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaTimes />
+                                                        </Button>
+                                                    </>
+                                                );
+
+
+                                            case "number":
+                                                return (
+                                                    <>
+                                                        <Form.Control
+                                                            type="number"
+                                                            name={key}
+                                                            value={tempValue}
+                                                            onChange={handleChange}
+                                                            size="sm"
+                                                            className="w-100"
+                                                        />
+                                                        <Button
+                                                            variant="success"
+                                                            size="sm"
+                                                            onClick={handleSave}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaCheck />
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            onClick={handleCancel}
+                                                            className="ms-1"
+                                                        >
+                                                            <FaTimes />
+                                                        </Button>
+                                                    </>
+                                                );
+
+                                            case "date":
                                                 return (
                                                     <>
                                                         <div style={{ position: "relative", display: "inline-block", width: "75%" }}>

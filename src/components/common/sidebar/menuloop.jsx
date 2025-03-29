@@ -4,38 +4,39 @@ import { Link } from "react-router-dom";
 function Menuloop({ MENUITEMS, toggleSidemenu, level, onHeaderTitleChange, MENUFULLITMS }) {
   const [menuState, setMenuState] = useState(MENUITEMS);
 
-  useEffect(() => {
-    getHeaderTitle();
-  }, []);
+//   useEffect(() => {
+//     getHeaderTitle();
+//   }, []);
 
-  async function getHeaderTitle() {
-    MENUFULLITMS.map(async (data) => {
-      if (data.active) {
-        if (data.children) {
-          data.children.map(async (child) => {
-            if (child.active) {
-              await onHeaderTitleChange(child.title);
-            }
-          });
-        } else {
-          await onHeaderTitleChange(data.title);
-        }
-      }
-    });
+//   async function getHeaderTitle() {
+// 	console.log("MENUITEMS",MENUITEMS)
+//     MENUFULLITMS.map(async (data) => {
+//       if (data.active) {
+//         if (data.children) {
+//           data.children.map(async (child) => {
+//             if (child.active) {
+//               await onHeaderTitleChange(child.title);
+//             }
+//           });
+//         } else {
+//           await onHeaderTitleChange(data.title);
+//         }
+//       }
+//     });
 
-    if (MENUITEMS.active && MENUITEMS.children) {
-      MENUITEMS.children.map(async (child) => {
-        if (child.selected) {
-          await onHeaderTitleChange(child.title);
-        }
-      });
-    }
-  }
+//     if (MENUITEMS.active && MENUITEMS.children) {
+//       MENUITEMS.children.map(async (child) => {
+//         if (child.selected) {
+//           await onHeaderTitleChange(child.title);
+//         }
+//       });
+//     }
+//   }
 
   function handleToggleMenu(event) {
     event.preventDefault();
     event.stopPropagation(); // Prevent event from bubbling up
-
+     console.log("event",event,menuState)
     // Toggle submenu only when clicking the parent
     setMenuState((prev) => ({ ...prev, active: !prev.active }));
   }

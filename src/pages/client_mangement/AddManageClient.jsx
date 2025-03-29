@@ -8,10 +8,10 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddClientsField } from "../../constants/fields/clinetsFields";
 import { addClient, deleteClient, getClient } from "../../service/client_management/createClientServices";
+import { usePermission } from "../../contexts";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
-
 
 const AddManageClient = () => {
   const [tableData, setTableData] = useState([]);
@@ -20,6 +20,9 @@ const AddManageClient = () => {
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(AddClientsField);
   const date = new Date()
+  const { permissions, getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
 
   const columns = [
     { header: "S.No", accessor: "sno", editable: false },
@@ -61,6 +64,9 @@ const AddManageClient = () => {
 
   useEffect(() => {
     getClientData()
+    const permissionFlags = getOperationFlagsById(7, 1); // paren_id , sub_menu id
+    console.log(permissionFlags, '---permissionFlags');
+    setPermissionFlags(permissionFlags);
   }, [])
 
 
@@ -173,6 +179,8 @@ const AddManageClient = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
                 />
 
               </Col>
@@ -192,7 +200,9 @@ const AddManageClient = () => {
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
-            // onEdit={onEdit}
+              // onEdit={onEdit}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             />
           </Suspense>
         </Card.Body>

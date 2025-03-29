@@ -8,6 +8,7 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateServiceFields } from "../../constants/fields/masterClassFields";
 import { addService, deleteService, getService } from "../../service/masterDetails/serviceApi";
+import { usePermission } from "../../contexts";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
@@ -19,6 +20,8 @@ const CreateService = () => {
     const [recordsPerPage] = useState(15);
     const [filteredData, setFilteredData] = useState([]);
     const [formFields, setFormFields] = useState(CreateServiceFields);
+  const { permissions, getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
 
     const columns = [
         { header: "S.No", accessor: "sno", editable: false },
@@ -56,6 +59,9 @@ const CreateService = () => {
 
     useEffect(() => {
         fetchServiceData()
+        const permissionFlags = getOperationFlagsById(15, 1); // paren_id , sub_menu id
+        console.log(permissionFlags, '---permissionFlags');
+        setPermissionFlags(permissionFlags);
     }, [])
 
     // Handle pagination
@@ -153,6 +159,9 @@ const CreateService = () => {
                                     errors={errors}
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
+                                    showAddButton={permissionFlags?.showCREATE}
+                                    showUpdateButton={permissionFlags?.showUPDATE}
+
                                 />
 
                             </Col>
@@ -172,6 +181,9 @@ const CreateService = () => {
                             totalRecords={filteredData.length}
                             handlePageChange={handlePageChange}
                             onDelete={onDelete}
+                            showDeleteButton={permissionFlags?.showDELETE}
+                            showUpdateButton={permissionFlags?.showUPDATE}
+              
                         />
                     </Suspense>
                 </Card.Body>
