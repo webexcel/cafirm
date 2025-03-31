@@ -133,7 +133,7 @@ const Dashboard = () => {
       <Row>
         <Col xxl={3} xl={12}>
           <Row>
-            <Col xxl={12} xl={6} lg={6} className="">
+            <Col xxl={6} xl={6} lg={6} className="">
               <Card className="custom-card">
                 <Card.Header className="card-header">
                   <Card.Title className="">Recent Tasks</Card.Title>
@@ -184,7 +184,7 @@ const Dashboard = () => {
             </Col>
 
 
-            <Col xxl={12} xl={6} lg={6} className="">
+            <Col xxl={6} xl={6} lg={6} className="">
               <Card className="custom-card">
                 <Card.Header className="card-header">
                   <Card.Title className="">Recent TimeSheet</Card.Title>

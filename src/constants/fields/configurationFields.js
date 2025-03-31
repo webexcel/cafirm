@@ -35,3 +35,25 @@ export const CafirmUserMenuField = [
       
     },
   ];
+
+  export const AddOperationsFields = [
+  
+    {
+      name: "menu",
+      label: "Menu",
+      placeholder: "Select Menu",
+      type: "dropdown",
+      options: [],
+      required: true,
+    },
+     
+    {
+      name: "operations",
+      label: "Operations",
+      placeholder: "Select Operations",
+      type: "multiSelect",
+      options: [],
+      required: true,
+    },
+  
+  ];

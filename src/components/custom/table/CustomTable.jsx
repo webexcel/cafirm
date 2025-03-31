@@ -251,71 +251,33 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                         )
                       ) : (
                         <span>
-                          {col.accessor === "assignTo" ||
-                            col.accessor === "assigned_to" ? (
-                            // ? row[col.accessor]?.map((data) => data?.label || '').filter(Boolean).join(', ')
+                          {col.accessor === "assignTo" || col.accessor === "assigned_to" ? (
                             <div className="avatar-list-stacked">
-                              {" "}
                               {row[col.accessor]?.map((data, index) => (
-                                <OverlayTrigger
-                                  placement="top"
-                                  overlay={<Tooltip>{data.label}</Tooltip>}>
+                                <OverlayTrigger key={index} placement="top" overlay={<Tooltip>{data.label}</Tooltip>}>
                                   <span
-                                    key={data.value}
                                     className="avatar avatar-sm avatar-rounded"
                                     style={{ width: "30px", height: "30px" }}>
-                                    <img
-                                      src={data.image || demoimage}
-                                      alt={data.image || "img"}
-                                    />
+                                    <img src={data.image || demoimage} alt={data.image || "img"} />
                                   </span>
                                 </OverlayTrigger>
                               ))}
-                              {/* <a className="avatar avatar-sm bg-primary text-fixed-white avatar-rounded"
-                                  href="#">
-                                  +5
-                                </a> */}
                             </div>
-                          ) : // .filter(Boolean).join(', ')
-                            String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "pending" ? (
-                              <span className="badge bg-danger">
-                                {row[col.accessor]}
-                              </span>
-                            ) : String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "in-progress" ? (
-                              <span className="badge bg-warning">
-                                {row[col.accessor]}
-                              </span>
-                            ) : String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "completed" ? (
-                              <span className="badge bg-success">
-                                {row[col.accessor]}
-                              </span>
-                            ) : String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "critical" ? (
-                              <span className="badge bg-danger">
-                                {row[col.accessor]}
-                              </span>
-                            ) : String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "low" ? (
-                              <span className="badge bg-info">
-                                {row[col.accessor]}
-                              </span>
-                            ) : String(row[col.accessor] || "")
-                              .trim()
-                              .toLowerCase() === "medium" ? (
-                              <span className="badge bg-warning">
-                                {row[col.accessor]}
-                              </span>
-                            ) : (
-                              row[col.accessor]
-                            )}
+                          ) : col.accessor === "operations" ? (
+                            <span>
+                              {row[col.accessor]?.map((data) => String(data.label) || "").filter(Boolean).join(", ")}
+                            </span>
+                          ) : ["pending", "critical"].includes(String(row[col.accessor] || "").trim().toLowerCase()) ? (
+                            <span className="badge bg-danger">{row[col.accessor]}</span>
+                          ) : ["in-progress", "medium"].includes(String(row[col.accessor] || "").trim().toLowerCase()) ? (
+                            <span className="badge bg-warning">{row[col.accessor]}</span>
+                          ) : String(row[col.accessor] || "").trim().toLowerCase() === "completed" ? (
+                            <span className="badge bg-success">{row[col.accessor]}</span>
+                          ) : String(row[col.accessor] || "").trim().toLowerCase() === "low" ? (
+                            <span className="badge bg-info">{row[col.accessor]}</span>
+                          ) : (
+                            row[col.accessor]
+                          )}
                         </span>
                       )}
                     </td>

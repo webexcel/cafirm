@@ -9,8 +9,6 @@ const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
 import { getAttendanceByDate } from "../../service/attendance/activityTracker";
-import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
-import Cookies from 'js-cookie';
 import { usePermission } from "../../contexts";
 import { AssignUserFields } from "../../constants/fields/configurationFields";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
