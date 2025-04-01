@@ -37,7 +37,7 @@ const CreateUserAccount = () => {
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
     { header: "Name", accessor: "name", editable: false },
-    { header: "Role", accessor: "role", editable: true },
+    { header: "Role", accessor: "permission_name", editable: true },
     { header: "Email", accessor: "email", editable: true },
     { header: "Phone No", accessor: "phone", editable: true },
     { header: "Actions", accessor: "Actions", editable: false },

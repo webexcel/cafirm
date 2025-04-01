@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { Form, Button, Row, Col, Card } from "react-bootstrap";
 import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { addMenu, getMenuList, getParentMenuList } from "../../service/configuration/permissionMenu";
+import { addMenu, deleteMenu, getMenuList, getParentMenuList, updateMenu } from "../../service/configuration/permissionMenu";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Swal from "sweetalert2";
 import Loader from "../../components/common/loader/loader";
@@ -68,8 +68,9 @@ const AddMenu = () => {
     };
 
     const onDelete = useCallback(async (updatedData, index) => {
+        console.log("updatedData updatedData", updatedData)
         const result = await Swal.fire({
-            title: "Are you sure you want to delete this employee?",
+            title: "Are you sure you want to delete menu?",
             text: "You won't be able to revert this!",
             icon: "warning",
             showCancelButton: true,
@@ -80,30 +81,62 @@ const AddMenu = () => {
 
         if (result.isConfirmed) {
             try {
-                const payload = { id: updatedData?.employee_id || "" };
-                const response = await deleteEmployee(payload);
+                const payload = { menu_id: updatedData?.menu_id || "" };
+                const response = await deleteMenu(payload);
 
                 if (response.data.status) {
                     setFilteredData((prevData) => {
                         const newFilteredData = prevData
                             .filter((item, ind) => ind !== index)
                             .map((item, ind) => ({ ...item, sno: ind + 1 }));
-                        setTableData(newFilteredData);
+                        // setTableData(newFilteredData);
                         return newFilteredData;
                     });
-
-                    Swal.fire("Deleted!", "Employee deleted successfully.", "success");
+                    Swal.fire("Deleted!", "Menu deleted successfully.", "success");
                 }
             } catch (error) {
                 Swal.fire(
                     "Error",
-                    error.response?.data?.message || "Failed to delete employee.",
+                    error.response?.data?.message || "Failed to delete menu.",
                     "error"
                 );
             }
         }
     }, []);
-    const handleSaveEdit = async (editData) => {
+
+    const handleSaveEdit = async (index, updatedData) => {
+
+        console.log("update valuess", updatedData)
+
+        const payload = {
+            menu_id: updatedData?.menu_id,
+            type: '',
+            parent_id: updatedData?.parent_id,
+            menu_name: updatedData?.menu_name
+        }
+
+        try {
+            const response = await updateMenu(payload);
+            if (response.data) {
+                setFilteredData((prevData) =>
+                    prevData.map((row, i) => (i === index ? { ...row, ...updatedData } : row))
+                );
+                Swal.fire({
+                    icon: "success",
+                    title: "Menu Edited Successfully!",
+                    confirmButtonText: "OK",
+                });
+            }
+        } catch (error) {
+            console.log("error in edit menu", error)
+            Swal.fire({
+                icon: "error",
+                title: "Failed to Edit Menu",
+                text: error?.response?.data?.message || "Something went wrong while editing the menu.",
+                confirmButtonText: "OK",
+            });
+        }
+        setEditingIndex(null);
     };
 
     return (

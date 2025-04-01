@@ -93,7 +93,9 @@ export const MENUITEMS = [
 		title: "Configuration", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 			{ path: `${import.meta.env.BASE_URL}permissions`, type: "link", active: false, selected: false, dirchange: false, title: "Permissions" },
-			{ path: `${import.meta.env.BASE_URL}assignUser`, type: "link", active: false, selected: false, dirchange: false, title: "Assign User" },
+			// { path: `${import.meta.env.BASE_URL}assignUser`, type: "link", active: false, selected: false, dirchange: false, title: "Assign User" },
+			{ path: `${import.meta.env.BASE_URL}AddMenu`, type: "link", active: false, selected: false, dirchange: false, title: "Add Menu" },
+			{ path: `${import.meta.env.BASE_URL}addOperations`, type: "link", active: false, selected: false, dirchange: false, title: "Operation" },
 
 		],
 	},

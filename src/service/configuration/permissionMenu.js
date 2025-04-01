@@ -24,3 +24,10 @@ export const getParentMenuList = async () => {
 export const getOperationMappedList = async () => {
   return await endpoint.get(`${mainUrl.MENU}/getOperationMappedList`);
 };
+
+export const deleteMenu = async (data) => {
+  return await endpoint.post(`${mainUrl.MENU}/deleteMenu`,data);
+};
+export const updateMenu = async (data) => {
+  return await endpoint.post(`${mainUrl.MENU}/updateMenu`,data);
+};
