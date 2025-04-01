@@ -720,6 +720,9 @@ typography
 }
 [data-menu-styles=dark][data-nav-layout=vertical][data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar .main-sidebar-header .header-logo .toggle-dark {
   display: block;
+  height: 100%;
+  width :100%;
+  object-fit: contain;
 }
 [data-menu-styles=dark][data-nav-layout=vertical][data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar .main-sidebar-header .header-logo .desktop-logo,
 [data-menu-styles=dark][data-nav-layout=vertical][data-vertical-style=overlay][data-toggled=icon-overlay-close] .app-sidebar .main-sidebar-header .header-logo .desktop-dark,

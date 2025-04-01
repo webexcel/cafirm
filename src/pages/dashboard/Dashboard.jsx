@@ -133,7 +133,7 @@ const Dashboard = () => {
       <Row>
         <Col xxl={3} xl={12}>
           <Row>
-            <Col xxl={12} xl={6} lg={6} className="">
+            <Col xxl={6} xl={6} lg={6} className="">
               <Card className="custom-card">
                 <Card.Header className="card-header">
                   <Card.Title className="">Recent Tasks</Card.Title>
@@ -143,7 +143,6 @@ const Dashboard = () => {
                     {
                       taskDataList.map((task, index) => (
                         <li className="" key={index}>
-
                           <div className="">
                             <i className="task-icon bg-primary"></i>
                             <div className="w-100">
@@ -153,14 +152,13 @@ const Dashboard = () => {
                                 <div style={{ width: '50%' }}>
                                   <h6 className="fw-semibold mb-0">{task.task_name}</h6>
                                   <span className="fs-12 text-muted">{task.description}
-                                    {/* <Link to="#" className="fw-semibold text-primary"> AngularJS Template</Link> */}
                                   </span>
                                 </div>
 
                                 <div className="avatar-list-stacked" style={{ width: '25%' }}> {
                                   task.assigned_to?.map((data, index) => (
                                     <OverlayTrigger placement="top" overlay={<Tooltip>{data.emp_name}</Tooltip>}>
-                                      <span key={data.emp_id} className="avatar avatar-sm avatar-rounded"
+                                      <span key={index} className="avatar avatar-sm avatar-rounded"
                                         style={{ width: '30px', height: '30px' }}>
                                         <img src={data.photo || demoimage} alt={data.image || 'img'} />
                                       </span>
@@ -186,7 +184,7 @@ const Dashboard = () => {
             </Col>
 
 
-            <Col xxl={12} xl={6} lg={6} className="">
+            <Col xxl={6} xl={6} lg={6} className="">
               <Card className="custom-card">
                 <Card.Header className="card-header">
                   <Card.Title className="">Recent TimeSheet</Card.Title>
@@ -209,19 +207,6 @@ const Dashboard = () => {
                                     {/* <Link to="#" className="fw-semibold text-primary"> AngularJS Template</Link> */}
                                   </span>
                                 </div>
-
-                                {/* <div className="avatar-list-stacked" style={{ width: '25%' }}> {
-                                  task.assigned_to?.map((data, index) => (
-                                    <OverlayTrigger placement="top" overlay={<Tooltip>{data.emp_name}</Tooltip>}>
-                                      <span key={data.emp_id} className="avatar avatar-sm avatar-rounded"
-                                        style={{ width: '30px', height: '30px' }}>
-                                        <img src={data.photo || demoimage} alt={data.image || 'img'} />
-                                      </span>
-                                    </OverlayTrigger>
-                                  ))
-                                }
-                                </div> */}
-
                                 <div className="min-w-fit-content d-flex ms-2 text-end text-muted gap-1 w-50 justify-content-end" style={{ width: '50%' }}>
                                   <p className="mb-0 text-muted fs-11m-0">{timesheet.total_time}</p>
                                 </div>

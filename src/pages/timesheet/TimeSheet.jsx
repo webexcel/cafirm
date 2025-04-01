@@ -13,6 +13,7 @@ const CustomTable = React.lazy(() =>
 );
 import Cookies from 'js-cookie';
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
+import { usePermission } from "../../contexts";
 
 const AddTimeSheet = () => {
 
@@ -21,6 +22,9 @@ const AddTimeSheet = () => {
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState(tableData);
   const [formFields, setFormFields] = useState(ViewEmpTimeSheetField);
+  const { permissions, getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
@@ -182,6 +186,9 @@ const AddTimeSheet = () => {
 
   useEffect(() => {
     getTimeSheetData()
+    const permissionFlags = getOperationFlagsById(10, 3); // paren_id , sub_menu id
+    console.log(permissionFlags, '---permissionFlags');
+    setPermissionFlags(permissionFlags);
 
   }, [])
 
@@ -281,6 +288,9 @@ const AddTimeSheet = () => {
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
                   btnText={'Submit'}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
+
                 />
 
               </Col>
@@ -299,6 +309,8 @@ const AddTimeSheet = () => {
               recordsPerPage={recordsPerPage}
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             // onDelete={onDelete}
             />
           </Suspense>

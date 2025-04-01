@@ -14,22 +14,25 @@ import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { CreateUserAccountFields } from "../../constants/fields/employeeFields";
 
 import {
-  addEmployee,
   deleteEmployee,
-  getEmployee,
   createUserAccount,
 } from "../../service/employee_management/createEmployeeService";
+import { usePermission } from "../../contexts";
+import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
+import { getPermissionsList } from "../../service/configuration/permissions";
 
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 
 const CreateUserAccount = () => {
-  const [tableData, setTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState([]);
   const [formFields, setFormFields] = useState(CreateUserAccountFields);
+  const { getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
 
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
@@ -53,6 +56,7 @@ const CreateUserAccount = () => {
   const getEmployeeData = async () => {
     try {
       const response = await getEmployeesNotPassword();
+      const userPermissionData = await getPermissionsList()
       const updatedFormFields = CreateUserAccountFields.map((field) => {
         if (field.name === "employee") {
           if (Array.isArray(response.data.data) && response.data.data.length > 0) {
@@ -67,58 +71,65 @@ const CreateUserAccount = () => {
           }
 
         }
+
+        if (field.name === "emprole") {
+          if (Array.isArray(userPermissionData.data.data) && userPermissionData.data.data.length > 0) {
+            const employeeRoleOptions = userPermissionData.data.data.map((item) => ({
+              value: item.permission_id,
+              label: item.permission_name,
+            }));
+            console.log("Mapped Employee Role Options:", employeeRoleOptions);
+            return { ...field, options: employeeRoleOptions };
+          } else {
+            console.error("Employee role data response is not an array or is empty.");
+          }
+
+        }
+
         return field;
       });
       setFormFields(updatedFormFields);
+      const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+      console.log(permissionFlags, '---permissionFlags');
+      setPermissionFlags(permissionFlags);
     } catch (err) {
       console.error("Error fetching employee data:", err);
     }
   };
+
   const getEmployeeTableData = async () => {
     try {
-      const response = await getUserAccounts()
+      const response = await getUserAccounts();
       const formattedData = response.data.data.map((data, index) => ({
         sno: index + 1,
         ...data,
       }));
-
-      const updatedFormFields = CreateUserAccountFields.map((field) => {
-        if (field.name === "employee") {
-          if (
-            Array.isArray(response.data.data) &&
-            response.data.data.length > 0
-          ) {
-            const employeeOptions = response.data.data.map((item) => ({
-              value: item.employee_id,
-              label: item.name,
-            }));
-            console.log("Mapped Employee Options:", employeeOptions);
-            return { ...field, options: employeeOptions };
-          } else {
-            console.error(
-              "Employee data response is not an array or is empty."
-            );
-          }
-        }
-        return field;
-      });
-      setFormFields(updatedFormFields);
-
-      setTableData(formattedData);
+      // setTableData(formattedData);
       setFilteredData(formattedData);
+    } catch (error) {
+      console.log("Error occurs while getting employee table data: ", error.stack);
     }
-    catch (error) {
-      console.log("Error occurs while getting employee table data : ", error.stack)
+
+    try {
+      const flags = await getOperationFlagsById(3, 3); // parent_id, sub_menu_id
+      console.log(flags, '---permissionFlags');
+      setPermissionFlags(flags);
+    } catch (error) {
+      console.error("Error fetching permission flags: ", error);
     }
-  }
+  };
 
   useEffect(() => {
     const fetchInitial = async () => {
-      await Promise.all([getEmployeeData(), getEmployeeTableData()]);
+      await Promise.all([
+        getEmployeeData(),
+        getEmployeeTableData()
+      ]);
     };
     fetchInitial();
   }, []);
 
+  console.log("permssss", permissionFlags)
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -141,15 +152,13 @@ const CreateUserAccount = () => {
     if (result.isConfirmed) {
       try {
 
-        const { username, password, isadmin, employee } = formData;
+        const { password, emprole, employee } = formData;
         const payload = {
-          name: username,
           password,
-          role: isadmin,
-          employee_id: employee,
+          role: emprole,
+          id: employee,
         };
-        const response = await createUserAccount(payload);
-
+        const response = await updatePassword(payload);
 
         if (!response.data.status) {
           return Swal.fire(
@@ -162,6 +171,7 @@ const CreateUserAccount = () => {
         Swal.fire("Success", "User Created successfully.", "success");
         resetForm();
         getEmployeeTableData();
+        getEmployeeData();
       } catch (err) {
         Swal.fire(
           "Error",
@@ -222,6 +232,8 @@ const CreateUserAccount = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
                 />
               </Col>
             </Card.Body>
@@ -240,6 +252,8 @@ const CreateUserAccount = () => {
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             />
           </Suspense>
         </Card.Body>

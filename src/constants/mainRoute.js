@@ -15,4 +15,5 @@ export default Object.freeze({
   ATTENDANCE : 'attendance',
   DASHBOARD : 'dashboard',
   CALENDAR : 'calendar',
+  MENU : 'menu',
 });

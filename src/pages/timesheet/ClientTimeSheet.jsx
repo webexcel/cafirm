@@ -19,6 +19,7 @@ import * as Yup from "yup";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import Cookies from 'js-cookie';
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
+import { usePermission } from "../../contexts";
 
 
 const ClientTimeSheet = () => {
@@ -30,6 +31,10 @@ const ClientTimeSheet = () => {
   const [formFields, setFormFields] = useState(ViewCliTimeSheetField);
   const [showModal, setShowModal] = useState(false);
   const [timesheetFormFileds, setTimesheetFormFields] = useState(TimesheetModalFields)
+  const { permissions, getOperationFlagsById } = usePermission();
+  const [permissionFlags, setPermissionFlags] = useState(1);
+
+  
   const [initialModelValues, setInitialModelValues] = useState(
     TimesheetModalFields.reduce((values, field) => {
       values[field.name] = field.type === "dropdown" ? "" : field.type === "date" ? null : "";
@@ -132,6 +137,10 @@ const ClientTimeSheet = () => {
       }
     };
     fetchFieldOptionData()
+    const permissionFlags = getOperationFlagsById(10, 4); // paren_id , sub_menu id
+    console.log(permissionFlags, '---permissionFlags');
+    setPermissionFlags(permissionFlags);
+
   }, []);
 
   const fetchViewTicketData = async (emp_id, client_id, service_id, startdate, enddate) => {
@@ -438,6 +447,8 @@ const ClientTimeSheet = () => {
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
                   btnText={'Submit'}
+                  showAddButton={permissionFlags?.showCREATE}
+                  showUpdateButton={permissionFlags?.showUPDATE}
                 />
 
               </Col>
@@ -458,6 +469,8 @@ const ClientTimeSheet = () => {
               handlePageChange={handlePageChange}
               onDelete={onDelete}
               handlerEdit={handlerEdit}
+              showDeleteButton={permissionFlags?.showDELETE}
+              showUpdateButton={permissionFlags?.showUPDATE}
             />
           </Suspense>
         </Card.Body>

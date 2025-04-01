@@ -10,6 +10,7 @@ import Cookies from 'js-cookie';
 import InputMask from 'react-input-mask';
 import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import { usePermission } from "../../contexts";
 const WeeklyTimeSheet = () => {
     const [formFields, setFormFields] = useState(WeeklyTimeSheetField);
     const [weeklydates, setWeeklyDate] = useState([]);
@@ -19,6 +20,9 @@ const WeeklyTimeSheet = () => {
     const [editedData, setEditedData] = useState({});
     const [weeklyData, setWeeklyData] = useState([]);
     const [weeklyTotal, setWeeklyTotal] = useState([]);
+    const { permissions, getOperationFlagsById } = usePermission();
+    const [permissionFlags, setPermissionFlags] = useState(1);
+
 
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
         acc[field.name] = "";
@@ -188,6 +192,10 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         getWeeklyData();
+        const permissionFlags = getOperationFlagsById(10, 5); // paren_id , sub_menu id
+        console.log(permissionFlags, '---permissionFlags');
+        setPermissionFlags(permissionFlags);
+    
     }, []);
 
 
@@ -277,6 +285,9 @@ const WeeklyTimeSheet = () => {
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
                                     btnText={'Submit'}
+                                    showAddButton={permissionFlags?.showCREATE}
+                                    showUpdateButton={permissionFlags?.showUPDATE}
+                  
                                 />
                             </Col>
                         </Card.Body>

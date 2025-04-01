@@ -399,7 +399,7 @@ const AddPermissions = () => {
                                     />
                                 </Col>
                                 <Col md={3}>
-                                    <Row className="d-flex align-items-start">
+                                    {/* <Row className="d-flex align-items-start">
                                         <Col md={12} className="d-flex justify-content-end">
                                             <Button
                                                 className="btn btn-primary"
@@ -407,7 +407,7 @@ const AddPermissions = () => {
                                                 Assign
                                             </Button>
                                         </Col>
-                                    </Row>
+                                    </Row> */}
                                 </Col>
                             </Row>
                         </Card.Body>

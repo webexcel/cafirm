@@ -8,6 +8,7 @@ import { getEmployee } from "../../service/employee_management/createEmployeeSer
 import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { useSearchParams } from "react-router-dom";
 import Cookies from 'js-cookie';
+import { getPermissionsList } from "../../service/configuration/permissions";
 const ViewEditProfileEmp = () => {
   const [employeesData, setEmployeesData] = useState([]);
   const [employeeData, setEmployeeData] = useState({
@@ -18,6 +19,17 @@ const ViewEditProfileEmp = () => {
     "phone": "",
     "role": "",
   })
+  const [fields, setFields] = useState([
+    { key: "name", label: "Name", type: "text" },
+    {
+      key: "role", label: "Employee Role", type: "list",
+      options: [],
+    },
+    { key: "employee_id", label: "Employee ID", type: "Number" },
+    { key: "email", label: "Email", type: "email" },
+    { key: "phone", label: "Contact", type: "number" },
+    { key: "photo", label: "photo", type: "text" },
+  ])
   const [searchParams] = useSearchParams();
   const empid = searchParams.get("id");
 
@@ -57,38 +69,47 @@ const ViewEditProfileEmp = () => {
     }
   }, [empid]);
 
-  const getEmployeeData = async () => {
-    try {
-      const userData = JSON.parse(Cookies.get('user'));
-      const payload = {
-        "emp_id": userData?.employee_id || ''
-      };
-      const response = await getEmployeesByPermission(payload)
-      const addSno = response.data.data.map((data, index) => ({
-        sno: index + 1,
-        ...data
-      }))
-      setEmployeesData(addSno)
-      console.log("response : ", response)
-    }
-    catch (err) {
-      console.log("Error occurs while getting employee data : ", err)
-    }
-  }
-
   useEffect(() => {
-    getEmployeeData()
-  }, [])
+    const fetchInitiallyData = async () => {
+      const userData = JSON.parse(Cookies.get('user'));
+      const payload = { "emp_id": userData?.employee_id || '' };
 
-  const fields = [
-    { key: "name", label: "Name" },
-    { key: "role", label: "Employee Role" },
-    { key: "employee_id", label: "Employee ID" },
-    { key: "email", label: "Email" },
-    // { key: "password", label: "Password" },
-    { key: "phone", label: "Contact" },
-    { key: "photo", label: "photo" },
-  ];
+      try {
+        const [employeeDataRes, permissionDataRes] = await Promise.all([
+          getEmployeesByPermission(payload),
+          getPermissionsList()
+        ]);
+        console.log("employeeData",employeeDataRes,"permissionData",permissionDataRes,"field",fields)
+        const addSno = await employeeDataRes.data.data.map((data, index) => ({
+          sno: index + 1,
+          ...data
+        }))
+        setEmployeesData(addSno)
+        const updatedFormFields = fields.map((field) => {
+          if (field.key === "role") {
+            console.log("field.name",field.key)
+            if (Array.isArray(permissionDataRes.data.data) && permissionDataRes.data.data.length > 0) {
+              const employeeRoleOptions = permissionDataRes.data.data.map((item) => ({
+                value: item.permission_id,
+                label: item.permission_name,
+              }));
+              console.log("Mapped Employee Role Options:", employeeRoleOptions);
+              return { ...field, options: employeeRoleOptions };
+            } else {
+              console.error("Employee role data response is not an array or is empty.");
+            }
+          }
+          return field;
+        });
+        setFields(updatedFormFields);
+       console.log("fieldsfieldsfields",fields)
+      } catch (error) {
+        console.error("Unexpected error in fetchInitiallyData:", error);
+      }
+    };
+
+    fetchInitiallyData();
+  }, []);
 
   const handleFieldUpdate = async (key, value, userData, type) => {
     console.log("Checkk : ", key, value, userData)
@@ -100,8 +121,9 @@ const ViewEditProfileEmp = () => {
       }
       const response = await editEmployeeDetails(payload)
       if (!response.data.status) {
-
+        Swal.fire("Error", response?.data?.message || "Failed to edit employee data.", "error");
       }
+      Swal.fire("Updated!", "Employee data updated successfully.", "success");
       setEmployeeData(prev => ({
         ...prev,
         [key]: value,

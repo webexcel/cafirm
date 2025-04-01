@@ -51,7 +51,7 @@ export const CreateUserAccountFields = [
     label: "Employee Role",
     placeholder: "Select Employee Role",
     type: "dropdown",
-    options: [{label:'Employee',value:'E'},{label:'Admin',value:'A'},{label:'Super Admin ',value:'S'}],
+    options: [],
     required: true,
   },
 
