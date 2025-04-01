@@ -145,14 +145,16 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                         <span className="text-muted" style={{ fontSize: "0.9rem" }}>
                             {label || key.replace(/([a-z])([A-Z])/g, "$1 $2")}
                         </span>
+                        {console.log("options", options)}
 
                         {editingField === key ? (
                             <div className="d-flex align-items-center">
                                 {type.toLowerCase() === "list" ? (
                                     <Select
                                         name={key}
-                                        options={options || []}
-                                        value={options.find(option => String(option.value) === String(data[key])) || null}
+                                        options={data[key] === "1" ? [{label:"Super Admin",value:'1'},...options] : options || []}
+                                        value={String(data[key]) === "1" ? "Super Admin" :
+                                            options.find(option => String(option.value) === String(data[key])) || null}
                                         id={key}
                                         className="w-100"
                                         menuPlacement="auto"
@@ -188,7 +190,7 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                             <div onClick={() => handleEditClick(key)} style={{ cursor: "pointer", maxWidth: "65%" }}>
                                 <span className="fw-normal">
                                     {type.toLowerCase() === "list"
-                                        ? options.find(option => String(option.value) === String(data[key]))?.label || "Empty"
+                                        ? String(data[key]) === "1" ? "Super Admin" : options.find(option => String(option.value) === String(data[key]))?.label || "Empty"
                                         : type.toLowerCase() === "date"
                                             ? formatDate(data[key])
                                             : data[key] || "Empty"}

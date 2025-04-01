@@ -554,7 +554,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 			})
 			.find(Boolean);
 
-		onHeaderTitleChange(findpathheader || "Default Title");
+		onHeaderTitleChange(findpathheader || "");
 
 		const findSideMenuList = menuItems.map((item) => {
 			if (item.child) {
