@@ -21,6 +21,7 @@ const validationSchema = Yup.object().shape({
 const AddMenu = () => {
 
     const [menuList, setMenuList] = useState([])
+    const [allMenuList, setallMenuList] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(15);
     const [filteredData, setFilteredData] = useState(menuList);
@@ -49,19 +50,19 @@ const AddMenu = () => {
         fetchMenuList()
     }, [])
 
-    // useEffect(() => {
-    //     const fetchInitialData = async () => {
-    //         try {
-    //             const [menuList] = await Promise.all([getMenuList()]);
-    //             const menu = menuList?.data?.data || [];
-    //             setMenuList(menu);
-    //         } catch (error) {
-    //             console.error("Error occurs while getting menu list:", error);
-    //         }
-    //     };
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [menuList] = await Promise.all([getMenuList()]);
+                const menu = menuList?.data?.data || [];
+                setallMenuList(menu);
+            } catch (error) {
+                console.error("Error occurs while getting menu list:", error);
+            }
+        };
 
-    //     fetchInitialData();
-    // }, []);
+        fetchInitialData();
+    }, []);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -255,7 +256,7 @@ const AddMenu = () => {
                         <Suspense fallback={<Loader />}>
                             <CustomTable
                                 columns={columns}
-                                data={menuList}
+                                data={allMenuList}
                                 currentPage={currentPage}
                                 recordsPerPage={recordsPerPage}
                                 totalRecords={menuList.length}
