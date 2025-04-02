@@ -51,29 +51,29 @@ const ViewEditProfileEmp = () => {
   }, [])
 
   const fields = [
-    { key: "client_name", label: "Name" },
-    { key: "client_type", label: "Client Type" },
-    { key: "client_id", label: "Client ID" },
-    { key: "contact_person", label: "Contact Person" },
-    { key: "email", label: "Email" },
-    { key: "password", label: "Password" },
-    { key: "phone", label: "Contact" },
-    { key: "photo", label: "photo" },
-    { key: "gst_number", label: "GSTIN" },
-    { key: "pan_number", label: "Pan Number" },
-    { key: "tan_number", label: "Tan Number" },
+    { key: "client_name", label: "Name",type: "text" },
+    { key: "client_type", label: "Client Type",type: "text" },
+    { key: "client_id", label: "Client ID",type: "text" },
+    { key: "contact_person", label: "Contact Person",type: "text" },
+    { key: "email", label: "Email",type: "text" },
+    { key: "password", label: "Password",type: "text" },
+    { key: "phone", label: "Contact",type: "number" },
+    { key: "photo", label: "photo",type: "text" },
+    { key: "gst_number", label: "GSTIN",type: "text" },
+    { key: "pan_number", label: "Pan Number",type: "text" },
+    { key: "tan_number", label: "Tan Number",type: "text" },
 
   ];
   const field1 = [
-    { key: "address", label: "Address" },
-    { key: "state", label: "State" },
-    { key: "city", label: "City" },
-    { key: "state", label: "State" },
-    { key: "country", label: "Country" },
-    { key: "pincode", label: "Pincode" },
-    { key: "incorporation_date", label: "InCop Date" },
-    { key: "financial_year_start", label: "Fin Start Date" },
-    { key: "financial_year_end", label: "Fin End Date" },
+    { key: "address", label: "Address",type: "textarea"  },
+    { key: "state", label: "State",type: "text" },
+    { key: "city", label: "City",type: "text" },
+    { key: "state", label: "State",type: "text" },
+    { key: "country", label: "Country",type: "text" },
+    { key: "pincode", label: "Pincode",type: "text" },
+    { key: "incorporation_date", label: "InCop Date",type: "text" },
+    { key: "financial_year_start", label: "Fin Start Date",type: "text" },
+    { key: "financial_year_end", label: "Fin End Date",type: "text" },
   ]
   const getCliData = async (item) => {
     console.log("Item : ", item)
