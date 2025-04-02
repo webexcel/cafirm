@@ -8,9 +8,11 @@ import Cookies from 'js-cookie';
 import { setToken } from "../../utils/authUtils";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import { loginService } from "../../service/authServices";
+import { usePermission } from "../../contexts";
 const Login = () => {
 	const navigate = useNavigate()
 	const [passwordshow1, setpasswordshow1] = useState(false);
+	const { fetchPermissions } = usePermission();
 	const [err, setError] = useState("");
 
 	const loginSubmit = async () => {
@@ -23,6 +25,7 @@ const Login = () => {
 			if (logResponse.data.status) {
 				await setToken(logResponse.data.token)
 				Cookies.set('user', JSON.stringify(logResponse.data.userdata), { expires: 30 });
+				fetchPermissions(logResponse.data.userdata.userId);
 				navigate('/dashboard', { replace: true });
 			} else {
 				throw new Error("Unexpected response status");

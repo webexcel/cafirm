@@ -30,6 +30,29 @@ export const PermissionProvider = ({ children }) => {
     return storedData ? JSON.parse(storedData) : null;
   });
 
+  useEffect(() => {
+    // Sync userData with cookie updates
+    const checkUserCookie = () => {
+      const storedData = Cookies.get("user");
+      const parsedData = storedData ? JSON.parse(storedData) : null;
+      
+      if (JSON.stringify(parsedData) !== JSON.stringify(userData)) {
+        setUserData(parsedData);
+      }
+    };
+    
+    const interval = setInterval(checkUserCookie, 1000);
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, [userData]);
+
+  useEffect(() => {
+    if (userData?.employee_id) {
+      fetchPermissions();
+    }
+  }, [userData]);
+  
+
   const fetchPermissions = async () => {
     try {
       const response = await getUserPermissions(userData?.employee_id);
