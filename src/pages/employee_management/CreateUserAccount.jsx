@@ -20,7 +20,6 @@ import {
 import { usePermission } from "../../contexts";
 import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
 import { getPermissionsList } from "../../service/configuration/permissions";
-import Cookies from 'js-cookie';
 
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
@@ -137,13 +136,11 @@ const CreateUserAccount = () => {
     if (result.isConfirmed) {
       try {
 
-        const { password, emprole, employee } = formData;
-        const userData = JSON.parse(Cookies.get('user'))
+        const { password, employee } = formData;
+      
         const payload = {
           password,
-          role: emprole,
           id: employee,
-          user_id: userData?.employee_id
         };
         const response = await updatePassword(payload);
 
