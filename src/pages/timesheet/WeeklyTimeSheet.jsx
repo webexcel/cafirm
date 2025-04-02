@@ -11,6 +11,7 @@ import InputMask from 'react-input-mask';
 import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { usePermission } from "../../contexts";
+import DateLabel from "./DateLabel";
 const WeeklyTimeSheet = () => {
     const [formFields, setFormFields] = useState(WeeklyTimeSheetField);
     const [weeklydates, setWeeklyDate] = useState([]);
@@ -22,6 +23,8 @@ const WeeklyTimeSheet = () => {
     const [weeklyTotal, setWeeklyTotal] = useState([]);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
+    // const today = new Date();
+    // const currentYear = today.getFullYear();
 
 
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
@@ -52,6 +55,8 @@ const WeeklyTimeSheet = () => {
                             const userData = JSON.parse(Cookies.get('user'));
                             console.log("userData111111111111111", userData);
                             if (userData?.role !== '1' && userData?.role !== '2') {
+
+                          
                                 setFieldValue("employee", userData.employee_id);
                                 console.log("userData11", userData);
                             }
@@ -65,7 +70,10 @@ const WeeklyTimeSheet = () => {
                             return {
                                 ...field,
                                 options: employeeOptions,
+
                                 disabled: !['1', '2'].includes(String(userData?.role)) ? true : false,
+
+
                             };
                         } else {
                             console.error("Employee data response is not an array or is empty.");
@@ -301,6 +309,7 @@ const WeeklyTimeSheet = () => {
         }
 
     };
+    const currentMonthName = today.toLocaleString('en-US', { month: 'long' });
 
     return (
         <>
@@ -327,32 +336,34 @@ const WeeklyTimeSheet = () => {
             </Row>
 
             <Card>
-                <table className="border-collapse border border-gray-300 w-full">
+                <table className="table table-bordered w-100">
                     <thead>
                         <tr>
-                            <th colSpan={headerData.length + 1} className="border border-gray-300 p-2">
-                                <WeeklyCalenderLabel dateList={weeklydates} />
-                            </th>
+                            <th className="fs-18 fw-bolder text-center" colSpan={2} style={{ width: "10%" }}>
+                                <span className="me-2">
+                                {currentMonthName}
+                            </span>
+                                <span>
+                                    {currentYear}
+                                </span></th>
+                            {weeklydates.map((data, index) => (
+                                <th key={index} className="text-center fw-bold" style={{ width: "auto" }}>
+                                    <DateLabel {...data} />
+                                </th>
+                            ))}
                         </tr>
 
-                        {/* <tr className="bg-gray-200"> */}
-                        {/* {headerData.map((header, index) => (
-                                <th key={index} className="border border-gray-300 p-2 text-center">
-                                    <span className="font-bold">
-                                        {weeklydates.some((data) => data.date === parseInt(header)) ? 'Hours' : header}
-                                    </span>
-                                </th>
-                            ))} */}
                         {weeklyAllData.length > 0 && (
-                            <tr className="bg-gray-200">
-                                {headerData.map((header, index) => (
-                                    <th key={index} className="border border-gray-300 p-2 text-center">
-                                        <span className="font-bold">
-                                            {weeklyTotal[header]}
-                                        </span>
-                                    </th>
-                                ))}
-                                <th className="border border-gray-300 p-2 text-center">Actions</th>
+                            <tr className="bg-light">
+                                {headerData.map((header, index) => {
+                                    const isFixedWidth = ["task_id", "task_name"].includes(header) ? "5%" : "auto";
+                                    return (
+                                        <th key={index} className="text-center fw-bold" style={{ width: isFixedWidth }}>
+                                            {weeklyTotal[header] || ""}
+                                        </th>
+                                    );
+                                })}
+                                <th className="text-center fw-bold" style={{ width: "10%" }}>Actions</th>
                             </tr>
                         )}
                     </thead>
@@ -362,15 +373,15 @@ const WeeklyTimeSheet = () => {
                             weeklyAllData.map((row, rowIndex) => (
                                 <tr key={rowIndex} className="text-center">
                                     {headerData.map((header, index) => {
+                                        const isFixedWidth = ["task_id", "task_name"].includes(header) ? "10%" : "auto";
 
-                                        const isEditable = editRowIndex === rowIndex &&
+                                        const isEditable =
+                                            editRowIndex === rowIndex &&
                                             !["task_id", "task_name"].includes(header) &&
                                             isPastOrToday(header);
 
                                         return (
-                                            <td key={index} className="border border-gray-300 text-center" style={{
-                                                width: ["task_id", "task_name"].includes(header) ? '160px' : '80px',
-                                            }}>
+                                            <td key={index} style={{ width: isFixedWidth, minWidth: "100px" }}>
                                                 {isEditable ? (
                                                     <InputMask
                                                         mask="99:99"
@@ -380,35 +391,26 @@ const WeeklyTimeSheet = () => {
                                                         placeholder="HH:MM"
                                                         pattern="^([01]\d|2[0-3]):([0-5]\d)$"
                                                         title="Enter time in HH:MM format (24-hour)"
-                                                        style={{
-                                                            width: '50px',
-                                                            border: '1px solid #ccc',
-                                                            borderRadius: '5px',
-                                                            padding: '5px',
-                                                            outline: 'none',
-                                                            boxShadow: '0 1px 1px rgba(0, 0, 0, 0.1)',
-                                                            textAlign: 'center',
-                                                            boxSizing: 'border-box',
-                                                            fontSize: '11px'
-                                                        }}
+                                                        className="form-control form-control-sm text-center"
                                                         inputMode="numeric"
                                                     />
                                                 ) : (
-                                                    <span>{row[header] || ""}</span>
+                                                    <span className="d-block w-100">{row[header] || ""}</span>
                                                 )}
                                             </td>
                                         );
                                     })}
-                                    <td className="border border-gray-300 p-2">
+
+                                    <td className="text-center" style={{ minWidth: "100px" }}>
                                         {editRowIndex === rowIndex ? (
-                                            <>
-                                                <Button variant="success" size="sm" onClick={() => handleSaveClick(row)} className="me-2">
+                                            <div className="d-flex justify-content-center gap-2">
+                                                <Button variant="success" size="sm" onClick={() => handleSaveClick(row)}>
                                                     <i className="bi bi-check-lg"></i>
                                                 </Button>
                                                 <Button variant="danger" size="sm" onClick={handleCancelClick}>
                                                     <i className="bi bi-x-lg"></i>
                                                 </Button>
-                                            </>
+                                            </div>
                                         ) : (
                                             <Button variant="primary" size="sm" onClick={() => handleEditClick(rowIndex)}>
                                                 <i className="bi bi-pencil-square"></i>
@@ -419,25 +421,14 @@ const WeeklyTimeSheet = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={headerData.length + 1} className="border border-gray-300 p-4 text-center text-gray-500">
+                                <td colSpan={headerData.length + 1} className="text-center text-muted p-4">
                                     No weekly data found
                                 </td>
                             </tr>
                         )}
-
-                        {/* {weeklyAllData.length > 0 && (
-                            <tr className="bg-gray-200">
-                                {headerData.map((header, index) => (
-                                    <th key={index} className="border border-gray-300 p-2 text-center">
-                                        <span className="font-bold">
-                                            {header === "task_name" ? 'Total' : weeklyTotal[header]}
-                                        </span>
-                                    </th>
-                                ))}
-                            </tr>
-                        )} */}
                     </tbody>
                 </table>
+
             </Card>
 
 
