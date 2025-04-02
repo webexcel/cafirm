@@ -7,51 +7,25 @@ const WeeklyCalenderLabel = ({ dateList }) => {
     const currentMonthName = today.toLocaleString('en-US', { month: 'long' });
     const currentYear = today.getFullYear();
     return (
-        <div>
 
             <div className='d-flex align-items-center ps-4 pe-2 py-2'>
                 {/* header */}
-                <div className='d-flex gap-3' style={{ width: '30%' }}>
+                <td colspan="2" width="15%" className='d-flex gap-3' >
                     <div className='fs-18 fw-bolder d-flex gap-2'>
-                        <span>
-                            {currentMonthName}
-                        </span>
-                        <span>
-                            {currentYear}
-                        </span>
+                        <span>{currentMonthName}</span>
+                        <span>{currentYear}</span>
                     </div>
-                    {/* <div className='d-flex align-items-center'>
-                        <IoChevronBackOutline size={17} style={{ cursor: 'pointer' }} />
-                        <IoChevronForwardOutline size={17} style={{ cursor: 'pointer' }} />
-                    </div>  */}
-                </div>
-                {/* dates */}
-
-                <div className='d-flex py-2 gap-1' style={{ width: '70%', paddingLeft: '1%' }}>
+                   </td>
+                <td className='d-flex py-2 gap-1' style={{ width: '70%', paddingLeft: '1%' }}>
                     {
                         dateList.map((data) => (
                             <DateLabel {...data} />
                         ))
                     }
-                </div>
+                </td>
+                <td >Test</td>
 
             </div>
-            {/* 
-            <div className='d-flex ps-4'>
-                <div className='w-50 d-flex justify-content-between'>
-                    <div>Client 1</div>
-                    <div>Task 1</div>
-                    <div>Description 1</div>
-                </div>
-                <div className='w-50 d-flex'>
-                    <div>1</div>
-                    <div>3</div>
-                    <div>3</div>
-                </div>
-            </div> 
-            */}
-
-        </div>
 
     )
 }
