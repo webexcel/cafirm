@@ -153,6 +153,7 @@ const WeeklyTimeSheet = () => {
         }, [])
 
         setWeeklyAllData(formattedData);
+        console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
             Object.keys(curr).forEach((key) => {
@@ -161,14 +162,14 @@ const WeeklyTimeSheet = () => {
                 }
             });
             return acc;
-        }, {});
+        }, {"task_name" : "","task_id":""});
         setWeeklyTotal(mergedData)
 
         console.log("Formatted Data:", formattedData, mergedData);
 
-        const allKeys = Object.keys(formattedData[0]);
-        const dateKeys = allKeys.filter(key => !isNaN(key)).sort((a, b) => a - b);
-        const orderedHeaders = ['task_id', 'task_name', ...dateKeys];
+        const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
+        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
+        console.log("dateKeys", orderedHeaders, weeklyAllDate)
         setHeaderData(orderedHeaders);
 
     };
@@ -192,10 +193,10 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         getWeeklyData();
-        const permissionFlags = getOperationFlagsById(10, 5); // paren_id , sub_menu id
-        console.log(permissionFlags, '---permissionFlags');
-        setPermissionFlags(permissionFlags);
-    
+        // const permissionFlags = getOperationFlagsById(10, 5); // paren_id , sub_menu id
+        // console.log(permissionFlags, '---permissionFlags');
+        // setPermissionFlags(permissionFlags);
+
     }, []);
 
 
@@ -217,10 +218,11 @@ const WeeklyTimeSheet = () => {
             updatedData[editRowIndex] = { ...editedData };
             setWeeklyAllData(updatedData);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
+            console.log("updateded dataa :",updatedData,editRowIndex)
             const currentDate = new Date().getDate();
             const newList = Object.keys(updatedData[editRowIndex])
 
-                .filter(key => key !== "task_id" && key !== "task_name" && Number(key) <= currentDate)
+                .filter(key => key !== "task_id" && key !== "task_name" && isPastOrToday(Number(key)))
                 .map((key) => {
                     const matchedItem = filterData.timesheet.find(
                         (item) => new Date(item.date).getDate().toString() === key
@@ -230,7 +232,10 @@ const WeeklyTimeSheet = () => {
                         ts_date: matchedItem ? matchedItem.date : weeklydates.map((item) => (item.fullDate)).find((item) => new Date(item).getDate().toString() === key),
                         time: updatedData[editRowIndex][key] || null
                     };
-                });
+                }
+            );
+
+                console.log("newList",newList)
 
             const userData = JSON.parse(Cookies.get('user'));
             const result = {
@@ -253,6 +258,28 @@ const WeeklyTimeSheet = () => {
         }
 
     };
+
+    const today = new Date();
+    const currentDate = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+
+    const isPastOrToday = (day) => {
+        const numericDay = Number(day);
+
+        if (isNaN(numericDay)) return false;
+
+        const todayFullDate = new Date(currentYear, currentMonth, currentDate);
+
+        let dayFullDate = new Date(currentYear, currentMonth, numericDay);
+        if (numericDay > currentDate + 20) {
+            dayFullDate = new Date(currentYear, currentMonth - 1, numericDay);
+        }
+
+        return dayFullDate <= todayFullDate;
+    };
+
 
     const handleCancelClick = () => {
         setEditRowIndex(null);
@@ -287,7 +314,7 @@ const WeeklyTimeSheet = () => {
                                     btnText={'Submit'}
                                     showAddButton={permissionFlags?.showCREATE}
                                     showUpdateButton={permissionFlags?.showUPDATE}
-                  
+
                                 />
                             </Col>
                         </Card.Body>
@@ -321,8 +348,10 @@ const WeeklyTimeSheet = () => {
                             weeklyAllData.map((row, rowIndex) => (
                                 <tr key={rowIndex} className="text-center">
                                     {headerData.map((header, index) => {
-                                        const currentDate = new Date().getDate();
-                                        const isEditable = editRowIndex === rowIndex && !["task_id", "task_name"].includes(header) && Number(header) <= currentDate;
+
+                                        const isEditable = editRowIndex === rowIndex &&
+                                            !["task_id", "task_name"].includes(header) &&
+                                            isPastOrToday(header);
 
                                         return (
                                             <td key={index} className="border border-gray-300 text-center" style={{
@@ -375,7 +404,6 @@ const WeeklyTimeSheet = () => {
                                 </tr>
                             ))
                         ) : (
-                            // Show this row when weeklyAllData is empty
                             <tr>
                                 <td colSpan={headerData.length + 1} className="border border-gray-300 p-4 text-center text-gray-500">
                                     No weekly data found
@@ -388,7 +416,7 @@ const WeeklyTimeSheet = () => {
                                 {headerData.map((header, index) => (
                                     <th key={index} className="border border-gray-300 p-2 text-center">
                                         <span className="font-bold">
-                                            {weeklyTotal[header] === "task_name" ? 'Total' : weeklyTotal[header]}
+                                            {header === "task_name" ? 'Total' : weeklyTotal[header]}
                                         </span>
                                     </th>
                                 ))}
