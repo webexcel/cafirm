@@ -54,7 +54,9 @@ const WeeklyTimeSheet = () => {
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                             const userData = JSON.parse(Cookies.get('user'));
                             console.log("userData111111111111111", userData);
-                            if (userData?.role !== "1" & userData?.role !== "2") {
+                            if (userData?.role !== '1' && userData?.role !== '2') {
+
+                          
                                 setFieldValue("employee", userData.employee_id);
                                 console.log("userData11", userData);
                             }
@@ -68,8 +70,10 @@ const WeeklyTimeSheet = () => {
                             return {
                                 ...field,
                                 options: employeeOptions,
-                                // disabled: userData?.role !== "1" || userData?.role !== "2" ? true : false,
-                                disabled: !["1", "2"].includes(String(userData?.role)) ? true : false
+
+                                disabled: !['1', '2'].includes(String(userData?.role)) ? true : false,
+
+
                             };
                         } else {
                             console.error("Employee data response is not an array or is empty.");
@@ -321,7 +325,7 @@ const WeeklyTimeSheet = () => {
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
                                     btnText={'Submit'}
-                                    showAddButton={permissionFlags?.showCREATE}
+                                    showAddButton={true}
                                     showUpdateButton={permissionFlags?.showUPDATE}
 
                                 />
