@@ -20,6 +20,7 @@ import {
 import { usePermission } from "../../contexts";
 import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
 import { getPermissionsList } from "../../service/configuration/permissions";
+import Cookies from 'js-cookie';
 
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
@@ -56,7 +57,6 @@ const CreateUserAccount = () => {
   const getEmployeeData = async () => {
     try {
       const response = await getEmployeesNotPassword();
-      const userPermissionData = await getPermissionsList()
       const updatedFormFields = CreateUserAccountFields.map((field) => {
         if (field.name === "employee") {
           if (Array.isArray(response.data.data) && response.data.data.length > 0) {
@@ -71,21 +71,6 @@ const CreateUserAccount = () => {
           }
 
         }
-
-        if (field.name === "emprole") {
-          if (Array.isArray(userPermissionData.data.data) && userPermissionData.data.data.length > 0) {
-            const employeeRoleOptions = userPermissionData.data.data.map((item) => ({
-              value: item.permission_id,
-              label: item.permission_name,
-            }));
-            console.log("Mapped Employee Role Options:", employeeRoleOptions);
-            return { ...field, options: employeeRoleOptions };
-          } else {
-            console.error("Employee role data response is not an array or is empty.");
-          }
-
-        }
-
         return field;
       });
       setFormFields(updatedFormFields);
@@ -153,10 +138,12 @@ const CreateUserAccount = () => {
       try {
 
         const { password, emprole, employee } = formData;
+        const userData = JSON.parse(Cookies.get('user'))
         const payload = {
           password,
           role: emprole,
           id: employee,
+          user_id: userData?.employee_id
         };
         const response = await updatePassword(payload);
 

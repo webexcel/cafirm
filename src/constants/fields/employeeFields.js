@@ -7,7 +7,6 @@ export const AddEmployeeField = [
     required: true,
   },
 
-
   {
     name: "email",
     label: "Email",
@@ -16,7 +15,6 @@ export const AddEmployeeField = [
     required: true,
   },
 
-
   {
     name: "phone",
     label: "Phone",
@@ -24,28 +22,6 @@ export const AddEmployeeField = [
     type: "number",
     required: true,
   },
-
-];
-
-export const CreateUserAccountFields = [
-
-  {
-    name: "employee",
-    label: "Employee",
-    placeholder: "Select Employee",
-    type: "dropdown",
-    options: [],
-    required: true,
-  },
- 
-  {
-    name: "password",
-    label: "Password",
-    placeholder: "Enter Password",
-    type: "text",
-    required: true,
-  },
-
   {
     name: "emprole",
     label: "Employee Role",
@@ -54,5 +30,23 @@ export const CreateUserAccountFields = [
     options: [],
     required: true,
   },
+];
 
+export const CreateUserAccountFields = [
+  {
+    name: "employee",
+    label: "Employee",
+    placeholder: "Select Employee",
+    type: "dropdown",
+    options: [],
+    required: true,
+  },
+
+  {
+    name: "password",
+    label: "Password",
+    placeholder: "Enter Password",
+    type: "text",
+    required: true,
+  },
 ];

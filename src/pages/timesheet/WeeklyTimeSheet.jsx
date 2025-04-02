@@ -351,11 +351,9 @@ const WeeklyTimeSheet = () => {
                                         </span>
                                     </th>
                                 ))}
+                                <th className="border border-gray-300 p-2 text-center">Actions</th>
                             </tr>
                         )}
-                        {/* <th className="border border-gray-300 p-2 text-center">Actions</th> */}
-
-                        {/* </tr> */}
                     </thead>
 
                     <tbody>
