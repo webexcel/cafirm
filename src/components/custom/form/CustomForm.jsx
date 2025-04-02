@@ -317,7 +317,7 @@ const CustomForm = ({
               type="submit"
               variant="primary"
               className="btn btn-wave mb-3 w-50 py-1">
-              Add
+              {btnText || 'Add'}
             </Button>
           </Col>
         )}

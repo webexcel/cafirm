@@ -9,6 +9,7 @@ import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddEmployeeField } from "../../constants/fields/employeeFields";
 import { usePermission } from "../../contexts";
 import { addEmployee, deleteEmployee, getEmployee } from "../../service/employee_management/createEmployeeService";
+import { getPermissionsList } from "../../service/configuration/permissions";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
@@ -70,6 +71,44 @@ const CreateEmployee = () => {
     getEmployeeData()
   }, [])
 
+   const fetchEmployeeData = async () => {
+      try {
+        const userPermissionData = await getPermissionsList()
+        const updatedFormFields = AddEmployeeField.map((field) => {  
+          if (field.name === "emprole") {
+            if (Array.isArray(userPermissionData.data.data) && userPermissionData.data.data.length > 0) {
+              const employeeRoleOptions = userPermissionData.data.data.map((item) => ({
+                value: item.permission_id,
+                label: item.permission_name,
+              }));
+              console.log("Mapped Employee Role Options:", employeeRoleOptions);
+              return { ...field, options: employeeRoleOptions };
+            } else {
+              console.error("Employee role data response is not an array or is empty.");
+            }
+  
+          }
+  
+          return field;
+        });
+        setFormFields(updatedFormFields);
+        const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+        console.log(permissionFlags, '---permissionFlags');
+        setPermissionFlags(permissionFlags);
+      } catch (err) {
+        console.error("Error fetching employee data:", err);
+      }
+    };
+
+      useEffect(() => {
+        const fetchInitial = async () => {
+          await Promise.all([
+            getEmployeeData(),
+            fetchEmployeeData()
+          ]);
+        };
+        fetchInitial();
+      }, []);
 
   // Handle pagination
   const handlePageChange = (pageNumber) => {

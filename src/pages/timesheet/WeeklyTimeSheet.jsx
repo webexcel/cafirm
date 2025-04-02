@@ -162,13 +162,16 @@ const WeeklyTimeSheet = () => {
                 }
             });
             return acc;
-        }, {"task_name" : "","task_id":""});
+        }, { "task_name": "Task Name", "task_id": "Task ID" 
+            // ,"actions" : 'Actions'
+        }
+        );
         setWeeklyTotal(mergedData)
-
         console.log("Formatted Data:", formattedData, mergedData);
-
         const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
-        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
+        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate,
+            // "actions"
+        ];
         console.log("dateKeys", orderedHeaders, weeklyAllDate)
         setHeaderData(orderedHeaders);
 
@@ -218,7 +221,7 @@ const WeeklyTimeSheet = () => {
             updatedData[editRowIndex] = { ...editedData };
             setWeeklyAllData(updatedData);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
-            console.log("updateded dataa :",updatedData,editRowIndex)
+            console.log("updateded dataa :", updatedData, editRowIndex)
             const currentDate = new Date().getDate();
             const newList = Object.keys(updatedData[editRowIndex])
 
@@ -233,9 +236,9 @@ const WeeklyTimeSheet = () => {
                         time: updatedData[editRowIndex][key] || null
                     };
                 }
-            );
+                );
 
-                console.log("newList",newList)
+            console.log("newList", newList)
 
             const userData = JSON.parse(Cookies.get('user'));
             const result = {
@@ -331,16 +334,26 @@ const WeeklyTimeSheet = () => {
                             </th>
                         </tr>
 
-                        <tr className="bg-gray-200">
-                            {headerData.map((header, index) => (
+                        {/* <tr className="bg-gray-200"> */}
+                        {/* {headerData.map((header, index) => (
                                 <th key={index} className="border border-gray-300 p-2 text-center">
                                     <span className="font-bold">
                                         {weeklydates.some((data) => data.date === parseInt(header)) ? 'Hours' : header}
                                     </span>
                                 </th>
-                            ))}
-                            <th className="border border-gray-300 p-2 text-center">Actions</th>
-                        </tr>
+                            ))} */}
+                        {weeklyAllData.length > 0 && (
+                            <tr className="bg-gray-200">
+                                {headerData.map((header, index) => (
+                                    <th key={index} className="border border-gray-300 p-2 text-center">
+                                        <span className="font-bold">
+                                            {weeklyTotal[header]}
+                                        </span>
+                                    </th>
+                                ))}
+                                <th className="border border-gray-300 p-2 text-center">Actions</th>
+                            </tr>
+                        )}
                     </thead>
 
                     <tbody>
@@ -411,7 +424,7 @@ const WeeklyTimeSheet = () => {
                             </tr>
                         )}
 
-                        {weeklyAllData.length > 0 && (
+                        {/* {weeklyAllData.length > 0 && (
                             <tr className="bg-gray-200">
                                 {headerData.map((header, index) => (
                                     <th key={index} className="border border-gray-300 p-2 text-center">
@@ -421,7 +434,7 @@ const WeeklyTimeSheet = () => {
                                     </th>
                                 ))}
                             </tr>
-                        )}
+                        )} */}
                     </tbody>
                 </table>
             </Card>
