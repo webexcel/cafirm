@@ -68,7 +68,7 @@ const ViewEditProfileEmp = () => {
     { key: "address", label: "Address",type: "textarea"  },
     { key: "state", label: "State",type: "text" },
     { key: "city", label: "City",type: "text" },
-    { key: "state", label: "State", },
+    { key: "state", label: "State",type: "text" },
     { key: "country", label: "Country",type: "text" },
     { key: "pincode", label: "Pincode",type: "text" },
     { key: "incorporation_date", label: "InCop Date",type: "text" },
