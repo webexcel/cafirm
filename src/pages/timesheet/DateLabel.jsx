@@ -2,7 +2,7 @@ import React from 'react';
 
 const DateLabel = ({ day, date, active }) => {
     return (
-        <div className='d-flex flex-column justify-content-center align-items-center gap-1' style={{ width: '11.60%' }}>
+        <div className='d-flex flex-column justify-content-center align-items-center gap-1'>
             <span className='text-center text-muted'>{day.slice(0, 3)}</span>
 
             <span
