@@ -13,6 +13,7 @@ import { getPermissionsList } from "../../service/configuration/permissions";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
+import Cookies from 'js-cookie';
 
 
 const CreateEmployee = () => {
@@ -133,12 +134,14 @@ const CreateEmployee = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { name,email, phone } = formData;
+        const { name,email, phone,emprole } = formData;
+        const userData = JSON.parse(Cookies.get('user'))
         const payload = {
           "name": name,
           "email": email,
           "phone": phone,
-
+          "role": emprole,
+          "user_id": userData?.employee_id
         }
 
         const response = await addEmployee(payload);
