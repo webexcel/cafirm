@@ -226,7 +226,9 @@ const AddTimeSheet = () => {
           return Swal.fire("Error", response.data.message || "Failed to get employee timesheet.", "error");
         }
         Swal.fire("Success", `Timesheet added successfully`, "success");
-        resetForm()
+        Object.keys(formData)
+          .filter(k => k !== "employee")
+          .forEach(item => setFieldValue(item, ""));
       } catch (err) {
         console.error("Error while get employee timesheet data:", err.stack);
         Swal.fire("Error", err.response?.data?.message || "Failed to get employee timesheet data.", "error");

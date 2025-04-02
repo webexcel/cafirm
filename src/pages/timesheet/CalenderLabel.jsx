@@ -3,14 +3,22 @@ import { IoChevronForwardOutline } from "react-icons/io5";
 import { IoChevronBackOutline } from "react-icons/io5";
 import DateLabel from './DateLabel';
 const WeeklyCalenderLabel = ({ dateList }) => {
+    const today = new Date();
+    const currentMonthName = today.toLocaleString('en-US', { month: 'long' });
+    const currentYear = today.getFullYear();
     return (
         <div>
 
             <div className='d-flex align-items-center ps-4 pe-2 py-2'>
                 {/* header */}
                 <div className='d-flex gap-3' style={{ width: '30%' }}>
-                     <div className='fs-18 fw-bolder'>
-                        March 2022
+                    <div className='fs-18 fw-bolder d-flex gap-2'>
+                        <span>
+                            {currentMonthName}
+                        </span>
+                        <span>
+                            {currentYear}
+                        </span>
                     </div>
                     {/* <div className='d-flex align-items-center'>
                         <IoChevronBackOutline size={17} style={{ cursor: 'pointer' }} />
@@ -19,7 +27,7 @@ const WeeklyCalenderLabel = ({ dateList }) => {
                 </div>
                 {/* dates */}
 
-                <div className='d-flex py-2 gap-1' style={{ width: '70%',paddingLeft:'1%'}}>
+                <div className='d-flex py-2 gap-1' style={{ width: '70%', paddingLeft: '1%' }}>
                     {
                         dateList.map((data) => (
                             <DateLabel {...data} />
