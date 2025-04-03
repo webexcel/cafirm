@@ -37,7 +37,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 	const [show1, setShow1] = useState(false);
 
 	const handleClose1 = () => setShow1(false);
-	const { fetchPermissions,resetPermissions } = usePermission();
+	const { fetchPermissions, resetPermissions } = usePermission();
 	const searchRef = useRef(null)
 	const [userdata] = useState(() => {
 		const userData = Cookies.get('user');
@@ -271,7 +271,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 			if (key !== "time") {
 				localStorage.removeItem(key);
 			}
-			
+
 			console.log("keys", key)
 		});
 		resetPermissions();
@@ -411,7 +411,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 							<Dropdown.Toggle variant='' as="a" className="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
 								<div className="d-flex align-items-center">
 									<div className="d-sm-flex wd-100p">
-										<div className="avatar avatar-sm"><img alt="avatar" className="rounded-circle" src={faces1} /></div>
+										<div className="avatar avatar-sm"><img alt="avatar" className="rounded-circle" src={userdata?.photo || faces1} /></div>
 										<div className="ms-2 my-auto d-none d-xl-flex">
 											<h6 className=" font-weight-semibold mb-0 fs-13 user-name d-sm-block d-none">{userdata?.name || 'UnKnown User'}</h6>
 										</div>

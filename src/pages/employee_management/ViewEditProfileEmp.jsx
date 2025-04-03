@@ -9,6 +9,7 @@ import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } fro
 import { useSearchParams } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { getPermissionsList } from "../../service/configuration/permissions";
+
 const ViewEditProfileEmp = () => {
   const [employeesData, setEmployeesData] = useState([]);
   const [employeeData, setEmployeeData] = useState({
@@ -79,7 +80,7 @@ const ViewEditProfileEmp = () => {
           getEmployeesByPermission(payload),
           getPermissionsList()
         ]);
-        console.log("employeeData",employeeDataRes,"permissionData",permissionDataRes,"field",fields)
+        console.log("employeeData", employeeDataRes, "permissionData", permissionDataRes, "field", fields)
         const addSno = await employeeDataRes.data.data.map((data, index) => ({
           sno: index + 1,
           ...data
@@ -87,7 +88,7 @@ const ViewEditProfileEmp = () => {
         setEmployeesData(addSno)
         const updatedFormFields = fields.map((field) => {
           if (field.key === "role") {
-            console.log("field.name",field.key)
+            console.log("field.name", field.key)
             if (Array.isArray(permissionDataRes.data.data) && permissionDataRes.data.data.length > 0) {
               const employeeRoleOptions = permissionDataRes.data.data.map((item) => ({
                 value: item.permission_id,
@@ -102,7 +103,7 @@ const ViewEditProfileEmp = () => {
           return field;
         });
         setFields(updatedFormFields);
-       console.log("fieldsfieldsfields",fields)
+        console.log("fieldsfieldsfields", fields)
       } catch (error) {
         console.error("Unexpected error in fetchInitiallyData:", error);
       }
@@ -113,6 +114,17 @@ const ViewEditProfileEmp = () => {
 
   const handleFieldUpdate = async (key, value, userData, type) => {
     console.log("Checkk : ", key, value, userData)
+    if (key = "photo") {
+      const userDataCookies = JSON.parse(Cookies.get('user'));
+      if (userData?.employee_id === userDataCookies.employee_id) {
+        const data = {
+          ...userDataCookies,
+          photo: userData?.photo
+        }
+        Cookies.set(JSON.stringify(data))
+      }
+      console.log("userData", userData, userDataCookies)
+    }
     try {
       const payload = {
         "id": userData?.employee_id,
