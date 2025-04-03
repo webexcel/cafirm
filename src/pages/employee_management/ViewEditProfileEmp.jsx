@@ -4,7 +4,6 @@ import { Row, Col, Card } from "react-bootstrap";
 import SelectableSearch from "../../components/custom/search/SelectableSearch";
 import UserCard from "../../components/custom/card/UserCard";
 import Swal from "sweetalert2";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { useSearchParams } from "react-router-dom";
 import Cookies from 'js-cookie';
