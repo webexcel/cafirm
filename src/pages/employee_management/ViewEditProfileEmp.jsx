@@ -114,17 +114,7 @@ const ViewEditProfileEmp = () => {
 
   const handleFieldUpdate = async (key, value, userData, type) => {
     console.log("Checkk : ", key, value, userData)
-    if (key = "photo") {
-      const userDataCookies = JSON.parse(Cookies.get('user'));
-      if (userData?.employee_id === userDataCookies.employee_id) {
-        const data = {
-          ...userDataCookies,
-          photo: userData?.photo
-        }
-        Cookies.set(JSON.stringify(data))
-      }
-      console.log("userData", userData, userDataCookies)
-    }
+
     try {
       const payload = {
         "id": userData?.employee_id,
@@ -140,6 +130,20 @@ const ViewEditProfileEmp = () => {
         ...prev,
         [key]: value,
       }))
+      if (key === "photo") {
+        const userDataCookies = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+        if (userDataCookies && userData?.employee_id === userDataCookies.employee_id) {
+          console.log("Profile changing test:", userData);
+          const data = {
+            ...userDataCookies,
+            photo: userData.photo
+          };
+
+          Cookies.set('user', JSON.stringify(data));
+        }
+
+        console.log("userData:", userData, "userDataCookies:", userDataCookies);
+      }
 
     }
     catch (err) {
