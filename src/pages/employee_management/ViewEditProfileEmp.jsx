@@ -4,11 +4,11 @@ import { Row, Col, Card } from "react-bootstrap";
 import SelectableSearch from "../../components/custom/search/SelectableSearch";
 import UserCard from "../../components/custom/card/UserCard";
 import Swal from "sweetalert2";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { useSearchParams } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { getPermissionsList } from "../../service/configuration/permissions";
+
 const ViewEditProfileEmp = () => {
   const [employeesData, setEmployeesData] = useState([]);
   const [employeeData, setEmployeeData] = useState({
@@ -79,7 +79,7 @@ const ViewEditProfileEmp = () => {
           getEmployeesByPermission(payload),
           getPermissionsList()
         ]);
-        console.log("employeeData",employeeDataRes,"permissionData",permissionDataRes,"field",fields)
+        console.log("employeeData", employeeDataRes, "permissionData", permissionDataRes, "field", fields)
         const addSno = await employeeDataRes.data.data.map((data, index) => ({
           sno: index + 1,
           ...data
@@ -87,7 +87,7 @@ const ViewEditProfileEmp = () => {
         setEmployeesData(addSno)
         const updatedFormFields = fields.map((field) => {
           if (field.key === "role") {
-            console.log("field.name",field.key)
+            console.log("field.name", field.key)
             if (Array.isArray(permissionDataRes.data.data) && permissionDataRes.data.data.length > 0) {
               const employeeRoleOptions = permissionDataRes.data.data.map((item) => ({
                 value: item.permission_id,
@@ -102,7 +102,7 @@ const ViewEditProfileEmp = () => {
           return field;
         });
         setFields(updatedFormFields);
-       console.log("fieldsfieldsfields",fields)
+        console.log("fieldsfieldsfields", fields)
       } catch (error) {
         console.error("Unexpected error in fetchInitiallyData:", error);
       }
@@ -113,6 +113,7 @@ const ViewEditProfileEmp = () => {
 
   const handleFieldUpdate = async (key, value, userData, type) => {
     console.log("Checkk : ", key, value, userData)
+
     try {
       const payload = {
         "id": userData?.employee_id,
@@ -128,6 +129,20 @@ const ViewEditProfileEmp = () => {
         ...prev,
         [key]: value,
       }))
+      if (key === "photo") {
+        const userDataCookies = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+        if (userDataCookies && userData?.employee_id === userDataCookies.employee_id) {
+          console.log("Profile changing test:", userData);
+          const data = {
+            ...userDataCookies,
+            photo: userData.photo
+          };
+
+          Cookies.set('user', JSON.stringify(data));
+        }
+
+        console.log("userData:", userData, "userDataCookies:", userDataCookies);
+      }
 
     }
     catch (err) {

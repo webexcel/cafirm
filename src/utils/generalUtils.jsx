@@ -1,3 +1,6 @@
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const formatDate = (isoDate) => {
     const date = new Date(isoDate);
     return date.toLocaleDateString("en-US", {
@@ -48,4 +51,15 @@ const formatDateIntl = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(date);
 };
-export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl };
+const exportToExcel = (datalist, filename) => {
+    filename ??= "DataFile"
+    const worksheet = XLSX.utils.json_to_sheet(datalist);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    // Generate Excel file and trigger download
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelData = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(excelData, filename += '.xlsx');
+};
+
+export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel };

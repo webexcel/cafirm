@@ -8,10 +8,6 @@ const icon11 = <i className="bx bx-menu"></i>;
 const badge1 = <span className="badge bg-warning-transparent ms-2 d-inline-block">12</span>;
 export const MENUITEMS = [
 
-	{
-		menutitle: "Rajagopal & Badri Narayanan",
-	},
-
 	// Dashboard 
 	{ path: `${import.meta.env.BASE_URL}dashboard`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Dashboard" },
 
@@ -20,12 +16,6 @@ export const MENUITEMS = [
 	{ path: `${import.meta.env.BASE_URL}calender`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Calender" },
 
 
-	//Configuration	
-	// {
-	// 	title: "Configuration", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
-	// 	children: [
-	// 	],
-	// },
 
 	//Client Management	
 	{
@@ -41,8 +31,8 @@ export const MENUITEMS = [
 	{
 		title: "Client Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}addManageClient`, type: "link", active: false, selected: false, dirchange: false, title: "Create Clients" },
-			{ path: `${import.meta.env.BASE_URL}viewEditClient`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Profile" },
+			{ path: `${import.meta.env.BASE_URL}CreateClients`, type: "link", active: false, selected: false, dirchange: false, title: "Create Clients" },
+			{ path: `${import.meta.env.BASE_URL}ViewEditProfiles`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Profile" },
 			// { path: `${import.meta.env.BASE_URL}addService`, type: "link", active: false, selected: false, dirchange: false, title: "Add Service" },
 			// { path: `${import.meta.env.BASE_URL}addManageClient`, type: "link", active: false, selected: false, dirchange: false, title: "View / Edit Service" },
 		],
@@ -59,12 +49,17 @@ export const MENUITEMS = [
 	//Employee Time Tracking
 
 	{
-		title: "TimeSheet", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		title: "Task", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 			{ path: `${import.meta.env.BASE_URL}addTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Create Task" },
 			{ path: `${import.meta.env.BASE_URL}viewtask`, type: "link", active: false, selected: false, dirchange: false, title: "View Task" },
-			{ path: `${import.meta.env.BASE_URL}timeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Timesheet" },
-			{ path: `${import.meta.env.BASE_URL}clientTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Timesheet" },
+		],
+	},
+	{
+		title: "TimeSheet", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		children: [
+			{ path: `${import.meta.env.BASE_URL}AddTimesheet`, type: "link", active: false, selected: false, dirchange: false, title: "Add Timesheet" },
+			{ path: `${import.meta.env.BASE_URL}viewTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Timesheet" },
 			{ path: `${import.meta.env.BASE_URL}weeklyTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Weekly Timesheet" },
 		],
 	},
@@ -81,10 +76,25 @@ export const MENUITEMS = [
 
 	//Master Details
 	{
-		title: "Reports & Analytics", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		title: "Master Details", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 
 			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+		],
+	},
+
+	//Master Details
+	{
+		title: "Reports", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+		children: [
+
+			// { path: `${import.meta.env.BASE_URL}EmployeeReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Report" },
+			{ path: `${import.meta.env.BASE_URL}EmployeeWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Weekly Report" },
+			{ path: `${import.meta.env.BASE_URL}EmployeeMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Monthly Report" },
+			{ path: `${import.meta.env.BASE_URL}EmployeeYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Annual Report" },
+			{ path: `${import.meta.env.BASE_URL}ClientWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Weekly Report" },
+			{ path: `${import.meta.env.BASE_URL}ClientMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Monthly Report" },
+			{ path: `${import.meta.env.BASE_URL}ClientYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Annual Report" },
 		],
 	},
 
@@ -104,26 +114,26 @@ export const MENUITEMS = [
 	{
 		title: "Attendance Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}activityTracker`, type: "link", active: false, selected: false, dirchange: false, title: "Add Attendance" },
-			{ path: `${import.meta.env.BASE_URL}workTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "View Attendance" },
+			{ path: `${import.meta.env.BASE_URL}addAttendance`, type: "link", active: false, selected: false, dirchange: false, title: "Add Attendance" },
+			{ path: `${import.meta.env.BASE_URL}viewAttendance`, type: "link", active: false, selected: false, dirchange: false, title: "View Attendance" },
 		],
 	},
 
 	//Billing
-	{
-		title: "Billing & Invoicing", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
-		children: [
-			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Generate invoices" },
-			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Track Payment Status" },
-		],
-	},
+	// {
+	// 	title: "Billing & Invoicing", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+	// 	children: [
+	// 		 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Generate invoices" },
+	// 		 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Track Payment Status" },
+	// 	],
+	// },
 
 	//Documents
-	{
-		title: "Document Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
-		children: [
-			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Upload Documents" },
-			 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Manage Documents" },
-		],
-	},
+	// {
+	// 	title: "Document Management", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
+	// 	children: [
+	// 		 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Upload Documents" },
+	// 		 { path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Manage Documents" },
+	// 	],
+	// },
 ];

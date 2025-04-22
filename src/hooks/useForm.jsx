@@ -9,6 +9,30 @@ const useForm = (initialState, validate) => {
   const handleInputChange = (e, fieldName) => {
     console.log('eeeeeeeee', e, fieldName);
 
+    if(fieldName === "year_id"){
+      setFormData((prev) =>({
+        ...prev,
+        [fieldName] : e
+      }))
+      return;
+    }
+
+    if(fieldName === "monthly_id"){
+      setFormData((prev) =>({
+        ...prev,
+        [fieldName] : e
+      }))
+      return;
+    }
+
+    if(fieldName === "weekly_id"){
+      setFormData((prev) =>({
+        ...prev,
+        [fieldName] : e
+      }))
+      return;
+    }
+
     if (String(fieldName) === "dates") {
       console.log("formdata eeeeeeeeeeeeeeeeeeee", formData, e.target.value)
       setFormData((prev) => ({

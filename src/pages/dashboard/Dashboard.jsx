@@ -131,7 +131,7 @@ const Dashboard = () => {
       </Row>
 
       <Row>
-        <Col xxl={3} xl={12}>
+        <Col xxl={12} xl={12}>
           <Row>
             <Col xxl={6} xl={6} lg={6} className="">
               <Card className="custom-card">

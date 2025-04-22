@@ -26,7 +26,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
         reject(new Error('Canvas is empty'));
         return;
       }
-      resolve(blob); // Return the blob directly
+      resolve(blob);
     }, 'image/jpeg');
   });
 };
