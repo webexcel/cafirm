@@ -12,8 +12,23 @@ import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { usePermission } from "../../contexts";
 import DateLabel from "./DateLabel";
+import CustomModal from "../../components/custom/modal/CustomModal";
+import * as Yup from "yup";
+
+const ModalTimesheetField = [
+    {
+        name: "task",
+        label: "Task",
+        placeholder: "Select Task",
+        type: "multiSelect",
+        options: [],
+        required: true,
+    },
+];
+
 const WeeklyTimeSheet = () => {
     const [formFields, setFormFields] = useState(WeeklyTimeSheetField);
+    const [formModalFields, setFormModalFields] = useState(ModalTimesheetField);
     const [weeklydates, setWeeklyDate] = useState([]);
     const [weeklyAllData, setWeeklyAllData] = useState([]);
     const [headerData, setHeaderData] = useState([]);
@@ -23,9 +38,20 @@ const WeeklyTimeSheet = () => {
     const [weeklyTotal, setWeeklyTotal] = useState([]);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
-    // const today = new Date();
-    // const currentYear = today.getFullYear();
+    const [showModal, setShowModal] = useState(false);
 
+
+    const validationSchema = Yup.object({
+    });
+
+    const [initialModalFields, setInitialModalFields] = useState(
+        ModalTimesheetField.reduce((acc, item) => {
+            acc[item.name] = item?.options ? [] : "";
+            return acc;
+        }, {})
+    );
+
+    const [initialList,setInitialList] = useState([])
 
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
         acc[field.name] = "";
@@ -38,11 +64,8 @@ const WeeklyTimeSheet = () => {
     );
 
     useEffect(() => {
-        // Fetch field option data
         const fetchFieldOptionData = async () => {
             try {
-                const payload = {
-                };
                 const employeeresponse = await getEmployee();
                 console.log("Employee API Response:", employeeresponse);
 
@@ -157,6 +180,7 @@ const WeeklyTimeSheet = () => {
         }, [])
 
         setWeeklyAllData(formattedData);
+        setInitialList(formattedData.slice(0, 2))
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -207,7 +231,6 @@ const WeeklyTimeSheet = () => {
 
     }, []);
 
-
     const handleEditClick = (index) => {
         setEditRowIndex(index);
         setEditedData({ ...weeklyAllData[index] });
@@ -229,7 +252,6 @@ const WeeklyTimeSheet = () => {
             console.log("updateded dataa :", updatedData, editRowIndex)
             const currentDate = new Date().getDate();
             const newList = Object.keys(updatedData[editRowIndex])
-
                 .filter(key => key !== "task_id" && key !== "task_name" && isPastOrToday(Number(key)))
                 .map((key) => {
                     const matchedItem = filterData.timesheet.find(
@@ -272,7 +294,6 @@ const WeeklyTimeSheet = () => {
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
 
-
     const isPastOrToday = (day) => {
         const numericDay = Number(day);
 
@@ -287,7 +308,6 @@ const WeeklyTimeSheet = () => {
 
         return dayFullDate <= todayFullDate;
     };
-
 
     const handleCancelClick = () => {
         setEditRowIndex(null);
@@ -305,7 +325,87 @@ const WeeklyTimeSheet = () => {
         }
 
     };
-    const currentMonthName = today.toLocaleString('en-US', { month: 'long' });
+    const currentMonthName = today.toLocaleString('en-US', { month: 'long' })
+
+    const getWeeklyTaskData = () => {
+        setShowModal(true)
+            setInitialModalFields((prev) =>({
+                ...prev, 
+                task : initialList.map((item) => ({label:item.task_name,value:item.task_id}))
+            }))
+            console.log("i,nitialModalFields",initialModalFields)
+            
+        setFormModalFields((prev) =>
+            prev.map((field) =>
+                field.name === "task"
+                    ? {
+                        ...field,
+                        options: weeklyAllData.map((item) => ({ label: item.task_name, value: item.task_id }))
+                    }
+                    : field
+            )
+        );
+        // console.log("initialModalFields",initialModalFields,initiallyData,formModalFields)
+    }
+
+    
+    const handleSubmit = async (values) => {
+        console.log("valuessss",values,weeklyAllData)
+        setInitialList(() => {
+            const filtered = weeklyAllData.filter((item) =>
+                values.task.some((item1) => item1.value === item.task_id)
+            );
+            return filtered;
+        });
+        
+        // setInitialList(values.task)
+        setShowModal(false)
+        // try {
+        //     const payload = {
+        //         "id": values?.branch_id || "",
+        //         "user_id": userData?.UserId || "",
+        //         "branch_code": values?.branch_code || "",
+        //         "branch_short_name": values?.branch_short_name || "",
+        //         "region_id": values?.region_code || "",
+        //         "branch_name": values?.branch_name || "",
+        //         "address1": values?.branch_add1 || "",
+        //         "address2": values?.branch_add2 || "",
+        //         "address3": values?.branch_add3 || "",
+        //         "address4": values?.branch_add4 || "",
+        //         "pincode": values?.pincode || "",
+        //         "state": values?.state || "",
+        //         "contact_person": values?.contact_person || "",
+        //         "mobile1": values?.mobile1 || "",
+        //         "mobile2": values?.mobile2 || "",
+        //         "phone": values?.phones || "",
+        //         "fax_phone": values?.fax_phone || "",
+        //         "email": values?.email_id || ""
+        //     }
+        //     const response = await editBranch(payload);
+        //     if (response.data) {
+        //         setTableData((prevData) =>
+        //             prevData.map((row, i) => (i === values.index ? { ...row, ...values } : row))
+        //         );
+        //         setFilteredData((prevData) =>
+        //             prevData.map((row, i) => (i === values.index ? { ...row, ...values } : row))
+        //         );
+        //         Swal.fire({
+        //             icon: "success",
+        //             title: "Branch Edited Successfully!",
+        //             confirmButtonText: "OK",
+        //         });
+        //         setShowModal(false)
+        //     }
+        // } catch (error) {
+        //     console.log("error in edit ifsc", error)
+        //     Swal.fire({
+        //         icon: "error",
+        //         title: "Failed to Edit ifsc",
+        //         text: error?.response?.data?.message || "Something went wrong while editing the ifsc.",
+        //         confirmButtonText: "OK",
+        //     });
+        // }
+    }
 
     return (
         <>
@@ -321,7 +421,7 @@ const WeeklyTimeSheet = () => {
                                     onChange={handleInputChange}
                                     onSubmit={handleAdd}
                                     btnText={'Submit'}
-                                    showAddButton={permissionFlags?.showCREATE}
+                                    showAddButton={true}
                                     showUpdateButton={permissionFlags?.showUPDATE}
 
                                 />
@@ -366,57 +466,69 @@ const WeeklyTimeSheet = () => {
                     </thead>
 
                     <tbody>
-                        {weeklyAllData.length > 0 ? (
-                            weeklyAllData.map((row, rowIndex) => (
-                                <tr key={rowIndex} className="text-center">
-                                    {headerData.map((header, index) => {
-                                        const isFixedWidth = ["task_id"].includes(header) ? "8%" :
-                                            ["task_name"].includes(header) ? "17%" : "auto";
+                        {initialList.length > 0 ? (
+                            <>
+                                {initialList.map((row, rowIndex) => (
+                                    <tr key={rowIndex} className="text-center">
+                                        {headerData.map((header, index) => {
+                                            const isFixedWidth = ["task_id"].includes(header) ? "8%" :
+                                                ["task_name"].includes(header) ? "17%" : "auto";
 
-                                        const isEditable =
-                                            editRowIndex === rowIndex &&
-                                            !["task_id", "task_name"].includes(header) &&
-                                            isPastOrToday(header);
+                                            const isEditable =
+                                                editRowIndex === rowIndex &&
+                                                !["task_id", "task_name"].includes(header) &&
+                                                isPastOrToday(header);
 
-                                        return (
-                                            <td key={index} style={{ width: isFixedWidth }}>
-                                                {isEditable ? (
-                                                    <InputMask
-                                                        mask="99:99"
-                                                        maskChar={null}
-                                                        value={editedData[header] || ""}
-                                                        onChange={(e) => handleInputChangeInline(header, e.target.value)}
-                                                        placeholder="HH:MM"
-                                                        pattern="^([01]\d|2[0-3]):([0-5]\d)$"
-                                                        title="Enter time in HH:MM format (24-hour)"
-                                                        className="form-control form-control-sm text-center"
-                                                        inputMode="numeric"
-                                                    />
-                                                ) : (
-                                                    <span className="d-block w-100">{row[header] || ""}</span>
-                                                )}
-                                            </td>
-                                        );
-                                    })}
+                                            return (
+                                                <td key={index} style={{ width: isFixedWidth }}>
+                                                    {isEditable ? (
+                                                        <InputMask
+                                                            mask="99:99"
+                                                            maskChar={null}
+                                                            value={editedData[header] || ""}
+                                                            onChange={(e) => handleInputChangeInline(header, e.target.value)}
+                                                            placeholder="HH:MM"
+                                                            pattern="^([01]\d|2[0-3]):([0-5]\d)$"
+                                                            title="Enter time in HH:MM format (24-hour)"
+                                                            className="form-control form-control-sm text-center"
+                                                            inputMode="numeric"
+                                                        />
+                                                    ) : (
+                                                        <span className="d-block w-100">{row[header] || ""}</span>
+                                                    )}
+                                                </td>
+                                            );
+                                        })}
 
-                                    <td className="text-center" style={{ minWidth: "100px" }}>
-                                        {editRowIndex === rowIndex ? (
-                                            <div className="d-flex justify-content-center gap-2">
-                                                <Button variant="success" size="sm" onClick={() => handleSaveClick(row)}>
-                                                    <i className="bi bi-check-lg"></i>
+                                        <td className="text-center" style={{ minWidth: "100px" }}>
+                                            {editRowIndex === rowIndex ? (
+                                                <div className="d-flex justify-content-center gap-2">
+                                                    <Button variant="success" size="sm" onClick={() => handleSaveClick(row)}>
+                                                        <i className="bi bi-check-lg"></i>
+                                                    </Button>
+                                                    <Button variant="danger" size="sm" onClick={handleCancelClick}>
+                                                        <i className="bi bi-x-lg"></i>
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <Button variant="primary" size="sm" onClick={() => handleEditClick(rowIndex)}>
+                                                    <i className="bi bi-pencil-square"></i>
                                                 </Button>
-                                                <Button variant="danger" size="sm" onClick={handleCancelClick}>
-                                                    <i className="bi bi-x-lg"></i>
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <Button variant="primary" size="sm" onClick={() => handleEditClick(rowIndex)}>
-                                                <i className="bi bi-pencil-square"></i>
-                                            </Button>
-                                        )}
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+
+                                <tr style={{ cursor: "pointer" }}>
+                                    <td colSpan={headerData.length + 1}>
+                                        <div className="d-flex align-items-center text-primary fw-bold py-1 px-4" onClick={getWeeklyTaskData}>
+                                            <i className="bi bi-plus-square-fill me-2" style={{ fontSize: "20px" }}></i>
+                                            Add Task
+                                        </div>
                                     </td>
                                 </tr>
-                            ))
+
+                            </>
                         ) : (
                             <tr>
                                 <td colSpan={headerData.length + 1} className="text-center text-muted p-4">
@@ -425,9 +537,18 @@ const WeeklyTimeSheet = () => {
                             </tr>
                         )}
                     </tbody>
+
                 </table>
             </Card>
-
+            <CustomModal
+                show={showModal}
+                handleClose={() => setShowModal(false)}
+                handleSubmit={handleSubmit}
+                validationSchema={validationSchema}
+                initialValues={initialModalFields}
+                formFields={formModalFields}
+                modalTitle="Select Task"
+            />
 
         </>
     );

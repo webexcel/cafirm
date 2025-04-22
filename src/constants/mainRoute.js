@@ -16,4 +16,5 @@ export default Object.freeze({
   DASHBOARD : 'dashboard',
   CALENDAR : 'calendar',
   MENU : 'menu',
+  CHARTS : 'charts',
 });

@@ -47,9 +47,7 @@ const CustomForm = ({
     }
   };
 
-
-
-  // console.log("errorrrr", errors);
+  const [startDate1, setStartDate] = useState(null);
 
   const renderField = (field) => {
     // console.log('form fieldsssss in custom form', field.name, formData[field.name])
@@ -255,6 +253,45 @@ const CustomForm = ({
           </div>
 
         );
+      case "monthlydatepicker":
+        return (
+          <DatePicker
+            selected={formData[field.name] ? new Date(formData[field.name]) : null}
+            onChange={(e) => onChange(e, field.name)}
+            showMonthYearPicker
+            dateFormat="MM/yyyy"
+            className="form-control"
+            placeholderText="Select Month"
+          />
+        );
+
+      case "weeklydatepicker":
+        return (
+          <DatePicker
+            selected={formData[field.name] ? new Date(formData[field.name]) : null}
+            onChange={(e) => onChange(e, field.name)}
+            showWeekNumbers
+            dateFormat="yyyy, 'Week' ww"
+            placeholderText="Select week"
+            className="form-control"
+
+          />
+        );
+
+      case "yearlydatepicker":
+        return (
+
+          <DatePicker
+            selected={formData[field.name]}
+            onChange={(e) => onChange(e, field.name)}
+            showYearPicker
+            dateFormat="yyyy"
+            className="form-control"
+            placeholderText="Select Year"
+          />
+
+        );
+
       case "email":
         return (
           <Form.Control
@@ -284,10 +321,10 @@ const CustomForm = ({
               field.type === "textarea"
                 ? 6
                 : field.type === "multiPanelSelect"
-                ? 12
-                : field.type === "checktable"
-                ? 12
-                : 3
+                  ? 12
+                  : field.type === "checktable"
+                    ? 12
+                    : 3
             }
             sm={12}
             className="">
@@ -303,11 +340,11 @@ const CustomForm = ({
               {renderField(field)}
               {errors[field.name] &&
                 (console.log(errors, "test"),
-                (
-                  <Form.Control.Feedback type="invalid">
-                    {errors[field.name]}
-                  </Form.Control.Feedback>
-                ))}
+                  (
+                    <Form.Control.Feedback type="invalid">
+                      {errors[field.name]}
+                    </Form.Control.Feedback>
+                  ))}
             </Form.Group>
           </Col>
         ))}
