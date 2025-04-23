@@ -139,7 +139,7 @@ const ClientTimeSheet = () => {
       }
     };
     fetchFieldOptionData()
-    const permissionFlags = getOperationFlagsById(10, 4); // paren_id , sub_menu id
+    const permissionFlags = getOperationFlagsById(13, 2); // paren_id , sub_menu id
     console.log(permissionFlags, '---permissionFlags');
     setPermissionFlags(permissionFlags);
 

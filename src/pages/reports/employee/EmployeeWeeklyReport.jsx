@@ -16,13 +16,33 @@ const EmployeeWeeklyReport = () => {
     const [formFields, setFormFields] = useState(EmployeeWeeklyFields);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
-    const [weeklyChart, setWeeklyChart] = useState({ client_name: [], percentages: [] });
+    const [weeklyChart, setWeeklyChart] = useState({ option: [], percentages: [],option2:[] });
     const [allCount, setAllCount] = useState([
-        { label: "Total Task", value: 0 },
-        { label: "Pending", value: 0 },
-        { label: "In Progress", value: 0 },
-        { label: "Completed", value: 0 },
-    ])
+           {
+               label: "Total Task",
+               value: 0,
+               icon: "bi-card-checklist",
+               color: "bg-primary-transparent"
+           },
+           {
+               label: "Pending",
+               value: 0,
+               icon: "bi-hourglass-split",
+               color: "bg-warning-transparent"
+           },
+           {
+               label: "In Progress",
+               value: 0,
+               icon: "bi-arrow-repeat",
+               color: "bg-info-transparent"
+           },
+           {
+               label: "Completed",
+               value: 0,
+               icon: "bi-check2-circle",
+               color: "bg-success-transparent"
+           }
+       ]);
     const initialFormState = EmployeeWeeklyFields.reduce((acc, field) => {
         acc[field.name] = "";
         return acc;
@@ -119,18 +139,39 @@ const EmployeeWeeklyReport = () => {
                 return Swal.fire("Error", response.data.message || "Failed to get worksheet.", "error");
             }
             setAllCount([
-                { label: 'Total Task', value: response?.data?.count?.total_tasks || 0 },
-                { label: 'Pending', value: response?.data?.count?.pending || 0 },
-                { label: 'In Progress', value: response?.data?.count?.inprocess || 0 },
-                { label: 'Completed', value: response?.data?.count?.completed || 0 }
+                {
+                    label: 'Total Task',
+                    value: response?.data?.count?.total_tasks || 0,
+                    icon: "bi-card-checklist",
+                    color: "bg-primary-transparent"
+                },
+                {
+                    label: 'Pending',
+                    value: response?.data?.count?.pending || 0,
+                    icon: "bi-hourglass-split",
+                    color: "bg-warning-transparent"
+                },
+                {
+                    label: 'In Progress',
+                    value: response?.data?.count?.inprocess || 0,
+                    icon: "bi-arrow-repeat",
+                    color: "bg-info-transparent"
+                },
+                {
+                    label: 'Completed',
+                    value: response?.data?.count?.completed || 0,
+                    icon: "bi-check2-circle",
+                    color: "bg-success-transparent"
+                }
             ]);
 
             const client_name = response.data.data.map((item) => item.client_name);
             const times = response.data.data.map((item) => item.total_time);
             setWeeklyChart((prev) => ({
                 ...prev,
-                client_name: client_name,
+                option: client_name,
                 percentages: times
+                // option2:
             }))
             console.log("Response : ", response, client_name, times)
         } catch (err) {
@@ -167,13 +208,13 @@ const EmployeeWeeklyReport = () => {
                         <Row>
                             {allCount.map((item, idx) => (
                                 <Col md={3} key={idx} className="card-background flex-fill">
-                                    <DashboardCard
-                                        Title={item.label}
-                                        Count={item.value}
-                                        Icon={'fe fe-user-plus'}
-                                        Color={'bg-teal-transparent text-teal'}
-                                    />
-                                </Col>
+                                <DashboardCard
+                                    Title={item.label}
+                                    Count={item.value}
+                                    Icon={item.icon}
+                                    Color={item.color}
+                                />
+                            </Col>
                             ))}
 
                         </Row>
@@ -185,7 +226,7 @@ const EmployeeWeeklyReport = () => {
                         <Col xl={12}>
                             <Card className="custom-card p-3">
                                 <Card.Body className="overflow-auto">
-                                    {weeklyChart.client_name.length > 0 ? (
+                                    {weeklyChart.option.length > 0 ? (
                                         <div id="pie-basic">
                                             <Basicpiechart weeklyChart={weeklyChart} />
                                         </div>

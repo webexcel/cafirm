@@ -26,16 +26,26 @@ export const Basicpiechart = ({ weeklyChart }) => {
 	});
 
 	useEffect(() => {
-		if (weeklyChart && Array.isArray(weeklyChart.percentages) && Array.isArray(weeklyChart.client_name)) {
+		if (
+			weeklyChart &&
+			Array.isArray(weeklyChart.percentages) &&
+			Array.isArray(weeklyChart.option)
+		) {
 			const numericPercentages = weeklyChart.percentages.map((p) => parseFloat(p));
 			setSeries(numericPercentages);
-
+	
+			const combinedLabels = weeklyChart.percentages.map((percentage, index) => {
+				const option = weeklyChart.option[index] || '';
+				return `${percentage}% - ${option}`;
+			});
+	
 			setOptions((prevOptions) => ({
 				...prevOptions,
-				labels: weeklyChart.client_name
+				labels: combinedLabels,
 			}));
 		}
 	}, [weeklyChart]);
+	
 
 	return (
 		<ReactApexChart

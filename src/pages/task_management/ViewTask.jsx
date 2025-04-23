@@ -403,18 +403,28 @@ const ViewTask = () => {
             <Row>
                 <Col xl={12}>
                     <Card className="custom-card p-3">
-                        <Card.Title className="d-flex">
-                            <div className="d-flex justify-content-between
-                            border-bottom border-block-end-dashed w-100 pb-3"
-                            >
-                                <div className="w-25 px-1">
-                                    <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
-                                </div>
-                                <div className="d-flex gap-4 align-items-end">
-                                </div>
-                            </div>
-
-                        </Card.Title>
+                         <Card.Title className="d-flex">
+                                  <div className="d-flex justify-content-between
+                                                            border-bottom border-block-end-dashed w-100 pb-3"
+                                  >
+                                    <div className="w-25 px-1">
+                                      <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+                                    </div>
+                                    <div className="d-flex gap-4 align-items-end">
+                                      <Button
+                                        onClick={async () => {
+                                          const { exportToExcel } = await import('../../utils/generalUtils')
+                                          exportToExcel(filteredData, 'Task_list')
+                                        }}
+                                        type="button"
+                                        variant="primary"
+                                        className="btn btn-wave btn-sm me-3 p-2">
+                                        Export Excel
+                                      </Button>
+                                    </div>
+                                  </div>
+                        
+                                </Card.Title>
                         <Card.Body className="overflow-auto">
                             <Suspense fallback={<Loader />}>
                                 <CustomTable

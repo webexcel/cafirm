@@ -51,44 +51,45 @@ const AddOperations = () => {
             validateCustomForm(data, AddOperationsFields)
         );
 
-    useEffect(() => {
-        const getInitallData = async () => {
-            try {
-                const response = await getMenuList();
-                const operationResponse = await getOperationMappedList()
-                const addSno = response.data.data.map((data, index) => ({
-                    ...data,
-                    sno: index + 1
-                }))
-                const updatedFormFields = formFields.map((field) => {
-                    if (field.name === "menu") {
-                        if (Array.isArray(response.data.data) && response.data.data.length > 0) {
-                            const menuOptions = response.data.data.map((item) => ({
-                                value: item.menu_id,
-                                label: item.menu_name,
-                            }));
-                            console.log("Mapped Employee Role Options:", menuOptions);
-                            return { ...field, options: menuOptions };
-                        } else {
-                            console.error("Employee role data response is not an array or is empty.");
-                        }
-
+    const getInitallData = async () => {
+        try {
+            const response = await getMenuList();
+            const operationResponse = await getOperationMappedList()
+            const addSno = response.data.data.map((data, index) => ({
+                ...data,
+                sno: index + 1
+            }))
+            const updatedFormFields = formFields.map((field) => {
+                if (field.name === "menu") {
+                    if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+                        const menuOptions = response.data.data.map((item) => ({
+                            value: item.menu_id,
+                            label: item.menu_name,
+                        }));
+                        console.log("Mapped Employee Role Options:", menuOptions);
+                        return { ...field, options: menuOptions };
+                    } else {
+                        console.error("Employee role data response is not an array or is empty.");
                     }
-                    return field;
-                });
-                setFormFields(updatedFormFields);
-                const addSnoOperation = operationResponse.data.data.map((data, index) => ({
-                    ...data,
-                    sno: index + 1,
-                    operations: data.operations.map((data, index) => ({ value: index, label: data }))
-                }))
-                setMenuList(addSno || [])
-                setOperationList(addSnoOperation || [])
-            }
-            catch (error) {
-                console.log("Error getting operation list : ", error.stack)
-            }
+
+                }
+                return field;
+            });
+            setFormFields(updatedFormFields);
+            const addSnoOperation = operationResponse.data.data.map((data, index) => ({
+                ...data,
+                sno: index + 1,
+                operations: data.operations.map((data, index) => ({ value: index, label: data }))
+            }))
+            setMenuList(addSno || [])
+            setOperationList(addSnoOperation || [])
         }
+        catch (error) {
+            console.log("Error getting operation list : ", error.stack)
+        }
+    }
+
+    useEffect(() => {
         getInitallData()
     }, [])
 
@@ -165,7 +166,7 @@ const AddOperations = () => {
                         "error"
                     );
                 }
-
+                getInitallData()
                 Swal.fire("Success", "Operations Created successfully.", "success");
                 resetForm();
             } catch (err) {

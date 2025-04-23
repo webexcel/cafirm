@@ -231,9 +231,9 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         getWeeklyData();
-        // const permissionFlags = getOperationFlagsById(10, 5); // paren_id , sub_menu id
-        // console.log(permissionFlags, '---permissionFlags');
-        // setPermissionFlags(permissionFlags);
+        const permissionFlags = getOperationFlagsById(13, 3); // paren_id , sub_menu id
+        console.log(permissionFlags, '---permissionFlags');
+        setPermissionFlags(permissionFlags);
 
     }, []);
 
@@ -251,9 +251,9 @@ const WeeklyTimeSheet = () => {
 
     const handleSaveClick = async (row) => {
         try {
-            const updatedData = [...weeklyAllData];
+            const updatedData = [...initialList];
             updatedData[editRowIndex] = { ...editedData };
-            setWeeklyAllData(updatedData);
+            setInitialList(updatedData);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
             console.log("updateded dataa :", updatedData, editRowIndex)
             const currentDate = new Date().getDate();
