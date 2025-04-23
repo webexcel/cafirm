@@ -10,6 +10,6 @@ export const PermissionRoutesList = {
         { path: "addPermission/:permissionId?", element: <AddPermissions /> },
         { path: "AddMenu", element: <AddMenu /> },
         // { path: "assignUser", element: <AssignUser /> },
-        { path: "addOperations", element: <AddOperations /> },
+        { path: "Operations", element: <AddOperations /> },
     ]
 }

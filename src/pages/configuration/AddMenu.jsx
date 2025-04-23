@@ -93,6 +93,7 @@ const AddMenu = () => {
                         // setTableData(newFilteredData);
                         return newFilteredData;
                     });
+                    fetchMenuList()
                     Swal.fire("Deleted!", "Menu deleted successfully.", "success");
                 }
             } catch (error) {

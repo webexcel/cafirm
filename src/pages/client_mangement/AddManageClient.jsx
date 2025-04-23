@@ -55,7 +55,7 @@ const AddManageClient = () => {
       }))
       setTableData(addSno)
       setFilteredData(addSno)
-      console.log("response : ", response)
+      // console.log("response : ", response)
     }
     catch (err) {
       console.log("Error occurs while getting client data : ", err)
@@ -64,7 +64,7 @@ const AddManageClient = () => {
 
   useEffect(() => {
     getClientData()
-    const permissionFlags = getOperationFlagsById(7, 1); // paren_id , sub_menu id
+    const permissionFlags = getOperationFlagsById(5, 1); // paren_id , sub_menu id
     console.log(permissionFlags, '---permissionFlags');
     setPermissionFlags(permissionFlags);
   }, [])
@@ -90,7 +90,7 @@ const AddManageClient = () => {
     });
     if (result.isConfirmed) {
       try {
-        console.log("Selected form:", formData);
+        // console.log("Selected form:", formData);
         const payload = {
           "name": formData?.name || '',
           "dis_name": formData?.displayname,
@@ -114,7 +114,7 @@ const AddManageClient = () => {
         if (!response.data.status) {
           return Swal.fire("Error", response.data.message || "Failed to add client.", "error");
         }
-        console.log("admission numberrr", response)
+        // console.log("admission numberrr", response)
         Swal.fire("Success", `Client added successfully with Client`, "success");
         resetForm()
         getClientData()
@@ -127,7 +127,7 @@ const AddManageClient = () => {
   };
 
   const onDelete = useCallback(async (updatedData, index) => {
-    console.log("update dataaa", updatedData)
+    // console.log("update dataaa", updatedData)
     const result = await Swal.fire({
       title: "Are you sure about delete client?",
       text: "You won't be able to revert this!",
@@ -139,7 +139,7 @@ const AddManageClient = () => {
     });
     if (result.isConfirmed) {
       try {
-        console.log("update dataa", updatedData.client_id)
+        // console.log("update dataa", updatedData.client_id)
         const payload = { id: updatedData?.client_id || '' };
         const response = await deleteClient(payload);
 

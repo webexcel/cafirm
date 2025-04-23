@@ -186,7 +186,7 @@ const AddTimeSheet = () => {
 
   useEffect(() => {
     getTimeSheetData()
-    const permissionFlags = getOperationFlagsById(10, 3); // paren_id , sub_menu id
+    const permissionFlags = getOperationFlagsById(13, 1); // paren_id , sub_menu id
     console.log(permissionFlags, '---permissionFlags');
     setPermissionFlags(permissionFlags);
 

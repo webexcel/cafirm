@@ -11,7 +11,7 @@ import DashboardCard from "../../dashboard/DashboardCard";
 import { Distributed } from "../columnchartdata";
 import CustomForm from "../../../components/custom/form/CustomForm";
 import { EmployeeMonthlyFields } from "../../../constants/fields/reports";
-import { getClientMonthlyReport } from "../../../service/reports/employeeReports";
+import { getClientMonthlyReport, getEmployeeMonthlyReport } from "../../../service/reports/employeeReports";
 const EmployeeMonthlyReport = () => {
     const [formFields, setFormFields] = useState(EmployeeMonthlyFields);
     const { permissions, getOperationFlagsById } = usePermission();
@@ -22,11 +22,31 @@ const EmployeeMonthlyReport = () => {
         return acc;
     }, {});
     const [allCount, setAllCount] = useState([
-        { label: "Total Task", value: 0 },
-        { label: "Pending", value: 0 },
-        { label: "In Progress", value: 0 },
-        { label: "Completed", value: 0 },
-    ])
+        {
+            label: "Total Task",
+            value: 0,
+            icon: "bi-card-checklist",
+            color: "bg-primary-transparent"
+        },
+        {
+            label: "Pending",
+            value: 0,
+            icon: "bi-hourglass-split",
+            color: "bg-warning-transparent"
+        },
+        {
+            label: "In Progress",
+            value: 0,
+            icon: "bi-arrow-repeat",
+            color: "bg-info-transparent"
+        },
+        {
+            label: "Completed",
+            value: 0,
+            icon: "bi-check2-circle",
+            color: "bg-success-transparent"
+        }
+    ]);
 
     const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
         initialFormState,
@@ -92,19 +112,46 @@ const EmployeeMonthlyReport = () => {
 
             console.log("Payload being sent:", payload);
 
-            const response = await getClientMonthlyReport(payload);
+            const response = await getEmployeeMonthlyReport(payload);
 
             if (!response.data?.status) {
                 return Swal.fire("Error", response.data?.message || "Failed to get monthly employee data.", "error");
             }
+            const task_id = response.data.data.map((item) => item.client_name);
+            const times = response.data.data.map((item) => item.total_minutes);
 
+            setMonthlyChart((prev) => ({
+                ...prev,
+                task : task_id,
+                time : times
+            }))
             console.log("API response:", response);
 
             setAllCount([
-                { label: 'Total Task', value: response?.data?.count?.total_tasks || 0 },
-                { label: 'Pending', value: response?.data?.count?.pending || 0 },
-                { label: 'In Progress', value: response?.data?.count?.inprocess || 0 },
-                { label: 'Completed', value: response?.data?.count?.completed || 0 }
+                {
+                    label: 'Total Task',
+                    value: response?.data?.count?.total_tasks || 0,
+                    icon: "bi-card-checklist",
+                    color: "bg-primary-transparent"
+                },
+                {
+                    label: 'Pending',
+                    value: response?.data?.count?.pending || 0,
+                    icon: "bi-hourglass-split",
+                    color: "bg-warning-transparent"
+                },
+                {
+                    label: 'In Progress',
+                    value: response?.data?.count?.inprocess || 0,
+                    icon: "bi-arrow-repeat",
+                    color: "bg-info-transparent"
+                },
+                {
+                    label: 'Completed',
+                    value: response?.data?.count?.completed || 0,
+                    icon: "bi-check2-circle",
+                    color: "bg-success-transparent"
+                }
             ]);
 
         } catch (err) {
@@ -147,8 +194,8 @@ const EmployeeMonthlyReport = () => {
                                     <DashboardCard
                                         Title={item.label}
                                         Count={item.value}
-                                        Icon={'fe fe-user-plus'}
-                                        Color={'bg-teal-transparent text-teal'}
+                                        Icon={item.icon}
+                                        Color={item.color}
                                     />
                                 </Col>
                             ))}

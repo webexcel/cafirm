@@ -23,11 +23,31 @@ const ClientYearlyReport = () => {
     return acc;
   }, {});
   const [allCount, setAllCount] = useState([
-    { label: "Total Task", value: 0 },
-    { label: "Pending", value: 0 },
-    { label: "In Progress", value: 0 },
-    { label: "Completed", value: 0 },
-  ])
+    {
+      label: "Total Task",
+      value: 0,
+      icon: "bi-card-checklist",
+      color: "bg-primary-transparent"
+    },
+    {
+      label: "Pending",
+      value: 0,
+      icon: "bi-hourglass-split",
+      color: "bg-warning-transparent"
+    },
+    {
+      label: "In Progress",
+      value: 0,
+      icon: "bi-arrow-repeat",
+      color: "bg-info-transparent"
+    },
+    {
+      label: "Completed",
+      value: 0,
+      icon: "bi-check2-circle",
+      color: "bg-success-transparent"
+    }
+  ]);
 
   const { formData, errors, handleInputChange, validateForm, setFieldValue } = useForm(
     initialFormState,
@@ -79,10 +99,30 @@ const ClientYearlyReport = () => {
       }
       console.log("API response:", response);
       setAllCount([
-        { label: 'Total Task', value: response?.data?.count?.total_tasks || 0 },
-        { label: 'Pending', value: response?.data?.count?.pending || 0 },
-        { label: 'In Progress', value: response?.data?.count?.inprocess || 0 },
-        { label: 'Completed', value: response?.data?.count?.completed || 0 }
+        {
+          label: 'Total Task',
+          value: response?.data?.count?.total_tasks || 0,
+          icon: "bi-card-checklist",
+          color: "bg-primary-transparent"
+        },
+        {
+          label: 'Pending',
+          value: response?.data?.count?.pending || 0,
+          icon: "bi-hourglass-split",
+          color: "bg-warning-transparent"
+        },
+        {
+          label: 'In Progress',
+          value: response?.data?.count?.inprocess || 0,
+          icon: "bi-arrow-repeat",
+          color: "bg-info-transparent"
+        },
+        {
+          label: 'Completed',
+          value: response?.data?.count?.completed || 0,
+          icon: "bi-check2-circle",
+          color: "bg-success-transparent"
+        }
       ]);
       const months = response.data.data.task_count_per_month.map((m) => m.month);
       const monthdata = response.data.data.task_count_per_month.map((m) => m.count);
@@ -126,8 +166,8 @@ const ClientYearlyReport = () => {
                   <DashboardCard
                     Title={item.label}
                     Count={item.value}
-                    Icon={'fe fe-user-plus'}
-                    Color={'bg-teal-transparent text-teal'}
+                    Icon={item.icon}
+                    Color={item.color}
                   />
                 </Col>
               ))}

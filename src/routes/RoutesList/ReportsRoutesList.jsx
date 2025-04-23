@@ -9,11 +9,11 @@ const ClientYearlyReport = React.lazy(() => import("../../pages/reports/client/C
 export const ReportsRoutesList = {
     "childRoutes": [
         { path: "EmployeeReports", element: <ReportsByEmployee /> },
-        { path: "EmployeeWeeklyReports", element: <EmployeeWeeklyReport /> },
-        { path: "EmployeeMonthlyReports", element: <EmployeeMonthlyReport /> },
-        { path: "EmployeeYearlyReports", element: <EmployeeYearlyReport /> },
-        { path: "ClientWeeklyReports", element: <ClientWeeklyReport /> },
-        { path: "ClientMonthlyReports", element: <ClientMonthlyReport /> },
-        { path: "ClientYearlyReports", element: <ClientYearlyReport /> },
+        { path: "EmployeeWeeklyReport", element: <EmployeeWeeklyReport /> },
+        { path: "EmployeeMonthlyReport", element: <EmployeeMonthlyReport /> },
+        { path: "EmployeeAnnualReport", element: <EmployeeYearlyReport /> },
+        { path: "ClientWeeklyReport", element: <ClientWeeklyReport /> },
+        { path: "ClientMonthlyReport", element: <ClientMonthlyReport /> },
+        { path: "ClientAnnualReport", element: <ClientYearlyReport /> },
     ]
 }

@@ -61,5 +61,9 @@ const exportToExcel = (datalist, filename) => {
     const excelData = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(excelData, filename += '.xlsx');
 };
-
-export { formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel };
+const formatMinutesToHours = (minutes) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hrs}h ${mins}m`;
+  };
+export { formatMinutesToHours,formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel };

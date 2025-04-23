@@ -51,7 +51,7 @@ export const MENUITEMS = [
 	{
 		title: "Task", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}addTimeSheet`, type: "link", active: false, selected: false, dirchange: false, title: "Create Task" },
+			{ path: `${import.meta.env.BASE_URL}CreateTask`, type: "link", active: false, selected: false, dirchange: false, title: "Create Task" },
 			{ path: `${import.meta.env.BASE_URL}viewtask`, type: "link", active: false, selected: false, dirchange: false, title: "View Task" },
 		],
 	},
