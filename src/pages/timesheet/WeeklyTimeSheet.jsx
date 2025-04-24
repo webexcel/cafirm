@@ -51,7 +51,7 @@ const WeeklyTimeSheet = () => {
         }, {})
     );
 
-    const [initialList,setInitialList] = useState([])
+    const [initialList, setInitialList] = useState([])
 
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
         acc[field.name] = "";
@@ -180,7 +180,19 @@ const WeeklyTimeSheet = () => {
         }, [])
 
         setWeeklyAllData(formattedData);
-        setInitialList(formattedData.slice(0, 2))
+        const filterHeadData = Object.keys(formattedData[0]).filter(
+            (item) => item !== "task_id" && item !== "task_name"
+          );
+          
+          const filteredTaskData = formattedData.filter((dataItem) => {
+            return filterHeadData.some((key) => dataItem[key] !== null);
+          });
+          
+          console.log("filteredTaskData", filteredTaskData);
+          
+
+        console.log("filteredData", filterHeadData)
+        setInitialList(filteredTaskData)
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -329,12 +341,12 @@ const WeeklyTimeSheet = () => {
 
     const getWeeklyTaskData = () => {
         setShowModal(true)
-            setInitialModalFields((prev) =>({
-                ...prev, 
-                task : initialList.map((item) => ({label:item.task_name,value:item.task_id}))
-            }))
-            console.log("i,nitialModalFields",initialModalFields)
-            
+        setInitialModalFields((prev) => ({
+            ...prev,
+            task: initialList.map((item) => ({ label: item.task_name, value: item.task_id }))
+        }))
+        console.log("i,nitialModalFields", initialModalFields)
+
         setFormModalFields((prev) =>
             prev.map((field) =>
                 field.name === "task"
@@ -348,16 +360,16 @@ const WeeklyTimeSheet = () => {
         // console.log("initialModalFields",initialModalFields,initiallyData,formModalFields)
     }
 
-    
+
     const handleSubmit = async (values) => {
-        console.log("valuessss",values,weeklyAllData)
+        console.log("valuessss", values, weeklyAllData)
         setInitialList(() => {
             const filtered = weeklyAllData.filter((item) =>
                 values.task.some((item1) => item1.value === item.task_id)
             );
             return filtered;
         });
-        
+
         // setInitialList(values.task)
         setShowModal(false)
         // try {
