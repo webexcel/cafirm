@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
+import { formatMinutesToHours } from "../../utils/generalUtils";
 
 export const Basicpiechart = ({ weeklyChart }) => {
 	const [series, setSeries] = useState([]);
@@ -36,7 +37,7 @@ export const Basicpiechart = ({ weeklyChart }) => {
 	
 			const combinedLabels = weeklyChart.percentages.map((percentage, index) => {
 				const option = weeklyChart.option[index] || '';
-				return `${percentage}% - ${option}`;
+				return `${option} - ${formatMinutesToHours(percentage)} Hrs`;
 			});
 	
 			setOptions((prevOptions) => ({
