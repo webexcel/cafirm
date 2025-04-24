@@ -59,7 +59,7 @@ const CreateService = () => {
 
     useEffect(() => {
         fetchServiceData()
-        const permissionFlags = getOperationFlagsById(15, 1); // paren_id , sub_menu id
+        const permissionFlags = getOperationFlagsById(17, 1); // paren_id , sub_menu id
         console.log(permissionFlags, '---permissionFlags');
         setPermissionFlags(permissionFlags);
     }, [])

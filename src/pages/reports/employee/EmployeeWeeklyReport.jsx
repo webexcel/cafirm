@@ -120,12 +120,16 @@ const EmployeeWeeklyReport = () => {
         try {
             console.log("formData", formData.weekly_id)
             const date = formData.weekly_id;
-            const getWeekNumber = (date) => {
-                const firstJan = new Date(date.getFullYear(), 0, 1);
-                const days = Math.floor((date - firstJan) / (24 * 60 * 60 * 1000));
-                return Math.ceil((date.getDay() + 1 + days) / 7);
+            const getISOWeekNumber = (date) => {
+                const tempDate = new Date(date.getTime());
+                tempDate.setHours(0, 0, 0, 0);
+                tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
+                const firstThursday = new Date(tempDate.getFullYear(), 0, 4);
+                const diff = tempDate - firstThursday;
+                return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
             };
-            const week = getWeekNumber(date);
+            
+            const week = getISOWeekNumber(date);
             const year = date.getFullYear();
             console.log("Selected Week:", week);
             console.log("Selected Year:", year);
