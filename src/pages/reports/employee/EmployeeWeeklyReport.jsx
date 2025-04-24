@@ -12,6 +12,7 @@ import { Basicpiechart } from "../piechartdata";
 import { EmployeeWeeklyFields } from "../../../constants/fields/reports";
 import CustomForm from "../../../components/custom/form/CustomForm";
 import { getEmployeeWeeklyReport } from '../../../service/reports/employeeReports'
+import { getISOWeekNumber } from "../../../utils/generalUtils";
 const EmployeeWeeklyReport = () => {
     const [formFields, setFormFields] = useState(EmployeeWeeklyFields);
     const { permissions, getOperationFlagsById } = usePermission();
@@ -119,16 +120,7 @@ const EmployeeWeeklyReport = () => {
         if (!validateForm()) return;
         try {
             console.log("formData", formData.weekly_id)
-            const date = formData.weekly_id;
-            const getISOWeekNumber = (date) => {
-                const tempDate = new Date(date.getTime());
-                tempDate.setHours(0, 0, 0, 0);
-                tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
-                const firstThursday = new Date(tempDate.getFullYear(), 0, 4);
-                const diff = tempDate - firstThursday;
-                return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
-            };
-            
+            const date = formData.weekly_id;            
             const week = getISOWeekNumber(date);
             const year = date.getFullYear();
             console.log("Selected Week:", week);

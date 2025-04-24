@@ -66,4 +66,12 @@ const formatMinutesToHours = (minutes) => {
     const mins = minutes % 60;
     return `${hrs}h ${mins}m`;
   };
-export { formatMinutesToHours,formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel };
+  const getISOWeekNumber = (date) => {
+    const tempDate = new Date(date.getTime());
+    tempDate.setHours(0, 0, 0, 0);
+    tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
+    const firstThursday = new Date(tempDate.getFullYear(), 0, 4);
+    const diff = tempDate - firstThursday;
+    return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
+};
+export {getISOWeekNumber, formatMinutesToHours,formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel };

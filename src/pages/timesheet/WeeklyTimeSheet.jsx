@@ -14,6 +14,7 @@ import { usePermission } from "../../contexts";
 import DateLabel from "./DateLabel";
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
+import { getISOWeekNumber } from "../../utils/generalUtils";
 
 const ModalTimesheetField = [
     {
@@ -190,7 +191,6 @@ const WeeklyTimeSheet = () => {
           
           console.log("filteredTaskData", filteredTaskData);
           
-
         console.log("filteredData", filterHeadData)
         setInitialList(filteredTaskData)
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
@@ -204,7 +204,6 @@ const WeeklyTimeSheet = () => {
             return acc;
         }, {
             "task_name": "Task Name", "task_id": "Task ID"
-            // ,"actions" : 'Actions'
         }
         );
         setWeeklyTotal(mergedData)
@@ -257,12 +256,24 @@ const WeeklyTimeSheet = () => {
 
     const handleSaveClick = async (row) => {
         try {
+            console.log("row", weeklyTotal,row)
             const updatedData = [...initialList];
             updatedData[editRowIndex] = { ...editedData };
             setInitialList(updatedData);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
             console.log("updateded dataa :", updatedData, editRowIndex)
-            const currentDate = new Date().getDate();
+            const mergedData = updatedData.reduce((acc, curr) => {
+                Object.keys(curr).forEach((key) => {
+                    if (!isNaN(key)) {
+                        acc[key] = addTime(acc[key], curr[key]);
+                    }
+                });
+                return acc;
+            }, {
+                "task_name": "Task Name", "task_id": "Task ID"
+            }
+            );
+            setWeeklyTotal(mergedData)
             const newList = Object.keys(updatedData[editRowIndex])
                 .filter(key => key !== "task_id" && key !== "task_name" && isPastOrToday(Number(key)))
                 .map((key) => {
@@ -453,6 +464,9 @@ const WeeklyTimeSheet = () => {
                                 </span>
                                 <span>
                                     {currentYear}
+                                </span>
+                                <span className="ms-3 fs-13 text-muted">
+                                    {`Week : ${getISOWeekNumber(today)}`}
                                 </span>
                             </th>
                             {weeklydates.map((data, index) => (
