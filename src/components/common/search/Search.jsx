@@ -19,7 +19,7 @@ const Search = ({ list = [], onSearch = () => {} }) => {
       <input
         type="text"
         className="form-control border-end-0"
-        placeholder="Search Task Here"
+        placeholder="Search Here"
         aria-describedby="button-addon2"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

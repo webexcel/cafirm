@@ -1,6 +1,6 @@
 
 import React, { Fragment, useCallback, useState, useEffect, Suspense } from "react";
-import { Row, Col, Card } from "react-bootstrap";
+import { Row, Col, Card, Button } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomForm from "../../components/custom/form/CustomForm";
 import Loader from "../../components/common/loader/loader";
@@ -14,6 +14,7 @@ import { getAttendanceByDate } from "../../service/attendance/activityTracker";
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import Cookies from 'js-cookie';
 import { usePermission } from "../../contexts";
+import Search from "../../components/common/search/Search";
 
 
 const WorkTimeSheet = () => {
@@ -99,7 +100,7 @@ const WorkTimeSheet = () => {
                 "emp_id": "",
                 "start_date": "",
                 "end_date": "",
-                "user_id" :userData?.employee_id,
+                "user_id": userData?.employee_id,
             }
             const response = await getAttendanceByDate(payload)
             const addSno = response.data.data.map((data, index) => ({
@@ -136,7 +137,7 @@ const WorkTimeSheet = () => {
             const userData = JSON.parse(Cookies.get('user'));
             const payload = {
                 "emp_id": employee,
-                "user_id" :userData?.employee_id,
+                "user_id": userData?.employee_id,
                 "start_date": splitDate[0],
                 "end_date": splitDate[1]
             }
@@ -188,6 +189,28 @@ const WorkTimeSheet = () => {
 
             <Card className="custom-card p-3">
                 <Card.Body className="overflow-auto">
+                    <Card.Title className="d-flex">
+                        <div className="d-flex justify-content-between
+                                                                                border-bottom border-block-end-dashed w-100 pb-3"
+                        >
+                            <div className="w-25 px-1">
+                                <Search label={''} list={tableData} onSearch={(result) => setFilteredData(result)} />
+                            </div>
+                            <div className="d-flex gap-4 align-items-end">
+                                <Button
+                                    onClick={async () => {
+                                        const { exportToExcel } = await import('../../utils/generalUtils')
+                                        exportToExcel(filteredData, 'Attendance Data')
+                                    }}
+                                    type="button"
+                                    variant="primary"
+                                    className="btn btn-wave btn-sm me-3 p-2">
+                                    Export Excel
+                                </Button>
+                            </div>
+                        </div>
+
+                    </Card.Title>
                     <Suspense fallback={<Loader />}>
                         <CustomTable
                             columns={columns}
