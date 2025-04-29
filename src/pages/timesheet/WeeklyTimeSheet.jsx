@@ -15,6 +15,7 @@ import DateLabel from "./DateLabel";
 
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
+import { getISOWeekNumber } from "../../utils/generalUtils";
 
 const ModalTimesheetField = [
     {
@@ -53,7 +54,7 @@ const WeeklyTimeSheet = () => {
         }, {})
     );
 
-    const [initialList,setInitialList] = useState([])
+    const [initialList, setInitialList] = useState([])
 
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
         acc[field.name] = "";
@@ -186,7 +187,18 @@ const WeeklyTimeSheet = () => {
         }, [])
 
         setWeeklyAllData(formattedData);
-        setInitialList(formattedData.slice(0, 2))
+        const filterHeadData = Object.keys(formattedData[0]).filter(
+            (item) => item !== "task_id" && item !== "task_name"
+          );
+          
+          const filteredTaskData = formattedData.filter((dataItem) => {
+            return filterHeadData.some((key) => dataItem[key] !== null);
+          });
+          
+          console.log("filteredTaskData", filteredTaskData);
+          
+        console.log("filteredData", filterHeadData)
+        setInitialList(filteredTaskData)
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -198,7 +210,6 @@ const WeeklyTimeSheet = () => {
             return acc;
         }, {
             "task_name": "Task Name", "task_id": "Task ID"
-            // ,"actions" : 'Actions'
         }
         );
         setWeeklyTotal(mergedData)
@@ -251,12 +262,24 @@ const WeeklyTimeSheet = () => {
 
     const handleSaveClick = async (row) => {
         try {
+            console.log("row", weeklyTotal,row)
             const updatedData = [...initialList];
             updatedData[editRowIndex] = { ...editedData };
             setInitialList(updatedData);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
             console.log("updateded dataa :", updatedData, editRowIndex)
-            const currentDate = new Date().getDate();
+            const mergedData = updatedData.reduce((acc, curr) => {
+                Object.keys(curr).forEach((key) => {
+                    if (!isNaN(key)) {
+                        acc[key] = addTime(acc[key], curr[key]);
+                    }
+                });
+                return acc;
+            }, {
+                "task_name": "Task Name", "task_id": "Task ID"
+            }
+            );
+            setWeeklyTotal(mergedData)
             const newList = Object.keys(updatedData[editRowIndex])
                 .filter(key => key !== "task_id" && key !== "task_name" && isPastOrToday(Number(key)))
                 .map((key) => {
@@ -336,12 +359,12 @@ const WeeklyTimeSheet = () => {
 
     const getWeeklyTaskData = () => {
         setShowModal(true)
-            setInitialModalFields((prev) =>({
-                ...prev, 
-                task : initialList.map((item) => ({label:item.task_name,value:item.task_id}))
-            }))
-            console.log("i,nitialModalFields",initialModalFields)
-            
+        setInitialModalFields((prev) => ({
+            ...prev,
+            task: initialList.map((item) => ({ label: item.task_name, value: item.task_id }))
+        }))
+        console.log("i,nitialModalFields", initialModalFields)
+
         setFormModalFields((prev) =>
             prev.map((field) =>
                 field.name === "task"
@@ -355,16 +378,16 @@ const WeeklyTimeSheet = () => {
         // console.log("initialModalFields",initialModalFields,initiallyData,formModalFields)
     }
 
-    
+
     const handleSubmit = async (values) => {
-        console.log("valuessss",values,weeklyAllData)
+        console.log("valuessss", values, weeklyAllData)
         setInitialList(() => {
             const filtered = weeklyAllData.filter((item) =>
                 values.task.some((item1) => item1.value === item.task_id)
             );
             return filtered;
         });
-        
+
         // setInitialList(values.task)
         setShowModal(false)
         // try {
@@ -450,6 +473,9 @@ const WeeklyTimeSheet = () => {
                                 </span>
                                 <span>
                                     {currentYear}
+                                </span>
+                                <span className="ms-3 fs-13 text-muted">
+                                    {`Week : ${getISOWeekNumber(today)}`}
                                 </span>
                             </th>
 

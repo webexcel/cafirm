@@ -99,7 +99,7 @@ const ViewTask = () => {
             }))
             setTableData(addSno)
             setFilteredData(addSno)
-            resetForm()
+            // resetForm()
             console.log("All Task records : ", response)
         }
         catch (error) {
