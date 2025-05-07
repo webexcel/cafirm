@@ -37,10 +37,6 @@ const AdminLayout = () => {
    */
   useEffect(() => {
     MENUITEMS.map((data) => {
-      // if (data?.selected) {
-      //   console.log('dataaa admin', data.selected)
-      // }
-      // console.log('dataaa admin', data.active)
       if (data.children) {
 
       }
@@ -50,8 +46,6 @@ const AdminLayout = () => {
           console.log("else part", data)
         }
       }
-      // console.log("menuu",MENUITEMS)
-
     })
     const simulateLoading = setTimeout(() => {
       setLoading(false);

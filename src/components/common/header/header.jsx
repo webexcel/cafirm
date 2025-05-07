@@ -307,7 +307,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 									<img src={desktoplogo} alt="logo" className="desktop-logo" />
 									<img src={togglelogo} alt="logo" className="toggle-logo" />
 									<img src={desktopdark} alt="logo" className="desktop-dark" />
-									{/* <img src={toggledark} alt="logo" className="toggle-dark" /> */}
+									<img src={toggledark} alt="logo" className="toggle-dark" />
 								</Link>
 							</div>
 						</div>
