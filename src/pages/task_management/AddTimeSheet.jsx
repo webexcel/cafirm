@@ -199,7 +199,12 @@ const AddTimeSheet = () => {
             // setServiceData(serviceOptions)
             return { ...field, options: serviceOptions };
           } else {
+            const serviceOptions = response.data.data.map((item) => ({
+              value: item.service_id,
+              label: item.service_name,
+            }));
             console.error("Service data response is not an array or is empty.");
+            return { ...field, options: serviceOptions || [] };
           }
         }
         return field;

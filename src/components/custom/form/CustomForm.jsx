@@ -209,6 +209,8 @@ const CustomForm = ({
               placeholderText={field.placeholder}
               className="form-control"
               isInvalid={formData[field.name] || ""}
+              minDate={new Date('2025-04-25')}
+              maxDate={new Date('2025-05-25')}
             />
             <FaCalendarAlt
               style={{
