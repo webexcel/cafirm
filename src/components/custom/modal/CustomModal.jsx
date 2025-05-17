@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 
 const CustomModal = React.memo(({
-    show,  
+    show,
     handleClose,
     handleSubmit,
     validationSchema,
@@ -87,6 +87,24 @@ const CustomModal = React.memo(({
                                                             />
                                                         );
 
+                                                    case "multiSelect":
+                                                        return (
+                                                            <Select
+                                                                isMulti
+                                                                name={name}
+                                                                options={options}
+                                                                value={formData[name] || ""}
+                                                                className="js-example-placeholder-multiple w-full js-states"
+                                                                menuPlacement="auto"
+                                                                classNamePrefix="Select2"
+                                                                placeholder={placeholder}
+                                                                onChange={(e) => onChange(e, name)}
+                                                                isInvalid={!!errors[name]}
+                                                                style={{ width: "100%", minHeight: "50px" }}
+                                                            />
+                                                        );
+
+
                                                     case 'date':
                                                         return (
                                                             <Form.Group className="w-100">
@@ -166,22 +184,6 @@ const CustomModal = React.memo(({
                                                             />
                                                         );
 
-                                                         case "multiSelect":
-                                                                return (
-                                                                  <Select
-                                                                    isMulti
-                                                                    name={name}
-                                                                    options={options}
-                                                                    value={formData[name] || ""}
-                                                                    className="js-example-placeholder-multiple w-full js-states"
-                                                                    menuPlacement="auto"
-                                                                    classNamePrefix="Select2"
-                                                                    placeholder={placeholder}
-                                                                    onChange={(e) => onChange(e, name)}
-                                                                    isInvalid={!!errors[name]}
-                                                                    style={{ width: "100%", minHeight: "50px" }}
-                                                                  />
-                                                                );
 
                                                     default:
                                                         return null;

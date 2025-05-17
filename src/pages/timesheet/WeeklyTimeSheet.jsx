@@ -167,6 +167,7 @@ const WeeklyTimeSheet = () => {
                 currentWeek.forEach((day) => {
                     exisitingEntry[day.date] = null;
                 });
+                console.log("exisitingEntryexisitingEntry",exisitingEntry)
                 const timeSheetData = item.timesheet.reduce((acc, entry) => {
                     const entryDate = new Date(entry.date).getDate();
                     exisitingEntry[entryDate] = entry.total_time;
@@ -192,7 +193,7 @@ const WeeklyTimeSheet = () => {
         console.log("filteredTaskData", filteredTaskData);
 
         console.log("filteredData", filterHeadData)
-        setInitialList(filteredTaskData)
+        
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -209,9 +210,8 @@ const WeeklyTimeSheet = () => {
         setWeeklyTotal(mergedData)
         console.log("Formatted Data:", formattedData, mergedData);
         const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
-        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate,
-            // "actions"
-        ];
+        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
+        setInitialList(formattedData)
         console.log("dateKeys", orderedHeaders, weeklyAllDate)
         setHeaderData(orderedHeaders);
 
@@ -559,7 +559,7 @@ const WeeklyTimeSheet = () => {
                             </>
                         ) : (
                             <tr>
-                                <td colSpan={headerData.length + 1} className="text-center text-muted p-4">
+                                <td colSpan={weeklydates.length + 2 } className="text-center text-muted p-4">
                                     No weekly data found
                                 </td>
                             </tr>

@@ -36,6 +36,7 @@ const AdminLayout = () => {
    * The loading state will be set to `false` after 200ms.
    */
   useEffect(() => {
+    console.log("MENUITEMS : ",MENUITEMS)
     MENUITEMS.map((data) => {
       if (data.children) {
 

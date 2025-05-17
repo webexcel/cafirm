@@ -1,7 +1,6 @@
 
 import React, { Fragment, useEffect, useState } from "react";
 import { Card, Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import DashboardCard from './DashboardCard'
 import { getDashboard } from "../../service/dashboardServices";
 import { getLatestTasks } from "../../service/task_management/createTaskServices";
@@ -12,12 +11,6 @@ import demoimage from '../../assets/images/apps/calender.png'
 
 const Dashboard = () => {
 
-  // Redux state selector to get the current year ID
-
-  //Call the custom hook to set the document title to "Dashboard"
-  // useDocumentTitle("Dashboard");
-
-  // State to store various metrics fetched from the dashboard API
   const [metrics, setMetrics] = useState({
     employee_count: 0,
     client_count: 0,
@@ -52,7 +45,6 @@ const Dashboard = () => {
 
         setTaskDataList(res2.data.data);
         setTicketataList(res3.data.data);
-        console.log("All services fetched:", { res1, res2, res3, res4 });
       } catch (error) {
         console.error("Error fetching services:", error);
       }
@@ -157,7 +149,7 @@ const Dashboard = () => {
 
                                 <div className="avatar-list-stacked" style={{ width: '25%' }}> {
                                   task.assigned_to?.map((data, index) => (
-                                    <OverlayTrigger placement="top" overlay={<Tooltip>{data.emp_name}</Tooltip>}>
+                                    <OverlayTrigger placement="top" overlay={<Tooltip>{data.emp_name}</Tooltip>} key={index}>
                                       <span key={index} className="avatar avatar-sm avatar-rounded"
                                         style={{ width: '30px', height: '30px' }}>
                                         <img src={data.photo || demoimage} alt={data.image || 'img'} />

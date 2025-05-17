@@ -1,15 +1,14 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
+import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import { Modal, Card, Button, Form, Col, Row } from "react-bootstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import ColorPicker from '../../components/colorpicker/ColorPickerList'
-import ImageSelectorfrom from '../../components/imageselector/ImageSelector'
 import { addCalendarEvent, deleteCalendarEvent, editCalendarEvent, getCalendarList } from "../../service/calendarServices";
 
 const getCalenderObj = (id, title, color, start, end, description) => {
@@ -91,7 +90,6 @@ const Calender = () => {
         try {
             setEvents([])
             const response = await getCalendarList();
-            console.log('response calender', response.data.data)
             if (response.data.status) {
                 const setDataToCalList = await response.data.data.map((data) => {
                     setEvents(prev => [...prev,
@@ -219,8 +217,6 @@ const Calender = () => {
                             setModalShow(false);
                             Swal.fire("Success", `Event added successfully`, "success");
                         }
-
-                        console.log('add event response', response)
                     }
                     catch (error) {
                         Swal.fire("Error", error.response?.data?.message || "Failed to add event.", "error");
@@ -320,7 +316,6 @@ const Calender = () => {
                             Swal.fire("Success", `Event edited successfully`, "success");
                         }
 
-                        console.log("event edited")
                     }
                     catch (error) {
                         Swal.fire("Error", error.response?.data?.message || "Failed to edit event.", "error");
@@ -346,10 +341,8 @@ const Calender = () => {
     const handleEventClick = (clickInfo) => {
         editformik.resetForm()
         editformik.setFieldValue('iseventdeleted', false)
-        console.log('edit table valueee', clickInfo.event._def.publicId, events)
         const selectedId = clickInfo.event._def.publicId
         const filterData = events.filter(data => Number(data.id) === Number(selectedId))
-        console.log('checkkkk', filterData[0])
         editformik.setFieldValue('calenderid', filterData[0].id)
         editformik.setFieldValue('edit_title', filterData[0].title)
         editformik.setFieldValue('description', filterData[0].description)
@@ -376,19 +369,13 @@ const Calender = () => {
     const handleDateSelect = (selectInfo) => {
         formik.resetForm()
         setSelectedDate(selectInfo);
-        console.log('checkkkkk date', selectInfo.startStr)
-        // formik.setFieldValue("start", formatDateToLocalString(selectInfo.startStr));
-        // formik.setFieldValue("end", formatDateToLocalString(selectInfo.endStr));
         formik.setFieldValue("start", formatDateToISO(selectInfo.startStr));
         formik.setFieldValue("end", formatDateToISO(selectInfo.endStr));
         setModalShow(true);
-
-        console.log('checkkkkkk', selectInfo)
     };
 
     const handleCheckboxChange = (event) => {
         const isCheckedValue = event.target.checked;
-        console.log("Checkbox is checked:", isCheckedValue);
         editformik.setFieldValue('iseventdeleted', isCheckedValue)
     };
 

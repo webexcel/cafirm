@@ -16,6 +16,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	const { menuItems } = usePermission();
 	const [menuitems, setMenuitems] = useState(MENUITEMS);
 	console.log(menuItems, '---menuItemscontext');
+
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
 			items?.forEach((item) => {
@@ -29,9 +30,9 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 
 	useEffect(() => {
 		window.addEventListener("resize", menuResizeFn);
+		console.log("testtt side menuuuuuuuuuu")
 	}, []);
 
-	// const location = useLocation();
 	const location = useLocation();
 
 	function Onhover() {
@@ -40,6 +41,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 			ThemeChanger({ ...theme, "iconOverlay": "open" });
 		}
 	}
+
 	function Outhover() {
 		const theme = store.getState();
 		if ((theme.toggled == "icon-overlay-close" || theme.toggled == "detached-close") && theme.iconOverlay == "open") {
@@ -63,9 +65,11 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 		}
 
 	}
+
 	useEffect(() => {
 		menuClose();
 	}, []);
+
 	const WindowPreSize = [window.innerWidth];
 
 	function menuResizeFn() {
@@ -600,7 +604,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				onMouseLeave={() => Outhover()}>
 
 				<div className="main-sidebar-header">
-					<Link to={`${import.meta.env.BASE_URL}dashboards/sales/`} className="header-logo">
+					<Link to={`${import.meta.env.BASE_URL}Dashboard`} className="header-logo">
 						<img src={logo1} alt="logo" className="desktop-logo" />
 						<img src={logo2} alt="logo" className="toggle-logo" />
 						<img src={logo3} alt="logo" className="desktop-dark" />
