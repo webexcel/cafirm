@@ -20,6 +20,7 @@ import CustomModalBox from "./model/custom/CustomModalBox";
 import { TaskModalFields } from '../../constants/fields/ModelBoxFields.js'
 import { getEmployee } from "../../service/employee_management/createEmployeeService.js";
 import { usePermission } from "../../contexts/PermissionContext.jsx";
+import { formatDateToYYYYMMDD } from "../../utils/generalUtils";
 
 const ViewTask = () => {
 
@@ -29,9 +30,9 @@ const ViewTask = () => {
     const [filteredData, setFilteredData] = useState(tableData);
     const [showModal, setShowModal] = useState(false);
     const [taskFormFileds, setTaskFormFields] = useState(TaskModalFields)
-      const { permissions, getOperationFlagsById } = usePermission();
-      const [permissionFlags, setPermissionFlags] = useState(1);
-    
+    const { permissions, getOperationFlagsById } = usePermission();
+    const [permissionFlags, setPermissionFlags] = useState(1);
+
     const [initialModelValues, setInitialModelValues] = useState(
         TaskModalFields.reduce((values, field) => {
             values[field.name] = field.type === "dropdown" ? "" : field.type === "date" ? null : "";
@@ -95,7 +96,7 @@ const ViewTask = () => {
                 ...data,
                 due_date: String(data.due_date)?.split('T')[0] || '',
                 assigned_date: String(data?.assigned_date).split('T')[0] || '',
-                assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name,image:empdata.photo }))
+                assignTo: data.assignTo.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name, image: empdata.photo }))
             }))
             setTableData(addSno)
             setFilteredData(addSno)
@@ -114,7 +115,7 @@ const ViewTask = () => {
         console.log(permissionFlags, '---permissionFlags');
         setPermissionFlags(permissionFlags);
         // console.log("testttt")
-    
+
     }, [])
 
     useEffect(() => {
@@ -357,8 +358,8 @@ const ViewTask = () => {
                 "task_id": values?.task_id || '',
                 "task_name": values?.taskName || '',
                 "assignTo": emp_ids || [],
-                "assignDate": values?.assignedDate || '',
-                "dueDate": values?.targetDate || '',
+                "assignDate": formatDateToYYYYMMDD(values?.assignedDate),
+                "dueDate": formatDateToYYYYMMDD(values?.targetDate),
                 "priority": values?.priority || '',
                 "description": '',
                 "status": String(values?.status) || ''
@@ -393,7 +394,7 @@ const ViewTask = () => {
                                     btnText={'Submit'}
                                     showAddButton={permissionFlags?.showCREATE}
                                     showUpdateButton={permissionFlags?.showUPDATE}
-                  
+
                                 />
                             </Col>
                         </Card.Body>
@@ -403,28 +404,28 @@ const ViewTask = () => {
             <Row>
                 <Col xl={12}>
                     <Card className="custom-card p-3">
-                         <Card.Title className="d-flex">
-                                  <div className="d-flex justify-content-between
+                        <Card.Title className="d-flex">
+                            <div className="d-flex justify-content-between
                                                             border-bottom border-block-end-dashed w-100 pb-3"
-                                  >
-                                    <div className="w-25 px-1">
-                                      <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
-                                    </div>
-                                    <div className="d-flex gap-4 align-items-end">
-                                      <Button
+                            >
+                                <div className="w-25 px-1">
+                                    <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+                                </div>
+                                <div className="d-flex gap-4 align-items-end">
+                                    <Button
                                         onClick={async () => {
-                                          const { exportToExcel } = await import('../../utils/generalUtils')
-                                          exportToExcel(filteredData, 'Task_list')
+                                            const { exportToExcel } = await import('../../utils/generalUtils')
+                                            exportToExcel(filteredData, 'Task_list')
                                         }}
                                         type="button"
                                         variant="primary"
                                         className="btn btn-wave btn-sm me-3 p-2">
                                         Export Excel
-                                      </Button>
-                                    </div>
-                                  </div>
-                        
-                                </Card.Title>
+                                    </Button>
+                                </div>
+                            </div>
+
+                        </Card.Title>
                         <Card.Body className="overflow-auto">
                             <Suspense fallback={<Loader />}>
                                 <CustomTable
@@ -438,7 +439,7 @@ const ViewTask = () => {
                                     handlerEdit={handlerEdit}
                                     showDeleteButton={permissionFlags?.showDELETE}
                                     showUpdateButton={permissionFlags?.showUPDATE}
-                  
+
                                 />
                             </Suspense>
                         </Card.Body>

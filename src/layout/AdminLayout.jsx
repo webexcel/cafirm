@@ -36,11 +36,8 @@ const AdminLayout = () => {
    * The loading state will be set to `false` after 200ms.
    */
   useEffect(() => {
+    console.log("MENUITEMS : ",MENUITEMS)
     MENUITEMS.map((data) => {
-      // if (data?.selected) {
-      //   console.log('dataaa admin', data.selected)
-      // }
-      // console.log('dataaa admin', data.active)
       if (data.children) {
 
       }
@@ -50,8 +47,6 @@ const AdminLayout = () => {
           console.log("else part", data)
         }
       }
-      // console.log("menuu",MENUITEMS)
-
     })
     const simulateLoading = setTimeout(() => {
       setLoading(false);

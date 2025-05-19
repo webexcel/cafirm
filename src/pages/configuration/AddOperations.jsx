@@ -51,46 +51,50 @@ const AddOperations = () => {
             validateCustomForm(data, AddOperationsFields)
         );
 
-    const getInitallData = async () => {
+    const fetchMenus = async () => {
         try {
             const response = await getMenuList();
-            const operationResponse = await getOperationMappedList()
-            const addSno = response.data.data.map((data, index) => ({
-                ...data,
-                sno: index + 1
-            }))
+            const menuData = response?.data?.data || [];
+            const addSno = menuData.map((data, index) => ({ ...data, sno: index + 1 }));
+
             const updatedFormFields = formFields.map((field) => {
                 if (field.name === "menu") {
-                    if (Array.isArray(response.data.data) && response.data.data.length > 0) {
-                        const menuOptions = response.data.data.map((item) => ({
-                            value: item.menu_id,
-                            label: item.menu_name,
-                        }));
-                        console.log("Mapped Employee Role Options:", menuOptions);
-                        return { ...field, options: menuOptions };
-                    } else {
-                        console.error("Employee role data response is not an array or is empty.");
-                    }
-
+                    const menuOptions = menuData.map((item) => ({
+                        value: item.menu_id,
+                        label: item.menu_name,
+                    }));
+                    return { ...field, options: menuOptions };
                 }
                 return field;
             });
+
             setFormFields(updatedFormFields);
-            const addSnoOperation = operationResponse.data.data.map((data, index) => ({
+            setMenuList(addSno);
+        } catch (error) {
+            console.error("Error fetching menu list:", error);
+        }
+    };
+
+    const fetchOperations = async () => {
+        try {
+            const operationResponse = await getOperationMappedList();
+            const operationData = operationResponse?.data?.data || [];
+
+            const addSnoOperation = operationData.map((data, index) => ({
                 ...data,
                 sno: index + 1,
-                operations: data.operations.map((data, index) => ({ value: index, label: data }))
-            }))
-            setMenuList(addSno || [])
-            setOperationList(addSnoOperation || [])
+                operations: data.operations.map((op, i) => ({ value: i, label: op }))
+            }));
+
+            setOperationList(addSnoOperation);
+        } catch (error) {
+            console.error("Error fetching operation list:", error);
         }
-        catch (error) {
-            console.log("Error getting operation list : ", error.stack)
-        }
-    }
+    };
 
     useEffect(() => {
-        getInitallData()
+        fetchMenus();
+        fetchOperations();
     }, [])
 
     useEffect(() => {
@@ -166,7 +170,7 @@ const AddOperations = () => {
                         "error"
                     );
                 }
-                getInitallData()
+                fetchOperations()
                 Swal.fire("Success", "Operations Created successfully.", "success");
                 resetForm();
             } catch (err) {

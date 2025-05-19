@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Col, Row, Button } from "react-bootstrap";
 import WeeklyCalenderLabel from './CalenderLabel';
 import CustomForm from "../../components/custom/form/CustomForm";
@@ -43,6 +43,8 @@ const WeeklyTimeSheet = () => {
     const [permissionFlags, setPermissionFlags] = useState(1);
 
     const [showModal, setShowModal] = useState(false);
+    const inputRef = useRef();
+
 
     const validationSchema = Yup.object({
     });
@@ -173,6 +175,7 @@ const WeeklyTimeSheet = () => {
                 currentWeek.forEach((day) => {
                     exisitingEntry[day.date] = null;
                 });
+                console.log("exisitingEntryexisitingEntry",exisitingEntry)
                 const timeSheetData = item.timesheet.reduce((acc, entry) => {
                     const entryDate = new Date(entry.date).getDate();
                     exisitingEntry[entryDate] = entry.total_time;
@@ -189,16 +192,16 @@ const WeeklyTimeSheet = () => {
         setWeeklyAllData(formattedData);
         const filterHeadData = Object.keys(formattedData[0]).filter(
             (item) => item !== "task_id" && item !== "task_name"
-          );
-          
-          const filteredTaskData = formattedData.filter((dataItem) => {
+        );
+
+        const filteredTaskData = formattedData.filter((dataItem) => {
             return filterHeadData.some((key) => dataItem[key] !== null);
-          });
-          
-          console.log("filteredTaskData", filteredTaskData);
-          
+        });
+
+        console.log("filteredTaskData", filteredTaskData);
+
         console.log("filteredData", filterHeadData)
-        setInitialList(filteredTaskData)
+        
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -215,9 +218,8 @@ const WeeklyTimeSheet = () => {
         setWeeklyTotal(mergedData)
         console.log("Formatted Data:", formattedData, mergedData);
         const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
-        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate,
-            // "actions"
-        ];
+        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
+        setInitialList(formattedData)
         console.log("dateKeys", orderedHeaders, weeklyAllDate)
         setHeaderData(orderedHeaders);
 
@@ -250,6 +252,7 @@ const WeeklyTimeSheet = () => {
 
     const handleEditClick = (index) => {
         setEditRowIndex(index);
+        console.log("check :", weeklyAllData[index], editedData, index)
         setEditedData({ ...weeklyAllData[index] });
     };
 
@@ -262,7 +265,7 @@ const WeeklyTimeSheet = () => {
 
     const handleSaveClick = async (row) => {
         try {
-            console.log("row", weeklyTotal,row)
+            console.log("row", weeklyTotal, row)
             const updatedData = [...initialList];
             updatedData[editRowIndex] = { ...editedData };
             setInitialList(updatedData);
@@ -520,6 +523,7 @@ const WeeklyTimeSheet = () => {
                                                 <td key={index} style={{ width: isFixedWidth }}>
                                                     {isEditable ? (
                                                         <InputMask
+                                                            inputRef={inputRef}
                                                             mask="99:99"
                                                             maskChar={null}
                                                             value={editedData[header] || ""}
@@ -569,7 +573,7 @@ const WeeklyTimeSheet = () => {
                             </>
                         ) : (
                             <tr>
-                                <td colSpan={headerData.length + 1} className="text-center text-muted p-4">
+                                <td colSpan={weeklydates.length + 2 } className="text-center text-muted p-4">
                                     No weekly data found
                                 </td>
                             </tr>

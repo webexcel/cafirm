@@ -623,6 +623,8 @@ typography
   }
 }
 
+
+
 @media (min-width: 992px) {
   [data-header-position=rounded][data-nav-layout=vertical] .app-header.sticky-pin {
     position: fixed;

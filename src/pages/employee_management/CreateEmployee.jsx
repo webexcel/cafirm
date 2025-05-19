@@ -15,7 +15,6 @@ const CustomTable = React.lazy(() =>
 );
 import Cookies from 'js-cookie';
 
-
 const CreateEmployee = () => {
   const [tableData, setTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,10 +54,7 @@ const CreateEmployee = () => {
       setTableData(addSno)
       setFilteredData(addSno)
 
-      const permissionFlags = getOperationFlagsById(3, 1); // paren_id , sub_menu id
-
-      console.log(permissionFlags,'---permissionFlags');
-      
+      const permissionFlags = getOperationFlagsById(3, 1); // paren_id , sub_menu id      
       
       setPermissionFlags(permissionFlags);
 
@@ -82,19 +78,16 @@ const CreateEmployee = () => {
                 value: item.permission_id,
                 label: item.permission_name,
               }));
-              console.log("Mapped Employee Role Options:", employeeRoleOptions);
               return { ...field, options: employeeRoleOptions };
             } else {
               console.error("Employee role data response is not an array or is empty.");
             }
-  
           }
-  
           return field;
         });
         setFormFields(updatedFormFields);
         const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
-        console.log(permissionFlags, '---permissionFlags');
+        // console.log(permissionFlags, '---permissionFlags');
         setPermissionFlags(permissionFlags);
       } catch (err) {
         console.error("Error fetching employee data:", err);
@@ -133,7 +126,6 @@ const CreateEmployee = () => {
     });
     if (result.isConfirmed) {
       try {
-        console.log("Selected form:", formData);
         const { name,email, phone,emprole } = formData;
         const userData = JSON.parse(Cookies.get('user'))
         const payload = {
@@ -148,7 +140,6 @@ const CreateEmployee = () => {
         if (!response.data.status) {
           return Swal.fire("Error", response.data.message || "Failed to add employee.", "error");
         }
-        console.log("admission numberrr", response)
         Swal.fire("Success", `Employee added successfully with Employee`, "success");
         resetForm()
         getEmployeeData()
@@ -160,9 +151,7 @@ const CreateEmployee = () => {
 
   };
 
-  const onDelete = useCallback(async (updatedData, index) => {
-    console.log("update dataaa", updatedData, formData);
-  
+  const onDelete = useCallback(async (updatedData, index) => {  
     const result = await Swal.fire({
       title: "Are you sure about removing the employee?",
       text: "You won't be able to revert this!",
@@ -175,7 +164,6 @@ const CreateEmployee = () => {
   
     if (result.isConfirmed) {
       try {
-        console.log("update dataa", updatedData);
         const payload = { id: updatedData?.employee_id || '' };
         const response = await deleteEmployee(payload);
         
