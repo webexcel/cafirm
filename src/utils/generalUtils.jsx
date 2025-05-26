@@ -65,21 +65,36 @@ const formatMinutesToHours = (minutes) => {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hrs}h ${mins}m`;
-  };
-  const getISOWeekNumber = (date) => {
+};
+const getISOWeekNumber = (date) => {
     const tempDate = new Date(date.getTime());
     tempDate.setHours(0, 0, 0, 0);
     tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
     const firstThursday = new Date(tempDate.getFullYear(), 0, 4);
     const diff = tempDate - firstThursday;
     return 1 + Math.round(diff / (7 * 24 * 60 * 60 * 1000));
-    
+
 };
 function formatDateToYYYYMMDD(dateString) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
-export {getISOWeekNumber, formatMinutesToHours,formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl,exportToExcel,formatDateToYYYYMMDD };
+
+function formatDateToReadable(dateStr) {
+    const date = new Date(dateStr);
+
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const month = monthNames[date.getMonth()];
+
+    return `${day} ${month} ${year}`;
+}
+
+export { getISOWeekNumber, formatMinutesToHours, formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl, exportToExcel, formatDateToYYYYMMDD,formatDateToReadable };

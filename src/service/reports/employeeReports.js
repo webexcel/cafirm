@@ -14,6 +14,10 @@ export const getEmployeeWeeklyReport = async (data) => {
   return await endpoint.post(`${mainUrl.CHARTS}/getWeeklyEmployeeReport`, data);
 };
 
+export const getEmployeeReport = async (data) => {
+  return await endpoint.post(`${mainUrl.CHARTS}/getEmployeeReport`, data);
+};
+
 export const getClientYearlyReport = async (data) => {
   return await endpoint.post(`${mainUrl.CHARTS}/getYearlyClientReport`, data);
 };
