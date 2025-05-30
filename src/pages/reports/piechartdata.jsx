@@ -17,7 +17,7 @@ export const Basicpiechart = ({ weeklyChart }) => {
 		colors: ["#8e54e9", "#4876e6", "#f5b849", "#49b6f5", "#e6533c"],
 		labels: [],
 		legend: {
-			position: "left"
+			position: "bottom"
 		},
 		dataLabels: {
 			dropShadow: {
@@ -53,7 +53,7 @@ export const Basicpiechart = ({ weeklyChart }) => {
 			options={options}
 			series={series}
 			type="pie"
-			height={300}
+			height={500}
 		/>
 	);
 };

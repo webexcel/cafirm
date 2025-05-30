@@ -89,7 +89,8 @@ export const MENUITEMS = [
 		children: [
 
 			// { path: `${import.meta.env.BASE_URL}EmployeeReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Report" },
-			{ path: `${import.meta.env.BASE_URL}EmployeeWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Weekly Report" },
+			{ path: `${import.meta.env.BASE_URL}EmployeeDatewiseReport`, type: "link", active: false, selected: false, dirchange: false, title: "Employee DateWise Report" },
+			// { path: `${import.meta.env.BASE_URL}EmployeeWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Weekly Report" },
 			{ path: `${import.meta.env.BASE_URL}EmployeeMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Monthly Report" },
 			{ path: `${import.meta.env.BASE_URL}EmployeeYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Annual Report" },
 			{ path: `${import.meta.env.BASE_URL}ClientWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Weekly Report" },
