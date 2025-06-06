@@ -49,7 +49,7 @@ function Menuloop({ MENUITEMS, toggleSidemenu, level, onHeaderTitleChange, MENUF
         className={`side-menu__item ${menuState.selected ? "active" : ""}`}
         onClick={handleToggleMenu}
       >
-        {/* Show Icon Only at Level 1 or Below */}
+        {/* Show Icon Only at Level 1 or Below */}  
         {level <= 1 && <span className="side-menu__icon">{menuState.icon}</span>}
 
         {/* Show Menu Title */}

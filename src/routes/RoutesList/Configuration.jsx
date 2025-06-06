@@ -6,7 +6,7 @@ const AddMenu = React.lazy(() => import("../../pages/configuration/AddMenu"));
 const AddOperations = React.lazy(() => import("../../pages/configuration/AddOperations"));
 export const PermissionRoutesList = {
     "childRoutes": [
-        { path: "permissions", element: <Permissions /> },
+        { path: "Roles", element: <Permissions /> },
         { path: "addPermission/:permissionId?", element: <AddPermissions /> },
         { path: "AddMenu", element: <AddMenu /> },
         // { path: "assignUser", element: <AssignUser /> },

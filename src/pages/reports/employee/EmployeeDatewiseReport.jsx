@@ -47,13 +47,13 @@ const EmployeeDatewiseReport = () => {
             color: "bg-success-transparent"
         }
     ]);
-    const options = { day: '2-digit', month: 'long', year: 'numeric' };
     const [datewiseData, setDatewiseData] = useState([]);
+    const [initialDatewiseData, setInitialDatewiseData] = useState([]);
     const initialFormState = EmployeeDateWiseFields.reduce((acc, field) => {
         acc[field.name] = "";
         return acc;
     }, {});
-
+    const [selectedLabel, setSelectedLabel] = useState("View All");
     const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
         initialFormState,
         (data) => validateCustomForm(data, EmployeeDateWiseFields)
@@ -157,7 +157,7 @@ const EmployeeDatewiseReport = () => {
             ]);
 
             setDatewiseData(response.data.data);
-
+            setInitialDatewiseData(response.data.data);
             const client_name = response.data.data.map((item) => item.client_name);
             const times = response.data.data.map((item) => item.total_time);
             setWeeklyChart((prev) => ({
@@ -173,8 +173,24 @@ const EmployeeDatewiseReport = () => {
     };
 
     const handlerOnTaskStatusChange = (e) => {
-       console.log("Task Status Changed", e.target.value);
-    }
+        const value = e.target.getAttribute("value"); // safer for <Dropdown.Item>
+        const statusLabels = {
+            "0": "Pending",
+            "1": "In Progress",
+            "2": "Completed",
+            "3": "View All"
+        };
+
+        setSelectedLabel(statusLabels[value] || "View All");
+
+        if (value === "3") {
+            setDatewiseData(initialDatewiseData);
+        } else {
+            const filteredData = initialDatewiseData.filter(item => item.status === value);
+            setDatewiseData(filteredData);
+        }
+    };
+
 
     return (
         <Fragment>
@@ -220,78 +236,91 @@ const EmployeeDatewiseReport = () => {
 
                 {
                     <>
-                        <Col xl={6}>
-                            <Card className="custom-card p-3">
-                                <Card.Body className="overflow-auto">
-                                    {weeklyChart.option.length > 0 ? (
-                                        <div id="pie-basic">
-                                            <Basicpiechart weeklyChart={weeklyChart} />
+                        {
+                            weeklyChart.option.length > 0 ? (
+                                <>
+                                    <Col xl={6}>
+                                        <Card className="custom-card p-3">
+                                            <Card.Body className="overflow-auto">
+                                                {/* {weeklyChart.option.length > 0 ? ( */}
+                                                <div id="pie-basic">
+                                                    <Basicpiechart weeklyChart={weeklyChart} />
+                                                </div>
+                                                {/*  ) : ( */}
+                                                {/* // )} */}
+
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+
+                                    <Col xl={6}>
+                                        <div className="row">
+                                            <Col xxl={12} xl={12} md={12}>
+                                                <Card className="custom-card overflow-hidden">
+                                                    <Card.Header className="justify-content-between">
+                                                        <h6 className="card-title">Task Details</h6>
+                                                        <Dropdown>
+                                                            <Dropdown.Toggle variant='' className="btn-outline-light btn btn-sm text-muted no-caret" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                {selectedLabel}<i className="ri-arrow-down-s-line align-middle ms-1"></i>
+                                                            </Dropdown.Toggle>
+                                                            <Dropdown.Menu as="ul" role="menu">
+                                                                <Dropdown.Item as="li" value={3} onClick={handlerOnTaskStatusChange}>All</Dropdown.Item>
+                                                                <Dropdown.Item as="li" value={0} onClick={handlerOnTaskStatusChange}>Pending</Dropdown.Item>
+                                                                <Dropdown.Item as="li" value={1} onClick={handlerOnTaskStatusChange}>In Progress</Dropdown.Item>
+                                                                <Dropdown.Item as="li" value={2} onClick={handlerOnTaskStatusChange}>Completed</Dropdown.Item>
+                                                            </Dropdown.Menu>
+                                                        </Dropdown>
+                                                    </Card.Header>
+                                                    <Card.Body style={{ height: '510px', overflowY: 'auto' }}>
+                                                        <ul className="list-unstyled mb-0">
+                                                            {
+                                                                datewiseData.map((item, index) => (
+                                                                    <li className="mb-4" key={index}>
+                                                                        <div className="d-flex align-items-center gap-2"
+                                                                            style={{ background: '#8080800d', padding: '.8rem 1rem', borderRadius: '10px' }}>
+                                                                            <OverlayTrigger key={index} placement="top" overlay={<Tooltip>{item.client_name}</Tooltip>}>
+                                                                                <span
+                                                                                    className="avatar avatar-sm avatar-rounded"
+                                                                                    style={{ width: "30px", height: "30px" }}>
+                                                                                    <img src={item.client_photo || demoimage} alt={"img"} />
+                                                                                </span>
+                                                                            </OverlayTrigger>
+                                                                            <div className="flex-1 flex-between pos-relative">
+                                                                                <div className="d-flex flex-column">
+                                                                                    <span className="fs-14 fw-semibold">{item.task_name}</span>
+                                                                                    <span className="tx-inverse fs-11 text-muted mb-0">{formatDateToReadable(item.created_at)}</span>
+                                                                                </div>
+                                                                                <div>
+                                                                                </div>                                                                    <div className="min-w-fit-content text-end">
+                                                                                    <span className={`badge badge-sm bg-${item.status === "0" ? 'danger' : item.status === "1" ? 'secondary' : 'success'}-transparent rounded-pill`}>
+                                                                                        {item.task_status}
+                                                                                    </span>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="mx-2 mt-1">
+                                                                            <span className="tx-inverse  text-muted mb-0">{item.description}</span>
+                                                                        </div>
+                                                                    </li>
+                                                                ))
+                                                            }
+                                                        </ul>
+                                                    </Card.Body>
+                                                </Card>
+                                            </Col>
                                         </div>
-                                    ) : (
+                                    </Col>
+                                </>
+                            ) : (
+                                <Card>
+                                    <Card.Body className="text-center">
                                         <div className="fs-16 fw-semibold d-flex justify-content-center">No Data Found!</div>
-                                    )}
+                                    </Card.Body>
+                                </Card>
+                            )
+                        }
 
-                                </Card.Body>
-                            </Card>
-                        </Col>
-
-                        <Col xl={6}>
-                            <div className="row">
-                                <Col xxl={12} xl={12} md={12}>
-                                    <Card className="custom-card overflow-hidden">
-                                        <Card.Header className="justify-content-between">
-                                            <h6 className="card-title">Task Details</h6>
-                                            <Dropdown>
-                                                <Dropdown.Toggle variant='' className="btn-outline-light btn btn-sm text-muted no-caret" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    View All<i className="ri-arrow-down-s-line align-middle ms-1"></i>
-                                                </Dropdown.Toggle>
-                                                <Dropdown.Menu as="ul" role="menu">
-                                                    <Dropdown.Item as="li" value={0} onClick={handlerOnTaskStatusChange}>Pending</Dropdown.Item>
-                                                    <Dropdown.Item as="li" value={1} onClick={handlerOnTaskStatusChange}>In Progress</Dropdown.Item>
-                                                    <Dropdown.Item value={2} onClick={handlerOnTaskStatusChange}>Completed</Dropdown.Item>
-                                                </Dropdown.Menu>
-                                            </Dropdown>
-                                        </Card.Header>
-                                        <Card.Body style={{ height: '500px', overflowY: 'auto' }}>
-                                            <ul className="list-unstyled mb-0">
-                                                {
-                                                    datewiseData.map((item, index) => (
-                                                        <li className="mb-4" key={index}>
-                                                            <div className="d-flex align-items-center gap-2"
-                                                                style={{ background: '#8080800d', padding: '.8rem 1rem', borderRadius: '10px' }}>
-                                                                <OverlayTrigger key={index} placement="top" overlay={<Tooltip>{item.client_name}</Tooltip>}>
-                                                                    <span
-                                                                        className="avatar avatar-sm avatar-rounded"
-                                                                        style={{ width: "30px", height: "30px" }}>
-                                                                        <img src={item.client_photo || demoimage} alt={"img"} />
-                                                                    </span>
-                                                                </OverlayTrigger>
-                                                                <div className="flex-1 flex-between pos-relative">
-                                                                    <div className="d-flex flex-column">
-                                                                        <span className="fs-14 fw-semibold">{item.task_name}</span>
-                                                                        <span className="tx-inverse fs-11 text-muted mb-0">{formatDateToReadable(item.created_at)}</span>
-                                                                    </div>
-                                                                    <div>
-                                                                    </div>                                                                    <div className="min-w-fit-content text-end">
-                                                                        <span className={`badge badge-sm bg-${item.status === "0" ? 'danger' : item.status === "1" ? 'secondary' : 'success'}-transparent rounded-pill`}>
-                                                                            {item.task_status}
-                                                                        </span>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="mx-2 mt-1">
-                                                                <span className="tx-inverse  text-muted mb-0">{item.description}</span>
-                                                            </div>
-                                                        </li>
-                                                    ))
-                                                }
-                                            </ul>
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
-                            </div>
-                        </Col>
                     </>
                 }
 

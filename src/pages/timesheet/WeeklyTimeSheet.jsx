@@ -167,7 +167,7 @@ const WeeklyTimeSheet = () => {
                 currentWeek.forEach((day) => {
                     exisitingEntry[day.date] = null;
                 });
-                console.log("exisitingEntryexisitingEntry",exisitingEntry)
+                console.log("exisitingEntryexisitingEntry", exisitingEntry)
                 const timeSheetData = item.timesheet.reduce((acc, entry) => {
                     const entryDate = new Date(entry.date).getDate();
                     exisitingEntry[entryDate] = entry.total_time;
@@ -193,7 +193,7 @@ const WeeklyTimeSheet = () => {
         console.log("filteredTaskData", filteredTaskData);
 
         console.log("filteredData", filterHeadData)
-        
+
         console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
 
         const mergedData = formattedData.reduce((acc, curr) => {
@@ -217,11 +217,19 @@ const WeeklyTimeSheet = () => {
 
     };
 
-    const getWeeklyData = async (emp_id) => {
+    const getWeeklyData = async (emp_id, selecteddate) => {
+        console.log("getWeeklyData called with emp_id:", emp_id, "and selecteddate:", selecteddate);
         try {
             const userData = JSON.parse(Cookies.get('user'));
+            console.log("formData", emp_id, selecteddate)
+            const date = selecteddate;
+            const weekid = getISOWeekNumber(date);
+            const yearid = date.getFullYear();
+            setFieldValue("weekly_id", date);
             const payload = {
-                emp_id: emp_id || userData?.employee_id || ''
+                emp_id: emp_id || userData?.employee_id || '',
+                "week_id": weekid,
+                "year": yearid
             };
             const response = await viewWeeklyTimesheet(payload);
             setWeeklyData(response?.data?.data);
@@ -234,8 +242,15 @@ const WeeklyTimeSheet = () => {
         }
     };
 
+
+    const today = new Date();
+    const currentDate = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
     useEffect(() => {
-        getWeeklyData();
+        const userData = JSON.parse(Cookies.get('user'));
+        getWeeklyData(userData?.employee_id, today);
         const permissionFlags = getOperationFlagsById(13, 3); // paren_id , sub_menu id
         console.log(permissionFlags, '---permissionFlags');
         setPermissionFlags(permissionFlags);
@@ -313,10 +328,6 @@ const WeeklyTimeSheet = () => {
 
     };
 
-    const today = new Date();
-    const currentDate = today.getDate();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
 
     const isPastOrToday = (day) => {
         const numericDay = Number(day);
@@ -342,13 +353,15 @@ const WeeklyTimeSheet = () => {
         e.preventDefault();
         if (!validateForm()) return;
         try {
-            getWeeklyData(formData?.employee);
+            console.log("formData", new Date(formData).getDay());
+            getWeeklyData(formData?.employee, formData?.weekly_id);
         } catch (err) {
             console.error("Error while get weekly timesheet data:", err.stack);
             Swal.fire("Error", err.response?.data?.message || "Failed to get weekly timesheet data.", "error");
         }
 
     };
+
     const currentMonthName = today.toLocaleString('en-US', { month: 'long' })
 
     const getWeeklyTaskData = () => {
@@ -371,7 +384,6 @@ const WeeklyTimeSheet = () => {
         );
         // console.log("initialModalFields",initialModalFields,initiallyData,formModalFields)
     }
-
 
     const handleSubmit = async (values) => {
         console.log("valuessss", values, weeklyAllData)
@@ -467,7 +479,7 @@ const WeeklyTimeSheet = () => {
                                     {currentYear}
                                 </span>
                                 <span className="ms-3 fs-13 text-muted">
-                                    {`Week : ${getISOWeekNumber(today)}`}
+                                    {`Week : ${formData?.weekly_id ? getISOWeekNumber(formData?.weekly_id) : getISOWeekNumber(today)}`}
                                 </span>
                             </th>
                             {weeklydates.map((data, index) => (
@@ -559,7 +571,7 @@ const WeeklyTimeSheet = () => {
                             </>
                         ) : (
                             <tr>
-                                <td colSpan={weeklydates.length + 2 } className="text-center text-muted p-4">
+                                <td colSpan={weeklydates.length + 2} className="text-center text-muted p-4">
                                     No weekly data found
                                 </td>
                             </tr>

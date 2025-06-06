@@ -96,7 +96,7 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                     <div className="d-flex align-items-center mb-3">
                         <div className="position-relative" style={{ cursor: isUserDataEmpty ? 'default' : 'pointer' }}>
                             <img
-                                src={data?.photo || profileImage}
+                                src={data?.photo}
                                 alt={"Profile"}
                                 className="rounded-circle"
                                 width="65"

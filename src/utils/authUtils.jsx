@@ -1,6 +1,6 @@
 export const getToken = () => {
     try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('ca_authToken');
         return token;
     }
     catch (error) {
@@ -13,9 +13,9 @@ export const setToken = (token) => {
     if (!token) {
         console.warn("Token is invalid or missing.");
     }
-    localStorage.setItem("authToken", token);
+    localStorage.setItem("ca_authToken", token);
 };
 
 export const deleteToken = () => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("ca_authToken");
 };

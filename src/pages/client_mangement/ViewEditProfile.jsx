@@ -14,6 +14,7 @@ const ViewEditProfileEmp = () => {
   const [clientData, setClientData] = useState({
     "client_id": "",
     "client_name": "",
+    "display_name":"",
     "client_type": "",
     "contact_person": "",
     "email": "",
@@ -51,7 +52,8 @@ const ViewEditProfileEmp = () => {
   }, [])
 
   const fields = [
-    { key: "client_name", label: "Name",type: "text" },
+    { key: "client_name", label: "Name",type: "text" }, 
+    { key: "display_name", label: "Display Name",type: "text" }, 
     { key: "client_type", label: "Client Type",type: "text" },
     { key: "client_id", label: "Client ID",type: "text" },
     { key: "contact_person", label: "Contact Person",type: "text" },
@@ -88,6 +90,7 @@ const ViewEditProfileEmp = () => {
         ...prev,
         "client_id": userData?.client_id || "",
         "client_name": userData?.client_name || "",
+        "display_name":userData?.display_name || "",
         "client_type": userData?.client_type || "",
         "contact_person": userData?.contact_person || "",
         "email": userData?.email || "",

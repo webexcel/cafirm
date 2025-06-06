@@ -58,7 +58,7 @@ export const ViewCliTimeSheetField = [
     type: "dropdown",
     options: [],
     required: true,
-    disabled:true
+    disabled: true,
   },
 
   {
@@ -78,7 +78,6 @@ export const ViewCliTimeSheetField = [
 ];
 
 export const WeeklyTimeSheetField = [
-
   {
     name: "employee",
     label: "Employee",
@@ -88,5 +87,14 @@ export const WeeklyTimeSheetField = [
     required: true,
     // disabled:true
   },
-
+  {
+    name: "weekly_id",
+    label: "Week ID",
+    placeholder: "Select Week ID",
+    type: "weeklydatepicker",
+    options: [],
+    required: false,
+    disable: false,
+    collength: 12,
+  },
 ];

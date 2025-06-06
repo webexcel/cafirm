@@ -71,6 +71,33 @@ export const EmployeeDateWiseFields = [
   },
 ];
 
+export const ClientDateWiseFields = [
+   {
+    name: "client",
+    label: "client",
+    placeholder: "Select client",
+    type: "dropdown",
+    options: [],
+    required: false,
+    disable: false,
+    collength: 12,
+  },
+  {
+    name: "startdate",
+    label: "Date",
+    placeholder: "Select Start Date",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "end",
+    label: "Date",
+    placeholder: "Select End Date",
+    type: "date",
+    required: true,
+  },
+];
+
 export const EmployeeMonthlyFields = [
   {
     name: "employee",
