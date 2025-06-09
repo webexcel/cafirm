@@ -3,7 +3,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PORT = import.meta.env.VITE_PORT;
 import { getToken } from "../utils/authUtils";
 const endpoint = axios.create({
-  baseURL: `${BASE_URL}:${PORT}/api/`,
+  baseURL: `${BASE_URL}/api/`,
   headers: {
     "Content-Type": "application/json",
   },
