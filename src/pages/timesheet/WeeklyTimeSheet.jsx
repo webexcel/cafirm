@@ -309,7 +309,7 @@ const WeeklyTimeSheet = () => {
             const userData = JSON.parse(Cookies.get('user'));
             const result = {
                 task_id: filterData.task_id,
-                emp_id: userData?.employee_id,
+                emp_id: formData?.employee,
                 timesheets: newList,
             }
 
