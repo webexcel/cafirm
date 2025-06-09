@@ -250,7 +250,9 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         const userData = JSON.parse(Cookies.get('user'));
-        getWeeklyData(userData?.employee_id, today);
+        if (Number(userData?.role) !== 1) {
+            getWeeklyData(userData?.employee_id, today);
+        }
         const permissionFlags = getOperationFlagsById(13, 3); // paren_id , sub_menu id
         console.log(permissionFlags, '---permissionFlags');
         setPermissionFlags(permissionFlags);
