@@ -17,7 +17,6 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
     const [showModal, setShowModal] = useState(false);
     const isUserDataEmpty = !userData || Object.values(userData).every(value => !value);
 
-    // Ensure data is updated when userData changes
     useEffect(() => {
         setData(userData);
     }, [userData]);
@@ -93,7 +92,7 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
         <div style={{ cursor: "pointer" }} ref={containerRef}>
             {fields.map((item) =>
                 item.key === "photo" ? (
-                    <div className="d-flex align-items-center mb-3">
+                    <div className="d-flex align-items-center mb-3" key={item.key}>
                         <div className="position-relative" style={{ cursor: isUserDataEmpty ? 'default' : 'pointer' }}>
                             <img
                                 src={data?.photo}
@@ -133,7 +132,7 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
             )}
 
             {fields.map(({ key, label, options, type }, index) =>
-                label !== "photo" ? (
+                key !== "photo" ? (
                     <div
                         key={`${key}-${index}`}
                         className="d-flex justify-content-between align-items-center py-3 px-2"
@@ -142,17 +141,16 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                             backgroundColor: index % 2 !== 0 ? "rgb(242 242 242)" : "white"
                         }}
                     >
-                        <span className="text-muted" style={{ fontSize: "0.9rem" }}>
+                        <span className="text-muted" style={{ fontSize: "0.9rem", width: '35%' }}>
                             {label || key.replace(/([a-z])([A-Z])/g, "$1 $2")}
                         </span>
-                        {console.log("options", options)}
 
-                        {editingField === key ? (
-                            <div className="d-flex align-items-center">
+                        {editingField === key && key !== "employee_id" ? (
+                            <div className="d-flex align-items-center" style={{ width: '65%' }}>
                                 {type.toLowerCase() === "list" ? (
                                     <Select
                                         name={key}
-                                        options={data[key] === "1" ? [{label:"Super Admin",value:'1'},...options] : options || []}
+                                        options={data[key] === "1" ? [{ label: "Super Admin", value: '1' }, ...options] : options || []}
                                         value={String(data[key]) === "1" ? "Super Admin" :
                                             options.find(option => String(option.value) === String(data[key])) || null}
                                         id={key}
@@ -187,7 +185,13 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                                 </Button>
                             </div>
                         ) : (
-                            <div onClick={() => handleEditClick(key)} style={{ cursor: "pointer", maxWidth: "65%" }}>
+                            <div
+                                onClick={() => key !== "employee_id" && handleEditClick(key)}
+                                style={{
+                                    cursor: key !== "employee_id" ? "pointer" : "not-allowed",
+                                    maxWidth: "65%"
+                                }}
+                            >
                                 <span className="fw-normal">
                                     {type.toLowerCase() === "list"
                                         ? String(data[key]) === "1" ? "Super Admin" : options.find(option => String(option.value) === String(data[key]))?.label || "Empty"

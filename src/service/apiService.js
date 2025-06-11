@@ -7,7 +7,7 @@ const endpoint = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-});
+}); 
 
 endpoint.interceptors.request.use(
   (config) => {

@@ -16,3 +16,14 @@ export const CreateServiceFields = [
     maxLength : 5
   },
 ];
+
+export const CreateDocTypeFields = [
+  {
+    name: "type",
+    label: "Type",
+    placeholder: "Enter Type",
+    type: "text",
+    required: true,
+  },
+
+];

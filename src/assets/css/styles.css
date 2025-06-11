@@ -4584,6 +4584,11 @@ textarea.form-control-lg {
   filter: brightness(90%);
 }
 
+.borderless-row td {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 .form-check-input:focus {
   border-color: #86b7fe;
   outline: 0;
@@ -29502,7 +29507,7 @@ code[class*=language-] {
 
 .css-18ds7zr-control{
   min-height: 0px !important;
-  max-height: 34px !important;
+  max-height: 36px !important;
 }
 
 @media (min-width: 1000px) {

@@ -55,20 +55,31 @@ export const EmployeeDateWiseFields = [
     disable: false,
     collength: 12,
   },
-  {
-    name: "startdate",
+   {
+    name: "dates",
     label: "Date",
-    placeholder: "Select Start Date",
-    type: "date",
+    placeholder: "Select Date",
+    startDate: null,
+    endDate: null,
+    type: "daterange",
     required: true,
+    disable: false,
+    collength: 12,
   },
-  {
-    name: "end",
-    label: "Date",
-    placeholder: "Select End Date",
-    type: "date",
-    required: true,
-  },
+  // {
+  //   name: "startdate",
+  //   label: "Date",
+  //   placeholder: "Select Start Date",
+  //   type: "date",
+  //   required: true,
+  // },
+  // {
+  //   name: "end",
+  //   label: "Date",
+  //   placeholder: "Select End Date",
+  //   type: "date",
+  //   required: true,
+  // },
 ];
 
 export const ClientDateWiseFields = [
@@ -82,20 +93,31 @@ export const ClientDateWiseFields = [
     disable: false,
     collength: 12,
   },
-  {
-    name: "startdate",
+    {
+    name: "dates",
     label: "Date",
-    placeholder: "Select Start Date",
-    type: "date",
+    placeholder: "Select Date",
+    startDate: null,
+    endDate: null,
+    type: "daterange",
     required: true,
+    disable: false,
+    collength: 12,
   },
-  {
-    name: "end",
-    label: "Date",
-    placeholder: "Select End Date",
-    type: "date",
-    required: true,
-  },
+  // {
+  //   name: "startdate",
+  //   label: "Date",
+  //   placeholder: "Select Start Date",
+  //   type: "date",
+  //   required: true,
+  // },
+  // {
+  //   name: "end",
+  //   label: "Date",
+  //   placeholder: "Select End Date",
+  //   type: "date",
+  //   required: true,
+  // },
 ];
 
 export const EmployeeMonthlyFields = [

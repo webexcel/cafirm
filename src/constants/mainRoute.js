@@ -17,4 +17,6 @@ export default Object.freeze({
   CALENDAR : 'calendar',
   MENU : 'menu',
   CHARTS : 'charts',
+  DOCUMENT : 'document',
+  DOCUMENTTYPE : 'documenttype',
 });

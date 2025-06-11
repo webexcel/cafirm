@@ -449,8 +449,10 @@ const ClientTimeSheet = () => {
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
                   btnText={'Submit'}
-                  showAddButton={permissionFlags?.showCREATE}
-                  showUpdateButton={permissionFlags?.showUPDATE}
+                  // showAddButton={permissionFlags?.showCREATE}
+                  // showUpdateButton={permissionFlags?.showUPDATE}
+                  showAddButton={true}
+                  showUpdateButton={true}
                 />
 
               </Col>

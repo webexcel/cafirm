@@ -69,10 +69,7 @@ const WeeklyTimeSheet = () => {
             try {
                 const employeeresponse = await getEmployee();
                 console.log("Employee API Response:", employeeresponse);
-
                 const updatedFormFields = WeeklyTimeSheetField.map((field) => {
-
-
                     if (field.name === "employee") {
                         console.log("Inner.....")
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
@@ -242,7 +239,6 @@ const WeeklyTimeSheet = () => {
         }
     };
 
-
     const today = new Date();
     const currentDate = today.getDate();
     const currentMonth = today.getMonth();
@@ -250,11 +246,11 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         const userData = JSON.parse(Cookies.get('user'));
-        if (Number(userData?.role) !== 1) {
+        // if (Number(userData?.role) !== 1) {
             getWeeklyData(userData?.employee_id, today);
-        }
+        // }
         const permissionFlags = getOperationFlagsById(13, 3); // paren_id , sub_menu id
-        console.log(permissionFlags, '---permissionFlags');
+        console.log(permissionFlags, '---permissionFlags',today);
         setPermissionFlags(permissionFlags);
 
     }, []);
@@ -395,54 +391,7 @@ const WeeklyTimeSheet = () => {
             );
             return filtered;
         });
-
-        // setInitialList(values.task)
         setShowModal(false)
-        // try {
-        //     const payload = {
-        //         "id": values?.branch_id || "",
-        //         "user_id": userData?.UserId || "",
-        //         "branch_code": values?.branch_code || "",
-        //         "branch_short_name": values?.branch_short_name || "",
-        //         "region_id": values?.region_code || "",
-        //         "branch_name": values?.branch_name || "",
-        //         "address1": values?.branch_add1 || "",
-        //         "address2": values?.branch_add2 || "",
-        //         "address3": values?.branch_add3 || "",
-        //         "address4": values?.branch_add4 || "",
-        //         "pincode": values?.pincode || "",
-        //         "state": values?.state || "",
-        //         "contact_person": values?.contact_person || "",
-        //         "mobile1": values?.mobile1 || "",
-        //         "mobile2": values?.mobile2 || "",
-        //         "phone": values?.phones || "",
-        //         "fax_phone": values?.fax_phone || "",
-        //         "email": values?.email_id || ""
-        //     }
-        //     const response = await editBranch(payload);
-        //     if (response.data) {
-        //         setTableData((prevData) =>
-        //             prevData.map((row, i) => (i === values.index ? { ...row, ...values } : row))
-        //         );
-        //         setFilteredData((prevData) =>
-        //             prevData.map((row, i) => (i === values.index ? { ...row, ...values } : row))
-        //         );
-        //         Swal.fire({
-        //             icon: "success",
-        //             title: "Branch Edited Successfully!",
-        //             confirmButtonText: "OK",
-        //         });
-        //         setShowModal(false)
-        //     }
-        // } catch (error) {
-        //     console.log("error in edit ifsc", error)
-        //     Swal.fire({
-        //         icon: "error",
-        //         title: "Failed to Edit ifsc",
-        //         text: error?.response?.data?.message || "Something went wrong while editing the ifsc.",
-        //         confirmButtonText: "OK",
-        //     });
-        // }
     }
 
     return (
@@ -461,7 +410,6 @@ const WeeklyTimeSheet = () => {
                                     btnText={'Submit'}
                                     showAddButton={true}
                                     showUpdateButton={permissionFlags?.showUPDATE}
-
                                 />
                             </Col>
                         </Card.Body>
@@ -473,13 +421,15 @@ const WeeklyTimeSheet = () => {
                 <table className="table table-bordered w-100">
                     <thead>
                         <tr>
-                            <th className="fs-18 fw-bolder text-center" colSpan={2} style={{ width: "10%", borderRight: "none" }}>
-                                <span className="me-2">
-                                    {currentMonthName}
-                                </span>
-                                <span>
-                                    {currentYear}
-                                </span>
+                            <th className="fs-18 fw-bolder text-center" colSpan={2} style={{ width: "12%", borderRight: "none" }}>
+                                <div>
+                                    <span className="me-2">
+                                        {currentMonthName}
+                                    </span>
+                                    <span>
+                                        {currentYear}
+                                    </span>
+                                </div>
                                 <span className="ms-3 fs-13 text-muted">
                                     {`Week : ${formData?.weekly_id ? getISOWeekNumber(formData?.weekly_id) : getISOWeekNumber(today)}`}
                                 </span>

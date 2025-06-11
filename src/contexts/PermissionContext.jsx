@@ -29,18 +29,22 @@ export const PermissionProvider = ({ children }) => {
     const storedData = Cookies.get("user");
     return storedData ? JSON.parse(storedData) : null;
   });
-
+  const [task_id, setTaskid] = useState([])
+  const setHandleTaskid = (task_id) => {
+    setTaskid(task_id)
+  }
   useEffect(() => {
     // Sync userData with cookie updates
     const checkUserCookie = () => {
       const storedData = Cookies.get("user");
       const parsedData = storedData ? JSON.parse(storedData) : null;
-      
+
       if (JSON.stringify(parsedData) !== JSON.stringify(userData)) {
         setUserData(parsedData);
       }
     };
-    
+
+
     const interval = setInterval(checkUserCookie, 1000);
 
     return () => clearInterval(interval); // Cleanup interval on unmount
@@ -51,7 +55,7 @@ export const PermissionProvider = ({ children }) => {
       fetchPermissions();
     }
   }, [userData]);
-  
+
 
   const fetchPermissions = async () => {
     try {
@@ -69,9 +73,9 @@ export const PermissionProvider = ({ children }) => {
 
     return submenu
       ? submenu.operations.reduce((acc, { operation }) => {
-          acc[`show${operation}`] = true;
-          return acc;
-        }, {})
+        acc[`show${operation}`] = true;
+        return acc;
+      }, {})
       : {};
   };
 
@@ -124,7 +128,9 @@ export const PermissionProvider = ({ children }) => {
         menuItems,
         fetchPermissions,
         getOperationFlagsById,
-        resetPermissions
+        resetPermissions,
+        task_id,
+        setHandleTaskid
       }}>
       {children}
     </PermissionContext.Provider>

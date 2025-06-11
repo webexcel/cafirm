@@ -1,11 +1,10 @@
 
 import React, { Fragment, useCallback, useState, useEffect, Suspense } from "react";
-import { Row, Col, Card, Button, Form } from "react-bootstrap";
+import { Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomForm from "../../components/custom/form/CustomForm";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
-import { AddTimeSheetField } from "../../constants/fields/taskFields";
 import { getClient } from "../../service/client_management/createClientServices";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { getService } from "../../service/masterDetails/serviceApi";
@@ -13,13 +12,17 @@ import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
 import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 import { usePermission } from "../../contexts";
+import { CreateDocumentationField } from "../../constants/fields/documentationFields";
+import DocumentationTreeTable from "./DocumentationTreeTable";
+import { getDocumentsService } from "../../service/document_module/documentation";
+import { getDocumentType } from "../../service/masterDetails/createDocument";
+import Search from "../../components/common/search/Search";
 
 
-const AddTimeSheet = () => {
-
+const Documentation = () => {
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState(tableData);
-  const [formFields, setFormFields] = useState(AddTimeSheetField);
+  const [formFields, setFormFields] = useState(CreateDocumentationField);
   const [clientdata, setClientData] = useState([])
   const [servicedata, setServiceData] = useState([])
   const columns = [
@@ -37,16 +40,15 @@ const AddTimeSheet = () => {
   const [recordsPerPage] = useState(15);
   const { permissions, getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
-
   // Initialize form state from field definitions
-  const initialFormState = AddTimeSheetField.reduce((acc, field) => {
+  const initialFormState = CreateDocumentationField.reduce((acc, field) => {
     acc[field.name] = "";
     return acc;
   }, {});
 
   const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
-    (data) => validateCustomForm(data, AddTimeSheetField)
+    (data) => validateCustomForm(data, CreateDocumentationField)
   );
 
   useEffect(() => {
@@ -54,12 +56,10 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
-        // const serviceresponse = await getService()
-        const employeeresponse = await getEmployee();
+        const typeresponse = await getDocumentType();
         console.log("Client API Response:", clientresponse);
-        console.log("Employee API Response:", employeeresponse);
-
-        const updatedFormFields = AddTimeSheetField.map((field) => {
+        console.log("Documnet API Response:", typeresponse);
+        const updatedFormFields = CreateDocumentationField.map((field) => {
           if (field.name === "client") {
             if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
               const clientOptions = clientresponse.data.data.map((item) => ({
@@ -75,16 +75,18 @@ const AddTimeSheet = () => {
             }
 
           }
-          if (field.name === "employee") {
-            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
-                value: item.employee_id,
-                label: item.name,
+          if (field.name === "type") {
+            if (Array.isArray(typeresponse.data.data) && typeresponse.data.data.length > 0) {
+              const typeOptions = typeresponse.data.data.map((item) => ({
+                value: item.id,
+                label: item.type_name,
               }));
-              console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions };
+              console.log("Mapped Document Options:", typeOptions);
+              setClientData(typeOptions)
+              return { ...field, options: typeOptions };
+
             } else {
-              console.error("Employee data response is not an array or is empty.");
+              console.error("Document data response is not an array or is empty.");
             }
 
           }
@@ -98,27 +100,107 @@ const AddTimeSheet = () => {
     fetchFieldOptionData()
   }, []);
 
-  const getPriorityBased = async () => {
+
+  const data = [
+        {
+            "id": 1,
+            "client_id": 1,
+            "client_name": "ABC Pvt Ltd1",
+            "childs": [
+                {
+                    "type": "official",
+                    "documents": [
+                        {
+                            "doc_url": "https://example.com/docs/specs_104.pdf",
+                            "description": "fvcdvfdg fvevdvsd"
+                        },
+                        {
+                            "doc_url": "https://example.com/docs/nda_101.pdf",
+                            "description": "NDA agreement - client 101"
+                        }
+                    ]
+                },
+                {
+                    "type": "personal",
+                    "documents": [
+                        {
+                            "doc_url": "https://example.com/docs/contract_101.pdf",
+                            "description": "Signed contract for client 101"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "client_id": 2,
+            "client_name": "XYZ Enterprises",
+            "childs": [
+                {
+                    "type": "office",
+                    "documents": [
+                        {
+                            "doc_url": "https://example.com/docs/specs_104.pdf",
+                            "description": "example"
+                        },
+                        {
+                            "doc_url": "https://example.com/docs/invoice_102.pdf",
+                            "description": "Invoice for March"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "client_id": 3,
+            "client_name": "Rahul Sharma",
+            "childs": [
+                {
+                    "type": "personal",
+                    "documents": [
+                        {
+                            "doc_url": "https://example.com/docs/report_103.pdf",
+                            "description": "Annual report for client 103"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "client_id": 4,
+            "client_name": "Meera Patel",
+            "childs": [
+                {
+                    "type": "personal",
+                    "documents": [
+                        {
+                            "doc_url": "https://example.com/docs/specs_104.pdf",
+                            "description": "Product specifications - client 104"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+
+  const getHandlerDoc = async () => {
     try {
-      const response = await getTasksByPriority()
-      console.log("Priority based task data : ", response)
-      const addSno = response?.data?.data.map((data, index) => ({
-        ...data,
-        sno: index + 1,
-        startdate: data?.assigned_date.split('T')[0],
-        enddate: data?.due_date.split('T')[0],
-        assigned_to: data?.assigned_to.map((empdata) => ({ value: empdata.emp_id, label: empdata.emp_name, image: empdata.photo }))
-      }))
-      setTableData(addSno)
-      setFilteredData(addSno)
+      const response = await getDocumentsService()
+      console.log("Document data : ", response)
+      setTableData(response?.data?.data || [])
+      setFilteredData(response?.data?.data || [])
     }
     catch (error) {
-      console.log("Error Occures while getting tasks by priority : ", error.stack)
+      console.log("Error Occures while getting document data : ", error.stack)
     }
   }
 
   useEffect(() => {
-    getPriorityBased()
+    // getPriorityBased()
+    getHandlerDoc()
     const permissionFlags = getOperationFlagsById(10, 1); // paren_id , sub_menu id
     console.log(permissionFlags, '---permissionFlags');
     setPermissionFlags(permissionFlags);
@@ -271,41 +353,43 @@ const AddTimeSheet = () => {
   };
 
   const onDelete = useCallback(async (updatedData, index) => {
-    console.log("update dataaa", updatedData)
-    const result = await Swal.fire({
-      title: "Are you sure about delete task?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "No, cancel!",
-      reverseButtons: true,
-    });
-    if (result.isConfirmed) {
-      try {
-        const payload = { id: updatedData.task_id };
-        const response = await deleteTaskData(payload);
-        if (response.data.status) {
-          setFilteredData((prevFilteredData) =>
-            prevFilteredData
-              .filter((item, ind) => ind !== index)
-              .map((item, ind) => ({ ...item, sno: ind + 1 }))
-          );
+    console.log("update dataaa", updatedData, index);
 
-          setTableData((prevTableData) =>
-            prevTableData
-              .filter((item, ind) => ind !== index)
-              .map((item, ind) => ({ ...item, sno: ind + 1 }))
-          );
+    // const result = await Swal.fire({
+    //   title: "Are you sure you want to delete doc type?",
+    //   text: "You won't be able to revert this!",
+    //   icon: "warning",
+    //   showCancelButton: true,
+    //   confirmButtonText: "Yes, delete it!",
+    //   cancelButtonText: "No, cancel!",
+    //   reverseButtons: true,
+    // });
 
-          Swal.fire("Deleted!", response?.data?.message || "Task deleted successfully.", "success");
-        }
-      } catch (error) {
-        Swal.fire("Error", error.response?.data?.message || "Failed to delete task.", "error");
-      }
+    // if (result.isConfirmed) {
+    //   try {
+    //     const payload = { id: updatedData?.id };
+    //     const response = await deleteDocumentType(payload);
 
-    }
+    //     if (response.data.status) {
+    //       // Use functional state updates to get the latest data
+    //       setFilteredData((prevFilteredData) =>
+    //         prevFilteredData
+    //           .filter((item, ind) => ind !== index) // Remove the item
+    //           .map((item, ind) => ({ ...item, sno: ind + 1 })) // Re-index
+    //       );
 
+    //       setTableData((prevTableData) =>
+    //         prevTableData
+    //           .filter((item, ind) => ind !== index)
+    //           .map((item, ind) => ({ ...item, sno: ind + 1 }))
+    //       );
+
+    //       Swal.fire("Deleted!", response?.data?.message || "Documnet Type deleted successfully.", "success");
+    //     }
+    //   } catch (error) {
+    //     Swal.fire("Error", error.response?.data?.message || "Failed to delete doc type.", "error");
+    //   }
+    // }
   }, []);
 
   return (
@@ -321,8 +405,6 @@ const AddTimeSheet = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
-                  // showAddButton={permissionFlags?.showCREATE}
-                  // showUpdateButton={permissionFlags?.showUPDATE}
                   showAddButton={true}
                   showUpdateButton={true}
                 />
@@ -336,19 +418,19 @@ const AddTimeSheet = () => {
       <Row>
         <Col xl={12}>
           <Card className="custom-card p-3">
+            <Card.Header>
+              <div style={{ width: '100%', display: 'flex',justifyContent:'space-between' }}>
+                <Card.Title>Documentation  </Card.Title>
+                <div style={{width:'30%'}}>
+                  <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+                </div>
+              </div>
+
+
+            </Card.Header>
             <Card.Body className="overflow-auto">
               <Suspense fallback={<Loader />}>
-                <CustomTable
-                  columns={columns}
-                  data={filteredData}
-                  currentPage={currentPage}
-                  recordsPerPage={recordsPerPage}
-                  totalRecords={filteredData.length}
-                  handlePageChange={handlePageChange}
-                  onDelete={onDelete}
-                  showDeleteButton={permissionFlags?.showDELETE}
-                  showUpdateButton={permissionFlags?.showUPDATE}
-                />
+                <DocumentationTreeTable data={data} onDelete={onDelete} />
               </Suspense>
             </Card.Body>
           </Card>
@@ -358,4 +440,4 @@ const AddTimeSheet = () => {
   );
 };
 
-export default AddTimeSheet;
+export default Documentation;

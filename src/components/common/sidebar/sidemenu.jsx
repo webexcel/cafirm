@@ -79,8 +79,9 @@ export const MENUITEMS = [
 		title: "Master Details", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 
-			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
 			{ path: `${import.meta.env.BASE_URL}Roles`, type: "link", active: false, selected: false, dirchange: false, title: "Roles" },
+			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+			{ path: `${import.meta.env.BASE_URL}createDocType`, type: "link", active: false, selected: false, dirchange: false, title: "Create Document Type" },
 
 		],
 	},
@@ -121,6 +122,9 @@ export const MENUITEMS = [
 			{ path: `${import.meta.env.BASE_URL}viewAttendance`, type: "link", active: false, selected: false, dirchange: false, title: "View Attendance" },
 		],
 	},
+	// Documents 
+	{ path: `${import.meta.env.BASE_URL}documentation`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Document Management" },
+
 
 	//Billing
 	// {

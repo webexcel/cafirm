@@ -19,8 +19,8 @@ const CustomForm = ({
   customOnClick,
   btnText,
   onEdit = false,
-  showAddButton = false,
-  showUpdateButton = false
+  showAddButton = true,
+  showUpdateButton = true
 }) => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -274,7 +274,7 @@ const CustomForm = ({
             dateFormat="yyyy, 'Week' ww"
             placeholderText="Select week"
             className="form-control"
-
+            disabled={field.disable}
           />
         );
 
@@ -304,10 +304,24 @@ const CustomForm = ({
             style={{ width: "100%" }}
           />
         );
+
+      case "file":
+        return (
+          <Form.Control
+            type="file"
+            name={field.name}
+            onChange={(e) => onChange(e, field.name)}
+            isInvalid={!!errors[field.name]}
+            style={{ width: "100%" }}
+            accept={field.accept || "*"}
+          />
+        );
+
       default:
         return null;
     }
   };
+
 
   const columnWidth = Math.floor(12 / formFields.length);
 
