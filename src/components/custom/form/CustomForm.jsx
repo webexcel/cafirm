@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import Select from "react-select";
 import CustomMultiPanelSelect from "../panel/CustomMultiPanelSelect";
@@ -20,10 +20,12 @@ const CustomForm = ({
   btnText,
   onEdit = false,
   showAddButton = true,
-  showUpdateButton = true
+  showUpdateButton = true,
+  inputRef
 }) => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+
   const handleDateChange = (date, name) => {
 
     console.log("datee", date)
@@ -308,6 +310,8 @@ const CustomForm = ({
       case "file":
         return (
           <Form.Control
+            // key={formData[field.name]}
+            ref={inputRef}
             type="file"
             name={field.name}
             onChange={(e) => onChange(e, field.name)}

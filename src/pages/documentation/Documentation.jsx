@@ -1,5 +1,5 @@
 
-import React, { Fragment, useCallback, useState, useEffect, Suspense } from "react";
+import React, { Fragment, useCallback, useState, useEffect, Suspense, useRef } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import Swal from "sweetalert2";
 import CustomForm from "../../components/custom/form/CustomForm";
@@ -14,9 +14,11 @@ import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from 
 import { usePermission } from "../../contexts";
 import { CreateDocumentationField } from "../../constants/fields/documentationFields";
 import DocumentationTreeTable from "./DocumentationTreeTable";
-import { getDocumentsService } from "../../service/document_module/documentation";
+import { addDocument, deleteDocument, getDocumentsService } from "../../service/document_module/documentation";
 import { getDocumentType } from "../../service/masterDetails/createDocument";
 import Search from "../../components/common/search/Search";
+import axios from "axios";
+import { getToken } from "../../utils/authUtils";
 
 
 const Documentation = () => {
@@ -45,7 +47,7 @@ const Documentation = () => {
     acc[field.name] = "";
     return acc;
   }, {});
-
+  const inputRef = useRef()
   const { formData, errors, handleInputChange, validateForm, resetForm, setFieldValue } = useForm(
     initialFormState,
     (data) => validateCustomForm(data, CreateDocumentationField)
@@ -100,92 +102,6 @@ const Documentation = () => {
     fetchFieldOptionData()
   }, []);
 
-
-  const data = [
-        {
-            "id": 1,
-            "client_id": 1,
-            "client_name": "ABC Pvt Ltd1",
-            "childs": [
-                {
-                    "type": "official",
-                    "documents": [
-                        {
-                            "doc_url": "https://example.com/docs/specs_104.pdf",
-                            "description": "fvcdvfdg fvevdvsd"
-                        },
-                        {
-                            "doc_url": "https://example.com/docs/nda_101.pdf",
-                            "description": "NDA agreement - client 101"
-                        }
-                    ]
-                },
-                {
-                    "type": "personal",
-                    "documents": [
-                        {
-                            "doc_url": "https://example.com/docs/contract_101.pdf",
-                            "description": "Signed contract for client 101"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "client_id": 2,
-            "client_name": "XYZ Enterprises",
-            "childs": [
-                {
-                    "type": "office",
-                    "documents": [
-                        {
-                            "doc_url": "https://example.com/docs/specs_104.pdf",
-                            "description": "example"
-                        },
-                        {
-                            "doc_url": "https://example.com/docs/invoice_102.pdf",
-                            "description": "Invoice for March"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "client_id": 3,
-            "client_name": "Rahul Sharma",
-            "childs": [
-                {
-                    "type": "personal",
-                    "documents": [
-                        {
-                            "doc_url": "https://example.com/docs/report_103.pdf",
-                            "description": "Annual report for client 103"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": 4,
-            "client_id": 4,
-            "client_name": "Meera Patel",
-            "childs": [
-                {
-                    "type": "personal",
-                    "documents": [
-                        {
-                            "doc_url": "https://example.com/docs/specs_104.pdf",
-                            "description": "Product specifications - client 104"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-
-
   const getHandlerDoc = async () => {
     try {
       const response = await getDocumentsService()
@@ -199,7 +115,6 @@ const Documentation = () => {
   }
 
   useEffect(() => {
-    // getPriorityBased()
     getHandlerDoc()
     const permissionFlags = getOperationFlagsById(10, 1); // paren_id , sub_menu id
     console.log(permissionFlags, '---permissionFlags');
@@ -304,7 +219,7 @@ const Documentation = () => {
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({
-      title: "Are you sure about create task ?",
+      title: "Are you sure about upload document ?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -315,82 +230,130 @@ const Documentation = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, employee, priority, task, startdate, end } = formData;
-        const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
-        console.log("servicedata", servicedata)
-        const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
-        const empIds = employee.map((data) => data.value)
-        console.log("clientval", clientval)
-        console.log("serviceval", serviceval)
+
         const payload = {
-          "client": client || '',
-          "name": task || '',
-          "service": service || '',
-          "assignTo": empIds || [],
-          "assignDate": startdate || new Date(),
-          "dueDate": end || new Date(),
-          "priority": priority || '',
-          "description": description || '',
+          "client_id": formData?.client || "",
+          "description": formData?.description || "",
+          "type_id": formData?.type || "",
+          "doc_name": formData?.doc_name || "",
+          "doc_base": formData?.upload_doc || "",
         }
-        const response = await addTask(payload);
+        const response = await addDocument(payload);
         if (!response.data.status) {
-          return Swal.fire("Error", response.data.message || "Failed to add task.", "error");
+          return Swal.fire("Error", response.data.message || "Failed to add document.", "error");
         }
-        Swal.fire("Success", `Task added successfully`, "success");
-        getPriorityBased()
+        Swal.fire("Success", `Document added successfully`, "success");
+        getHandlerDoc()
         resetForm()
 
       } catch (err) {
-        console.error("Error while get timesheet data:", err.stack);
-        Swal.fire("Error", err.response?.data?.message || "Failed to add timesheet data.", "error");
+        console.error("Error while get document data:", err.stack);
+        Swal.fire("Error", err.response?.data?.message || "Failed to add document data.", "error");
       }
     }
 
   };
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const onDelete = useCallback(async (updatedData, index) => {
     console.log("update dataaa", updatedData, index);
 
-    // const result = await Swal.fire({
-    //   title: "Are you sure you want to delete doc type?",
-    //   text: "You won't be able to revert this!",
-    //   icon: "warning",
-    //   showCancelButton: true,
-    //   confirmButtonText: "Yes, delete it!",
-    //   cancelButtonText: "No, cancel!",
-    //   reverseButtons: true,
-    // });
+    const result = await Swal.fire({
+      title: "Are you sure you want to delete document?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true,
+    });
 
-    // if (result.isConfirmed) {
-    //   try {
-    //     const payload = { id: updatedData?.id };
-    //     const response = await deleteDocumentType(payload);
+    if (result.isConfirmed) {
+      try {
+        const payload = { document_id: updatedData?.id };
+        const response = await deleteDocument(payload);
 
-    //     if (response.data.status) {
-    //       // Use functional state updates to get the latest data
-    //       setFilteredData((prevFilteredData) =>
-    //         prevFilteredData
-    //           .filter((item, ind) => ind !== index) // Remove the item
-    //           .map((item, ind) => ({ ...item, sno: ind + 1 })) // Re-index
-    //       );
+        if (response.data.status) {
+          // Use functional state updates to get the latest data
+          // setFilteredData((prevFilteredData) =>
+          //   prevFilteredData
+          //     .filter((item, ind) => ind !== index) // Remove the item
+          //     .map((item, ind) => ({ ...item, sno: ind + 1 })) // Re-index
+          // );
 
-    //       setTableData((prevTableData) =>
-    //         prevTableData
-    //           .filter((item, ind) => ind !== index)
-    //           .map((item, ind) => ({ ...item, sno: ind + 1 }))
-    //       );
-
-    //       Swal.fire("Deleted!", response?.data?.message || "Documnet Type deleted successfully.", "success");
-    //     }
-    //   } catch (error) {
-    //     Swal.fire("Error", error.response?.data?.message || "Failed to delete doc type.", "error");
-    //   }
-    // }
+          // setTableData((prevTableData) =>
+          //   prevTableData
+          //     .filter((item, ind) => ind !== index)
+          //     .map((item, ind) => ({ ...item, sno: ind + 1 }))
+          // );
+          getHandlerDoc()
+          Swal.fire("Deleted!", response?.data?.message || "Documnet deleted successfully.", "success");
+        }
+      } catch (error) {
+        Swal.fire("Error", error.response?.data?.message || "Failed to delete doc.", "error");
+      }
+    }
   }, []);
+
+  const handleDownload = async (document) => {
+    try {
+      const token = getToken();
+      const BASE_URL = import.meta.env.VITE_BASE_URL;
+      const PORT = import.meta.env.VITE_PORT;
+      const response = await axios.post(
+        `${BASE_URL}/api/document/downloadDocument`,
+        { document_id: document.id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      const { file_base64, file_name } = response.data;
+
+      if (file_base64 && file_name) {
+        downloadBase64File(file_base64, file_name);
+      } else {
+        console.error("Missing file data or file name in response.");
+      }
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
+  const downloadBase64File = (base64Data, fileName) => {
+    const arr = base64Data.split(",");
+    const mimeMatch = arr[0].match(/:(.*?);/);
+
+    if (!mimeMatch) {
+      console.error("Could not extract MIME type.");
+      return;
+    }
+
+    const mime = mimeMatch[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    const blob = new Blob([u8arr], { type: mime });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName || "downloaded-file";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+
+
 
   return (
     <Fragment>
@@ -407,6 +370,7 @@ const Documentation = () => {
                   onSubmit={handleAdd}
                   showAddButton={true}
                   showUpdateButton={true}
+                  inputRef={inputRef}
                 />
 
               </Col>
@@ -419,18 +383,16 @@ const Documentation = () => {
         <Col xl={12}>
           <Card className="custom-card p-3">
             <Card.Header>
-              <div style={{ width: '100%', display: 'flex',justifyContent:'space-between' }}>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                 <Card.Title>Documentation  </Card.Title>
-                <div style={{width:'30%'}}>
+                <div style={{ width: '30%' }}>
                   <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
                 </div>
               </div>
-
-
             </Card.Header>
             <Card.Body className="overflow-auto">
               <Suspense fallback={<Loader />}>
-                <DocumentationTreeTable data={data} onDelete={onDelete} />
+                <DocumentationTreeTable data={filteredData} onDelete={onDelete} downloadFile={handleDownload} />
               </Suspense>
             </Card.Body>
           </Card>

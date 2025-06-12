@@ -5,10 +5,10 @@ export const getDocumentsService = async () => {
   return await endpoint.get(`${mainUrl.DOCUMENT}/getDocuments`);
 };
 
-// export const addTimesheet = async (data) => {
-//   return await endpoint.post(`${mainUrl.TIMESHEET}/addTimesheet`, data);
-// };
+export const addDocument = async (data) => {
+  return await endpoint.post(`${mainUrl.DOCUMENT}/addDocument`, data);
+};
 
-// export const deleteTimesheet = async (data) => {
-//   return await endpoint.post(`${mainUrl.TIMESHEET}/deleteTimesheet`, data);
-// };
+export const deleteDocument = async (data) => {
+  return await endpoint.post(`${mainUrl.DOCUMENT}/deleteDocument`, data);
+};

@@ -222,58 +222,8 @@ const ClientTimeSheet = () => {
     }
   }, [formData.client]);
 
-  // useEffect(() => {
 
-  //   if (formData.service) {
-  //     const fetchClientOptionData = async () => {
-  //       console.log('formm data', formData)
-  //       try {
-  //         const payload = {
-  //           "client_id": formData?.client || '',
-  //           "service_id": formData?.service || ''
-  //         };
-  //         const employeeresponse = await getEmployeeByService(payload);
 
-  //         console.log("Employee API Response:", employeeresponse.data.data);
-
-  //         const updatedFormFields = await formFields.map((field) => {
-
-  //           if (field.name === "employee") {
-  //             console.log('employee', formFields)
-  //             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-  //               const employeeOptions = employeeresponse.data.data.map((item) => ({
-  //                 value: item.employee_id,
-  //                 label: item.name,
-  //               }));
-
-  //               console.log('employeeOptions : ', employeeOptions, formFields)
-  //               return {
-  //                 ...field,
-  //                 options: [{ value: "All", label: 'All' }, ...employeeOptions]
-  //               };
-  //             } else {
-  //               console.error("Student data response is not an array or is empty.");
-  //               return {
-  //                 ...field,
-  //                 options: [{ value: "All", label: 'All' }]
-  //               };
-  //             }
-  //           }
-  //           return field;
-  //         });
-  //         setFormFields(updatedFormFields);
-  //         console.log("Mapped Student Options:", formFields);
-
-  //       } catch (error) {
-  //         console.error("Error fetching Student data:", error);
-  //       }
-  //     };
-
-  //     fetchClientOptionData();
-  //   }
-  // }, [formData.service]);
-
-  // Handle pagination
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -284,12 +234,14 @@ const ClientTimeSheet = () => {
     if (!validateForm()) return;
     try {
       console.log("Selected form:", formData);
+      const { dates } = formData;
+      const splitDate = String(dates).split('/')
       const payload = {
         "emp_id": formData?.employee || "",
         "client_id": formData?.client || "",
         "service_id": formData?.service || "",
-        "startdate": formData?.start_date || new Date(),
-        "enddate": formData?.end_date || new Date()
+        "startdate": splitDate[0] || new Date(),
+        "enddate": splitDate[1] || new Date()
       }
       const response = await viewSelectTimeSheet(payload);
       if (!response.data.status) {
@@ -359,7 +311,7 @@ const ClientTimeSheet = () => {
       taskName: String(data?.task_id || ""),
       employee: String(data?.employee_id) || "",
       client: data?.client || "",
-      service: data?.service || "",
+      // service: data?.service || "",
       service: data?.service_name || '',
       client: data?.client_name || '',
       date: data?.date || date1,

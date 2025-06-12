@@ -2,46 +2,65 @@ import React, { useState } from "react";
 import { Table, Button } from "react-bootstrap";
 
 // DocumentRow Component
-const DocumentRow = ({ document, level, onDelete,index }) => (
-    <tr>
-        <td style={{ paddingLeft: `${level * 20}px` }}>
-            <i className="bi bi-file-earmark-text me-2 text-muted" />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', flex: 1 }}>
-                    <span style={{ width: '20%', wordBreak: 'break-word' }}>
-                        <strong>{document.doc_name || "Untitled"}</strong>
-                    </span>
-                    <span style={{ width: '40%', wordBreak: 'break-word' }}>
-                        {document.description}
-                    </span>
-                    <Button
-                        variant="link"
-                        className="btn btn-sm p-0"
-                        style={{
-                            width: '35%',
-                            textOverflow: 'ellipsis',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {document.doc_url}
-                    </Button>
-                </div>
-                <div style={{ display: 'flex', gap: '5px' }}>
-                    <Button variant="primary" className="btn btn-sm">
-                        <i className="bi bi-download" />
-                    </Button>
-                    <Button variant="danger" className="btn btn-sm" onClick={() => onDelete(document,index)}>
-                        <i className="bi bi-trash" />
-                    </Button>
-                </div>
-            </div>
-        </td>
-    </tr>
+const DocumentRow = ({ document, level, onDelete, index, downloadFile }) => (
+   <tr>
+  <td style={{ paddingLeft: `${level * 20}px` }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', flex: 1 }}>
+        <span style={{
+          flex: '1 1 20%',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal',
+        }}>
+          <i className="bi bi-file-earmark-text me-2 text-muted" />
+          <strong>{document.doc_name || "Untitled"}</strong>
+        </span>
+
+        <span style={{
+          flex: '1 1 40%',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal',
+        
+        }}>
+          {document.description}
+        </span>
+
+        <Button
+          variant="link"
+          className="btn btn-sm p-0"
+          style={{
+            flex: '1 1 35%',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            whiteSpace: 'normal',
+            padding: 0,
+            textAlign: 'left',
+          }}
+        >
+          {document.doc_url}
+        </Button>
+      </div>
+
+      <div style={{ display: 'flex', gap: '5px',marginLeft:'10px' }}>
+        <Button variant="primary" className="btn btn-sm" onClick={() => downloadFile(document)}>
+          <i className="bi bi-download" />
+        </Button>
+        <Button variant="danger" className="btn btn-sm" onClick={() => onDelete(document, index)}>
+          <i className="bi bi-trash" />
+        </Button>
+      </div>
+
+
+    </div>
+  </td>
+</tr>
+
 );
 
 // TypeRow Component
-const TypeRow = ({ typeNode, level, onDelete, index }) => {
+const TypeRow = ({ typeNode, level, onDelete, index, downloadFile }) => {
     const [expanded, setExpanded] = useState(false);
     const hasDocuments = typeNode.documents?.length > 0;
 
@@ -50,20 +69,20 @@ const TypeRow = ({ typeNode, level, onDelete, index }) => {
             <tr onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
                 <td style={{ paddingLeft: `${level * 20}px` }}>
                     <i className={`bi ${expanded ? 'bi-caret-down-fill' : 'bi-caret-right-fill'} me-1`} />
-                    <span>{typeNode.type}</span>
+                    <span>{typeNode.type_name}</span>
                 </td>
             </tr>
             {expanded &&
                 hasDocuments &&
                 typeNode.documents.map((doc, i) => (
-                    <DocumentRow key={i} document={doc} level={level + 1} onDelete={onDelete} index={index} />
+                    <DocumentRow key={i} document={doc} level={level + 1} onDelete={onDelete} index={index} downloadFile={downloadFile} />
                 ))}
         </>
     );
 };
 
 // ClientRow Component
-const ClientRow = ({ client, onDelete, index }) => {
+const ClientRow = ({ client, onDelete, index, downloadFile }) => {
     const [expanded, setExpanded] = useState(false);
     const hasTypes = client.childs?.length > 0;
 
@@ -78,19 +97,19 @@ const ClientRow = ({ client, onDelete, index }) => {
             {expanded &&
                 hasTypes &&
                 client.childs.map((type, i) => (
-                    <TypeRow key={i} typeNode={type} level={1} onDelete={onDelete} index={index} />
+                    <TypeRow key={i} typeNode={type} level={1} onDelete={onDelete} index={index} downloadFile={downloadFile} />
                 ))}
         </>
     );
 };
 
 // DocumentationTreeTable Component
-const DocumentationTreeTable = ({ data, onDelete }) => {
+const DocumentationTreeTable = ({ data, onDelete, downloadFile }) => {
     return (
         <Table className="table table-hover text-nowrap table-striped">
             <tbody>
                 {data.map((client, index) => (
-                    <ClientRow key={client.id} client={client} onDelete={onDelete} index={index} />
+                    <ClientRow key={client.id} client={client} onDelete={onDelete} index={index} downloadFile={downloadFile} />
                 ))}
             </tbody>
         </Table>

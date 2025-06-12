@@ -61,19 +61,16 @@ export const ViewCliTimeSheetField = [
     disabled: true,
   },
 
-  {
-    name: "start_date",
+     {
+    name: "dates",
     label: "Date",
-    placeholder: "Select Start Date",
-    type: "date",
+    placeholder: "Select Date",
+    startDate: null,
+    endDate: null,
+    type: "daterange",
     required: true,
-  },
-  {
-    name: "end_date",
-    label: "Date",
-    placeholder: "Select End date",
-    type: "date",
-    required: true,
+    disable: false,
+    collength: 12,
   },
 ];
 

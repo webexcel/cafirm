@@ -109,7 +109,7 @@ export const MENUITEMS = [
 		children: [
 			// { path: `${import.meta.env.BASE_URL}assignUser`, type: "link", active: false, selected: false, dirchange: false, title: "Assign User" },
 			{ path: `${import.meta.env.BASE_URL}AddMenu`, type: "link", active: false, selected: false, dirchange: false, title: "Add Menu" },
-			{ path: `${import.meta.env.BASE_URL}addOperations`, type: "link", active: false, selected: false, dirchange: false, title: "Operation" },
+			{ path: `${import.meta.env.BASE_URL}Operations`, type: "link", active: false, selected: false, dirchange: false, title: "Operation" },
 
 		],
 	},
@@ -123,7 +123,7 @@ export const MENUITEMS = [
 		],
 	},
 	// Documents 
-	{ path: `${import.meta.env.BASE_URL}documentation`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Document Management" },
+	{ path: `${import.meta.env.BASE_URL}DocumentManagement`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Document Management" },
 
 
 	//Billing

@@ -3,7 +3,7 @@ import { Table, OverlayTrigger, Tooltip, Pagination, Button, Form, Popover } fro
 import ColumnPopOver from '../popover/ColumnPopOver'
 import demoimage from '../../../assets/images/apps/calender.png'
 
-const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit, disableOnEdit = false, showDeleteButton = false, showUpdateButton = false }) => {
+const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inActive, onCopyTo, handlerEdit, disableOnEdit = false, showDeleteButton = true, showUpdateButton = false }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,28 +160,28 @@ const CustomTable = ({ columns, data, onEdit, onDelete, onCheck, onActive, inAct
                             {onDelete && showDeleteButton && (
                               <OverlayTrigger
                                 placement="top"
-                                overlay={<Tooltip>Delete</Tooltip>}>
+                                overlay={<Tooltip>Delete</Tooltip>}
+                              >
                                 <a
                                   href="#"
-                                  className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${row.total_minutes <= 0 ? "disabled" : ""
+                                  className={`btn btn-icon btn-sm btn-secondary d-flex justify-content-center align-items-center ${row.total_minutes > 0 ? "disabled" : ""
                                     }`}
                                   onClick={() => {
-                                    if (row.total_minutes > 0) {
-                                      onDelete(row, rowIndex);
-                                    }
-                                    if (!row?.total_minutes) {
+                                    if (!row.total_minutes || row.total_minutes === 0) {
+                                      // Now delete only if total_minutes === 0
                                       onDelete(row, rowIndex);
                                     }
                                   }}
                                   style={{
-                                    pointerEvents:
-                                      row.total_minutes <= 0 ? "none" : "auto",
-                                    opacity: row.total_minutes <= 0 ? 0.5 : 1,
-                                  }}>
+                                    pointerEvents: row.total_minutes > 0 ? "none" : "auto",
+                                    opacity: row.total_minutes > 0 ? 0.5 : 1,
+                                  }}
+                                >
                                   <i className="ri-delete-bin-line"></i>
                                 </a>
                               </OverlayTrigger>
                             )}
+
 
                             {onCheck && <Form.Check type="checkbox" />}
 

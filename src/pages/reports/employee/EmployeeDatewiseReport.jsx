@@ -206,7 +206,7 @@ const EmployeeDatewiseReport = () => {
             const response = await getTaskByEmployeeId(payload)
             const addSno = response?.data?.data.map((data, index) => ({
                 sno: index + 1,
-               date: "",
+                date: "",
                 ...data
             }))
             setHandleTaskid(addSno)
@@ -275,11 +275,16 @@ const EmployeeDatewiseReport = () => {
                                     {/* // )} */}
                                 </Card.Body>
                             </Card>
-                        </Col>) : (<Card>
-                            <Card.Body className="text-center">
-                                <div className="fs-16 fw-semibold d-flex justify-content-center">No Data Found!</div>
-                            </Card.Body>
-                        </Card>)
+                        </Col>) : (
+                            <Col md={6}>
+                                <Card>
+                                    <Card.Body className="text-center">
+                                        <div className="fs-16 fw-semibold d-flex justify-content-center">No Data Found!</div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+
+                        )
                     }
 
                     {
@@ -340,11 +345,16 @@ const EmployeeDatewiseReport = () => {
                                     </Card>
                                 </Col>
                             </div>
-                        </Col>) : (<Card>
-                            <Card.Body className="text-center">
-                                <div className="fs-16 fw-semibold d-flex justify-content-center">No Data Found!</div>
-                            </Card.Body>
-                        </Card>)
+                        </Col>) : (
+                            <Col md={6}>
+                                <Card>
+                                    <Card.Body className="text-center">
+                                        <div className="fs-16 fw-semibold d-flex justify-content-center">No Data Found!</div>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+
+                        )
                     }
 
                 </>

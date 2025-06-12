@@ -14,7 +14,6 @@ const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );
 
-
 const CreateDocType = () => {
     const [tableData, setTableData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -105,26 +104,38 @@ const CreateDocType = () => {
 
     };
 
-    const handlerEdit = (data, index) => {
-        console.log("dataaaa", data, index, taskFormFileds, initialModelValues)
-        updateEmployeeOptions()
-        console.log("dataaaa", data, index, taskFormFileds, taskFormFileds)
-        const date1 = new Date()
-        setInitialModelValues((prev) => ({
-            ...prev,
-            taskName: data?.task_name || '',
-            employee: data?.assignTo || '',
-            service: data?.service_name || '',
-            client: data?.client_name || date1,
-            assignedDate: data?.assigned_date || date1,
-            targetDate: data?.due_date || '',
-            priority: data?.priority || '',
-            status: data.status || '',
-            task_id: data?.task_id || ''
-        }))
+    const handleSaveEdit = useCallback(async (index, updatedData) => {
 
-        setShowModal(true)
-    }
+
+        try {
+            const payload = {
+                confstypeid: updatedData.id, confsype: updatedData.con_type, status: updatedData.status
+            };
+
+            const response = await editConcession(payload);
+
+            if (response.data.status) {
+                setTableData(prevData =>
+                    prevData.map((row, i) => (i === index ? { ...row, ...updatedData } : row))
+                );
+                fetchConcessionTypeData()
+                Swal.fire({
+                    icon: "success",
+                    title: "Concession Type Edited Successfully!",
+                    confirmButtonText: "OK",
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Failed to Edit Concession Type!",
+                text: error?.response?.data?.message || "Something went wrong while editing the concession type.",
+                confirmButtonText: "OK",
+            });
+        }
+
+        setEditingIndex(null);
+    }, []);
 
     const onDelete = useCallback(async (updatedData, index) => {
         console.log("update dataaa", updatedData);
@@ -202,7 +213,7 @@ const CreateDocType = () => {
                             totalRecords={filteredData.length}
                             handlePageChange={handlePageChange}
                             onDelete={onDelete}
-                            handlerEdit={handlerEdit}
+                            // handlerEdit={handleSaveEdit}
                             showDeleteButton={true}
                             showUpdateButton={true}
 
