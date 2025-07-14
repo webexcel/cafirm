@@ -21,7 +21,8 @@ const CustomForm = ({
   onEdit = false,
   showAddButton = true,
   showUpdateButton = true,
-  inputRef
+  inputRef,
+  dateLimits
 }) => {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -198,6 +199,7 @@ const CustomForm = ({
         return (
           <Button className="btn btn-sm px-5 py-2 mx-auto" onClick={() => { customOnClick(field.value) }}>{field.label}</Button>
         );
+
       case "date":
         return (
           <div
@@ -266,6 +268,34 @@ const CustomForm = ({
             placeholderText="Select Month"
           />
         );
+              case "datebetween":
+        return (
+          <div
+            style={{ position: "relative", display: "inline-block", width: '100%' }}
+          >
+            <DatePicker
+              name={field.name}
+              value={formData[field.name] || ""}
+              selected={formData[field.name] ? new Date(formData[field.name]) : null}
+              onChange={(date) => handleDateChange(date, field.name)}
+              placeholderText={field.placeholder}
+              className="form-control"
+              minDate={dateLimits?.start ? new Date(dateLimits.start) : null}
+              maxDate={dateLimits?.end ? new Date(dateLimits.end) : null}
+            />
+            <FaCalendarAlt
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+                color: "#6c757d",
+              }}
+            />
+          </div>
+        );
+
 
       case "weeklydatepicker":
         return (
@@ -356,13 +386,14 @@ const CustomForm = ({
               }>
               {/* <Form.Label>{field.label}</Form.Label> */}
               {renderField(field)}
-              {errors[field.name] &&
+              <div className="text-danger">{errors[field.name]}</div>
+              {/* {errors[field.name] &&
                 (console.log(errors, "test"),
                   (
                     <Form.Control.Feedback type="invalid">
                       {errors[field.name]}
                     </Form.Control.Feedback>
-                  ))}
+                  ))} */}
             </Form.Group>
           </Col>
         ))}
@@ -393,3 +424,5 @@ const CustomForm = ({
 };
 
 export default CustomForm;
+
+

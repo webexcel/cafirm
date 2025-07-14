@@ -218,7 +218,7 @@ const AddPermissions = () => {
                 resetForm();
                 Swal.fire("Success", `Permission ${permissionId ? 'updated' : 'added'} successfully!`, "success").then(
                     () => {
-                        navigate("/permissions");
+                        navigate("/roles");
                         fetchPermissions();
                     }
                 );
@@ -363,7 +363,7 @@ const AddPermissions = () => {
             setAssignData([]);
             Swal.fire("Success", "Permission assigned successfully!", "success").then(
                 () => {
-                    navigate("/permissions");
+                    navigate("/roles");
                 }
             );
         } catch (err) {

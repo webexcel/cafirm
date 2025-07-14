@@ -100,7 +100,7 @@ const ClientTimeSheet = () => {
                 value: item.client_id,
                 label: item.client_name,
               }));
-              console.log("Mapped Client Options:", clientOptions);
+              // console.log("Mapped Client Options:", clientOptions);
               return { ...field, options: [{ value: "All", label: "All" }, ...clientOptions] };
             } else {
               console.error("Client data response is not an array or is empty.");

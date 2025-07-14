@@ -395,8 +395,6 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 		const theme = store.getState();
 		let element = event.target;
 
-		console.log("tedtttttt", menuItems, MENUITEMS)
-
 		// if ((window.screen.availWidth <= 992 || theme.dataNavStyle != "icon-hover") && (window.screen.availWidth <= 992 || theme.dataNavStyle != "menu-hover")) {
 		if ((theme.dataNavStyle != "icon-hover" && theme.dataNavStyle != "menu-hover") || (window.innerWidth < 992) || (theme.dataNavLayout != "horizontal") && (theme.toggled != "icon-hover-closed" || theme.toggled != "menu-hover-closed")) {
 			for (const item of MENUITEMS) {
@@ -542,8 +540,8 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	}
 
 	const setHeaderInstance = () => {
-
 		const cleanPath = location.pathname.replace(/\/$/, "");
+		console.log("testtttttttttttttttttt : ", cleanPath, menuItems);
 
 		const findpathheader = menuItems
 			.flatMap((item) => {
@@ -561,23 +559,21 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 		onHeaderTitleChange(findpathheader || "");
 
 		const findSideMenuList = menuItems.map((item) => {
-			if (item.child) {
+			if (item.children) {
 				let hasActiveChild = false;
-		         console.log("item.child",item.child,cleanPath)
-				const setChildren = item.child.map((children) => {
-					if (children.path === cleanPath) {
-						console.log("children",children)
+				const updatedChildren = item.children.map((child) => {
+					if (child.path === cleanPath) {
 						hasActiveChild = true;
-						return { ...children, active: true, selected: true };
+						return { ...child, active: true, selected: true };
 					}
-					return children;
+					return child;
 				});
-		
+
 				return {
 					...item,
-					active: hasActiveChild, // Parent should only be active if a child is active
+					active: hasActiveChild,
 					selected: hasActiveChild,
-					child: setChildren // Use 'child' instead of 'children' to match original key
+					children: updatedChildren
 				};
 			} else {
 				if (item.path === cleanPath) {
@@ -586,15 +582,13 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				return item;
 			}
 		});
-		
-		console.log("findSideMenuList", findSideMenuList);
-		
 
+		// Use this updated menu list if needed in state
+		// setMenuItems(findSideMenuList);
 	};
 
-
-
 	setHeaderInstance()
+
 	return (
 		<Fragment>
 			<div id="responsive-overlay"

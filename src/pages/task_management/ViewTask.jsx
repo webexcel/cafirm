@@ -130,7 +130,7 @@ const ViewTask = () => {
                                 value: item.client_id,
                                 label: item.client_name,
                             }));
-                            console.log("Mapped Client Options:", [{ value: 'All', label: 'All' }, ...clientOptions]);
+                            // console.log("Mapped Client Options:", [{ value: 'All', label: 'All' }, ...clientOptions]);
                             return { ...field, options: [{ value: 'All', label: 'All' }, ...clientOptions] };
 
                         } else {

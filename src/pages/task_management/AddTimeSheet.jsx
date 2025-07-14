@@ -66,7 +66,7 @@ const AddTimeSheet = () => {
                 value: item.client_id,
                 label: item.client_name,
               }));
-              console.log("Mapped Client Options:", clientOptions);
+              // console.log("Mapped Client Options:", clientOptions);
               setClientData(clientOptions)
               return { ...field, options: clientOptions };
 
@@ -195,7 +195,7 @@ const AddTimeSheet = () => {
               value: item.service_id,
               label: item.service_name,
             }));
-            console.log("Mapped Client Options:", serviceOptions);
+            // console.log("Mapped Client Options:", serviceOptions);
             // setServiceData(serviceOptions)
             return { ...field, options: serviceOptions };
           } else {

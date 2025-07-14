@@ -13,22 +13,9 @@ import desktoplogo from "../../../assets/images/brand-logos/desktop-logo.jpg";
 import togglelogo from "../../../assets/images/brand-logos/toggle-logo.png";
 import desktopdark from "../../../assets/images/brand-logos/desktop-dark.jpg";
 import toggledark from "../../../assets/images/brand-logos/toggle-dark.png";
-import spainflag from "../../../assets/images/flags/spain_flag.jpg";
-import usflag from "../../../assets/images/flags/us_flag.jpg";
-import frenchflag from "../../../assets/images/flags/french_flag.jpg";
-import germanyflag from "../../../assets/images/flags/germany_flag.jpg";
-import russiaflag from "../../../assets/images/flags/russia_flag.jpg";
-import italyflag from "../../../assets/images/flags/italy_flag.jpg";
-import media34 from "../../../assets/images/media/media-34.jpg";
-import media35 from "../../../assets/images/media/media-35.jpg";
-import media36 from "../../../assets/images/media/media-36.jpg";
-import faces16 from "../../../assets/images/faces/16.jpg";
 import faces1 from "../../../assets/images/faces/1.jpg";
-import faces9 from "../../../assets/images/faces/9.jpg";
-import faces6 from "../../../assets/images/faces/6.jpg";
-import faces14 from "../../../assets/images/faces/14.jpg";
-import faces11 from "../../../assets/images/faces/11.jpg";
 import { usePermission } from "../../../contexts";
+import UserAvatar from "./getBackgroundColor";
 
 const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 
@@ -318,7 +305,7 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 									<i className="bx bx-menu header-link-icon"></i>
 								</span>
 							</Link>
-						
+
 							<div className="d-flex align-items-center justify-content-center px-2 header-title-container">
 								<h5 className="fw-medium mb-0" style={{ color: '#fff' }}>
 									{headerTitle}
@@ -339,7 +326,26 @@ const Header = ({ local_varaiable, ThemeChanger, headerTitle }) => {
 							<Dropdown.Toggle variant='' as="a" className="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
 								<div className="d-flex align-items-center">
 									<div className="d-sm-flex wd-100p">
-										<div className="avatar avatar-sm"><img alt="avatar" className="rounded-circle" src={userdata?.photo || faces1} /></div>
+										{/* <div className="avatar avatar-sm"><img
+											alt="avatar"
+											className="rounded-circle"
+											src={
+												userdata?.photo &&
+													userdata.photo.trim() !== '' &&
+													userdata.photo !== 'null' &&
+													userdata.photo !== 'undefined'
+													? userdata.photo
+													: faces1
+											}
+											onError={(e) => {
+												e.target.onerror = null; // prevent infinite loop
+												e.target.src = faces1;   // fallback image
+											}}
+										/></div> */}
+										<div>
+											<UserAvatar user={userdata} />
+										</div>
+
 										<div className="ms-2 my-auto d-none d-xl-flex">
 											<h6 className=" font-weight-semibold mb-0 fs-13 user-name d-sm-block d-none">{userdata?.name || 'UnKnown User'}</h6>
 										</div>

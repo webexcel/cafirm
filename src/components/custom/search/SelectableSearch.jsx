@@ -23,7 +23,9 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
     }, [searchTerm, data, isFocused]);
 
     useEffect(() => {
-        onSearch(filteredResults);
+        if (typeof onSearch === "function") {
+            onSearch(filteredResults);
+        }
     }, [filteredResults, onSearch]);
 
     useEffect(() => {
@@ -56,9 +58,10 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
             );
         } else if (e.key === "Enter" && activeIndex >= 0) {
             const selectedItem = filteredResults[activeIndex];
-            setSearchTerm(selectedItem.name);
+            setSearchTerm(selectedItem[listkey] || "");
             setIsFocused(false);
             setActiveIndex(-1);
+            getUserData(selectedItem);
         }
     };
 
@@ -97,7 +100,7 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
                 style={{
                     borderRadius: "4px",
                     height: "38px",
-                    paddingRight: "30px",  // Make space for the "X" button
+                    paddingRight: "30px",
                 }}
             />
 
@@ -112,7 +115,6 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
                 }}
             ></i>
 
-            {/* Clear button */}
             {searchTerm && (
                 <i
                     className="bi bi-x position-absolute"
@@ -124,7 +126,7 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
                         color: "#6c757d",
                         cursor: "pointer",
                     }}
-                    onClick={() => setSearchTerm("")}  // Clear the search term
+                    onClick={() => setSearchTerm("")}
                 ></i>
             )}
 
@@ -142,12 +144,9 @@ const SelectableSearch = ({ data, onSearch, getUserData, listkey, keybadge }) =>
                         <li
                             key={item.id || index}
                             className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center ${activeIndex === index ? "active" : ""}`}
-                            style={{
-                                cursor: "pointer",
-                                height: '40px'
-                            }}
+                            style={{ cursor: "pointer", height: '40px' }}
                             onClick={() => {
-                                setSearchTerm(`${item?.name || item?.client_name || ''}`);
+                                setSearchTerm(`${item?.[listkey] || ''}`);
                                 setIsFocused(false);
                                 getUserData(item);
                                 setActiveIndex(-1);

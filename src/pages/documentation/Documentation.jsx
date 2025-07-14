@@ -19,6 +19,7 @@ import { getDocumentType } from "../../service/masterDetails/createDocument";
 import Search from "../../components/common/search/Search";
 import axios from "axios";
 import { getToken } from "../../utils/authUtils";
+import { copyTextToClipboard } from "../../utils/generalUtils";
 
 
 const Documentation = () => {
@@ -27,6 +28,7 @@ const Documentation = () => {
   const [formFields, setFormFields] = useState(CreateDocumentationField);
   const [clientdata, setClientData] = useState([])
   const [servicedata, setServiceData] = useState([])
+
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Task", accessor: "task_name", editable: false },
@@ -68,7 +70,7 @@ const Documentation = () => {
                 value: item.client_id,
                 label: item.client_name,
               }));
-              console.log("Mapped Client Options:", clientOptions);
+              // console.log("Mapped Client Options:", clientOptions);
               setClientData(clientOptions)
               return { ...field, options: clientOptions };
 
@@ -104,15 +106,45 @@ const Documentation = () => {
 
   const getHandlerDoc = async () => {
     try {
-      const response = await getDocumentsService()
-      console.log("Document data : ", response)
-      setTableData(response?.data?.data || [])
-      setFilteredData(response?.data?.data || [])
+      const response = await getDocumentsService();
+      console.log("Document data:", response);
+
+      let childIdCounter = 1;
+      let docIdCounter = 1;
+
+      const processedData = response?.data?.data?.map((item, itemIndex) => {
+        const itemId = `item-${itemIndex + 1}`;
+
+        const processedChilds = item.childs?.map((child) => {
+          const childId = `child-${childIdCounter++}`;
+
+          const processedDocs = child.documents?.map((doc) => ({
+            ...doc,
+            id: `doc-${docIdCounter++}`,
+            clipboard: false,
+          })) || [];
+
+          return {
+            ...child,
+            id: childId,
+            documents: processedDocs,
+          };
+        }) || [];
+
+        return {
+          ...item,
+          id: itemId,
+          childs: processedChilds,
+        };
+      });
+
+      console.log("Processed Data with IDs:", processedData);
+      setTableData(processedData || []);
+      setFilteredData(processedData || []);
+    } catch (error) {
+      console.error("Error occurred while getting document data:", error.stack);
     }
-    catch (error) {
-      console.log("Error Occures while getting document data : ", error.stack)
-    }
-  }
+  };
 
   useEffect(() => {
     getHandlerDoc()
@@ -192,7 +224,7 @@ const Documentation = () => {
               value: item.service_id,
               label: item.service_name,
             }));
-            console.log("Mapped Client Options:", serviceOptions);
+            // console.log("Mapped Client Options:", serviceOptions);
             // setServiceData(serviceOptions)
             return { ...field, options: serviceOptions };
           } else {
@@ -253,7 +285,6 @@ const Documentation = () => {
     }
 
   };
-
 
   const onDelete = useCallback(async (updatedData, index) => {
     console.log("update dataaa", updatedData, index);
@@ -352,7 +383,55 @@ const Documentation = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const copyClipboard = (targetDoc) => {
+    console.log("Copy target document: ", targetDoc);
 
+    if (!targetDoc?.doc_url) {
+      Swal.fire("Error", "No URL to copy.", "error");
+      return;
+    }
+
+    copyTextToClipboard(targetDoc.doc_url)
+      .then(() => {
+        // Set clipboard true for only the copied document
+        const updated = filteredData.map(client => ({
+          ...client,
+          childs: client.childs.map(child => ({
+            ...child,
+            documents: child.documents.map(doc => ({
+              ...doc,
+              clipboard: doc.id === targetDoc.id, // Set true only for matched doc
+            }))
+          }))
+        }));
+
+        setFilteredData(updated);
+        setTableData(updated);
+
+        Swal.fire("Copied!", "URL has been copied to clipboard.", "success");
+
+        // Reset clipboard flag after 2.5 seconds
+        setTimeout(() => {
+          const reset = updated.map(client => ({
+            ...client,
+            childs: client.childs.map(child => ({
+              ...child,
+              documents: child.documents.map(doc => ({
+                ...doc,
+                clipboard: false
+              }))
+            }))
+          }));
+
+          setFilteredData(reset);
+          setTableData(reset);
+        }, 2500);
+      })
+      .catch((err) => {
+        console.error("Copy failed: ", err);
+        Swal.fire("Error", "Failed to copy to clipboard.", "error");
+      });
+  };
 
 
   return (
@@ -392,7 +471,12 @@ const Documentation = () => {
             </Card.Header>
             <Card.Body className="overflow-auto">
               <Suspense fallback={<Loader />}>
-                <DocumentationTreeTable data={filteredData} onDelete={onDelete} downloadFile={handleDownload} />
+                <DocumentationTreeTable
+                  data={filteredData}
+                  onDelete={onDelete}
+                  downloadFile={handleDownload}
+                  copyClipboard={copyClipboard}
+                />
               </Suspense>
             </Card.Body>
           </Card>

@@ -97,4 +97,40 @@ function formatDateToReadable(dateStr) {
     return `${day} ${month} ${year}`;
 }
 
-export { getISOWeekNumber, formatMinutesToHours, formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl, exportToExcel, formatDateToYYYYMMDD,formatDateToReadable };
+function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        // Modern approach
+        return navigator.clipboard.writeText(text);
+    } else {
+        // Fallback for older browsers
+        return new Promise((resolve, reject) => {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+
+                // Avoid scrolling to bottom
+                textArea.style.position = "fixed";
+                textArea.style.top = 0;
+                textArea.style.left = 0;
+                textArea.style.opacity = 0;
+
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                if (successful) {
+                    resolve();
+                } else {
+                    reject(new Error('Fallback: Copy command was unsuccessful'));
+                }
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+}
+
+export { getISOWeekNumber, copyTextToClipboard, formatMinutesToHours, formatDate, getTimeDifferenceInMinutes, createImage, convertToBase64, formatDateIntl, exportToExcel, formatDateToYYYYMMDD, formatDateToReadable };

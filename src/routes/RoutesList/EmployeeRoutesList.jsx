@@ -5,6 +5,7 @@ const CreateUserAccount = React.lazy(() => import("../../pages/employee_manageme
 export const EmployeeRoutesList = {
     "childRoutes": [
         { path: "createEmployee", element: <CreateEmployee /> },
+        { path: "vieweditprofile/:id", element: <ViewEditProfileEmp /> },
         { path: "vieweditprofile", element: <ViewEditProfileEmp /> },
         { path: "createuseraccount", element: <CreateUserAccount /> },
     ]

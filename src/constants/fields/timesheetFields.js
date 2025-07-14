@@ -16,15 +16,13 @@ export const ViewEmpTimeSheetField = [
     options: [],
     required: true,
   },
-
   {
     name: "date",
     label: "Date",
     placeholder: "Select Date",
-    type: "date",
+    type: "date",   // 👈 new type - datebetween!
     required: true,
   },
-
   {
     name: "time",
     label: "Time",

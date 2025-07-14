@@ -7,7 +7,7 @@ const useForm = (initialState, validate) => {
 
   // Handle input change
   const handleInputChange = async (e, fieldName) => {
-    console.log('eeeeeeeee', e, fieldName);
+    // console.log('eeeeeeeee', e, fieldName);
     if (fieldName === 'upload_doc') {
       const file = e.target.files[0];
       const base64 = await convertToBase64(file);
@@ -89,7 +89,7 @@ const useForm = (initialState, validate) => {
   };
 
   const setFieldValue = (key, value) => {
-    console.log("key value: ", key, value)
+    // console.log("key value: ", key, value)
     setFormData((prev) => ({
       ...prev,
       [key]: value

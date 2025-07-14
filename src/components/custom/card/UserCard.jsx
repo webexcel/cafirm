@@ -3,6 +3,7 @@ import { Button, Form } from "react-bootstrap";
 import { FaCheck, FaTimes, FaCalendarAlt, FaCamera } from "react-icons/fa";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import userProfile from '../../../assets/images/brand-logos/desktop-logo.png';
 import { formatDate } from "../../../utils/generalUtils";
 import ImageRoundedCropper from '../../custom/cropper/ImageRoundedCropper';
@@ -23,21 +24,33 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
 
     const handleEditClick = (field) => {
         setEditingField(field);
-        setTempValue(data[field] || "");
+        const fieldType = fields.find(f => f.key === field)?.type?.toLowerCase();
+        if (fieldType === "date") {
+            setTempValue(data[field] ? new Date(data[field]) : null);
+        } else {
+            setTempValue(data[field] || "");
+        }
     };
 
     const handleChange = (e) => {
         setTempValue(e.target.value);
     };
 
-    const handleSelectChange = (e) => {
-        const formattedDate = formatDate(e);
-        setTempValue(formattedDate);
+    const handleSelectChange = (date) => {
+        setTempValue(date);
     };
 
     const handleSave = () => {
+        if (!editingField) return;
+        const fieldType = fields.find(f => f.key === editingField)?.type?.toLowerCase();
+
+        let valueToSave = tempValue;
+        if (fieldType === "date") {
+            valueToSave = tempValue ? formatDate(tempValue) : "";
+        }
+
         if (onFieldUpdate) {
-            onFieldUpdate(editingField, tempValue, data);
+            onFieldUpdate(editingField, valueToSave, data);
         }
         setEditingField(null);
     };
@@ -95,7 +108,7 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                     <div className="d-flex align-items-center mb-3" key={item.key}>
                         <div className="position-relative" style={{ cursor: isUserDataEmpty ? 'default' : 'pointer' }}>
                             <img
-                                src={data?.photo}
+                                src={data?.photo || userProfile}
                                 alt={"Profile"}
                                 className="rounded-circle"
                                 width="65"
@@ -150,9 +163,8 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                                 {type.toLowerCase() === "list" ? (
                                     <Select
                                         name={key}
-                                        options={data[key] === "1" ? [{ label: "Super Admin", value: '1' }, ...options] : options || []}
-                                        value={String(data[key]) === "1" ? "Super Admin" :
-                                            options.find(option => String(option.value) === String(data[key])) || null}
+                                        options={options || []}
+                                        value={options.find(option => String(option.value) === String(data[key])) || null}
                                         id={key}
                                         className="w-100"
                                         menuPlacement="auto"
@@ -165,7 +177,18 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                                         selected={tempValue}
                                         onChange={handleSelectChange}
                                         placeholderText="Select date"
+                                        dateFormat="yyyy-MM-dd"
                                         className="form-control"
+                                        isClearable
+                                    />
+                                ) : type.toLowerCase() === "textarea" ? (
+                                    <Form.Control
+                                        as="textarea"
+                                        name={key}
+                                        value={tempValue}
+                                        onChange={handleChange}
+                                        size="sm"
+                                        className="w-100"
                                     />
                                 ) : (
                                     <Form.Control
@@ -194,9 +217,9 @@ const UserCard = ({ userData, onFieldUpdate, fields = [] }) => {
                             >
                                 <span className="fw-normal">
                                     {type.toLowerCase() === "list"
-                                        ? String(data[key]) === "1" ? "Super Admin" : options.find(option => String(option.value) === String(data[key]))?.label || "Empty"
+                                        ? options.find(option => String(option.value) === String(data[key]))?.label || "Empty"
                                         : type.toLowerCase() === "date"
-                                            ? formatDate(data[key])
+                                            ? data[key] ? formatDate(data[key]) : "Empty"
                                             : data[key] || "Empty"}
                                 </span>
                             </div>

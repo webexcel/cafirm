@@ -24,7 +24,10 @@ const AddTimeSheet = () => {
   const [formFields, setFormFields] = useState(ViewEmpTimeSheetField);
   const { permissions, getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
-
+  const [selectedTaskLimits, setSelectedTaskLimits] = useState({
+    start: '',
+    end: ''
+  })
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
@@ -149,6 +152,12 @@ const AddTimeSheet = () => {
           const employeeresponse = await getTaskByEmployee(payload);
 
           console.log("Task API Response:", employeeresponse.data.data);
+          // const filterData = employeeresponse.data.data.find((data) =>Number(data.task_id))
+          // setSelectedTaskLimits((prev) => ({
+          //   start: '',
+          //   end: '',
+          //   ...prev
+          // }))
 
           const updatedFormFields = await formFields.map((field) => {
 
@@ -290,12 +299,13 @@ const AddTimeSheet = () => {
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
                   btnText={'Submit'}
+                  showAddButton={true}
                   // showAddButton={permissionFlags?.showCREATE}
                   // showUpdateButton={permissionFlags?.showUPDATE}
-                  showAddButton={true}
                   showUpdateButton={true}
-
+                  dateLimits={selectedTaskLimits}
                 />
+
 
               </Col>
             </Card.Body>

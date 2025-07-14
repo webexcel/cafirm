@@ -216,26 +216,40 @@ const WeeklyTimeSheet = () => {
 
     const getWeeklyData = async (emp_id, selecteddate) => {
         console.log("getWeeklyData called with emp_id:", emp_id, "and selecteddate:", selecteddate);
+
+        // 🟢 Always clear previous data first so old data doesn't show
+        setInitialList([]);
+        setWeeklyAllData([]);
+        setWeeklyTotal({});
+
         try {
             const userData = JSON.parse(Cookies.get('user'));
-            console.log("formData", emp_id, selecteddate)
             const date = selecteddate;
             const weekid = getISOWeekNumber(date);
             const yearid = date.getFullYear();
             setFieldValue("weekly_id", date);
             const payload = {
                 emp_id: emp_id || userData?.employee_id || '',
-                "week_id": weekid,
-                "year": yearid
+                week_id: weekid,
+                year: yearid
             };
+            console.log("API payload:", payload);
             const response = await viewWeeklyTimesheet(payload);
-            setWeeklyData(response?.data?.data);
-            console.log("response", response);
-            if (response?.data?.status) {
-                formatTimesheetData(response?.data?.data);
+            console.log("API response:", response);
+            if (response?.data?.status && Array.isArray(response?.data?.data) && response?.data?.data.length > 0) {
+                setWeeklyData(response.data.data);
+                formatTimesheetData(response.data.data);
+            } else {
+                Swal.fire("No Data", "No weekly data found for this employee in the selected week.", "warning");
+                console.log("No timesheet data returned for selected employee/week.");
+                // setWeeklyData([]);
+                setInitialList([]);
+                setWeeklyAllData([]);
+                setWeeklyTotal({});
             }
         } catch (error) {
-            console.log("Error fetching weekly data:", error);
+            console.error("Error fetching weekly data:", error);
+            Swal.fire("Error", "Failed to load weekly timesheet data.", "error");
         }
     };
 
@@ -246,11 +260,18 @@ const WeeklyTimeSheet = () => {
 
     useEffect(() => {
         const userData = JSON.parse(Cookies.get('user'));
-        // if (Number(userData?.role) !== 1) {
+        if (Number(userData?.role) !== 1) {
             getWeeklyData(userData?.employee_id, today);
-        // }
+        }
+        else {
+            const date = today;
+            setFieldValue("weekly_id", date);
+        }
+        const currentWeek = getWeeklyDateRange();
+        console.log("Current Week:", currentWeek);
+        setWeeklyDate(currentWeek);
         const permissionFlags = getOperationFlagsById(13, 3); // paren_id , sub_menu id
-        console.log(permissionFlags, '---permissionFlags',today);
+        console.log(permissionFlags, '---permissionFlags', today);
         setPermissionFlags(permissionFlags);
 
     }, []);
@@ -325,7 +346,6 @@ const WeeklyTimeSheet = () => {
         }
 
     };
-
 
     const isPastOrToday = (day) => {
         const numericDay = Number(day);
@@ -547,3 +567,5 @@ const WeeklyTimeSheet = () => {
 };
 
 export default WeeklyTimeSheet;
+
+

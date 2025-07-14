@@ -9,6 +9,7 @@ import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddClientsField } from "../../constants/fields/clinetsFields";
 import { addClient, deleteClient, getClient } from "../../service/client_management/createClientServices";
 import { usePermission } from "../../contexts";
+import { useNavigate } from "react-router-dom";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
@@ -33,6 +34,7 @@ const AddManageClient = () => {
     { header: "Phone No", accessor: "phone", editable: true },
     { header: "Actions", accessor: "Actions", editable: false },
   ];
+  const navigate = useNavigate();
 
 
   // Initialize form state from field definitions
@@ -166,6 +168,10 @@ const AddManageClient = () => {
 
   }, []);
 
+   const handlerEdit = async (data) => {
+    console.log("data: ", data)
+    navigate(`/ViewEditProfiles/${data?.client_id}`);
+  }
   return (
     <Fragment>
       <Row>
@@ -201,6 +207,7 @@ const AddManageClient = () => {
               handlePageChange={handlePageChange}
               onDelete={onDelete}
               // onEdit={onEdit}
+              handlerEdit={handlerEdit}
               showDeleteButton={permissionFlags?.showDELETE}
               showUpdateButton={permissionFlags?.showUPDATE}
             />

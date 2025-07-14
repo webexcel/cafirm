@@ -1,156 +1,189 @@
-
-import React, { Fragment, useState, useEffect, Suspense } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import SelectableSearch from "../../components/custom/search/SelectableSearch";
 import UserCard from "../../components/custom/card/UserCard";
 import Swal from "sweetalert2";
 import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { getPermissionsList } from "../../service/configuration/permissions";
+import { getEmployee } from "../../service/employee_management/createEmployeeService";
 
 const ViewEditProfileEmp = () => {
+  const { id } = useParams();
+
+  // List of all employees (for search)
   const [employeesData, setEmployeesData] = useState([]);
+
+  // Selected employee for search component
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  // Single employee data for profile form
   const [employeeData, setEmployeeData] = useState({
-    "employee_id": "",
-    "name": "",
-    "email": "",
-    "password": "",
-    "phone": "",
-    "role": "",
-  })
+    employee_id: "",
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "",
+    photo: "",
+  });
+
+  // Form fields including role options
   const [fields, setFields] = useState([
     { key: "name", label: "Name", type: "text" },
-    {
-      key: "role", label: "Employee Role", type: "list",
-      options: [],
-    },
+    { key: "role", label: "Employee Role", type: "list", options: [] },
     { key: "employee_id", label: "Employee ID", type: "Number" },
     { key: "email", label: "Email", type: "email" },
     { key: "phone", label: "Contact", type: "number" },
-    { key: "photo", label: "photo", type: "text" },
-  ])
-  const [searchParams] = useSearchParams();
-  const empid = searchParams.get("id");
+    { key: "photo", label: "Photo", type: "text" },
+  ]);
 
-  const getEmpData = async (item) => {
-    console.log("Item : ", item)
-    try {
-      const payload = {
-        "id": item?.employee_id || ""
-      }
-      const response = await getEmployeeDetails(payload)
-      const userData = response.data.data[0]
-      console.log("User data : ", userData)
-      setEmployeeData(prev => ({
-        ...prev,
-        email: userData?.email,
-        password: userData?.password_hash,
-        employee_id: userData?.employee_id,
-        name: userData?.name,
-        phone: userData?.phone,
-        role: userData?.role,
-        photo: userData?.photo
-      }))
-      console.log("Response : ", response)
-    }
-    catch (err) {
-      console.log("Error occurs while getting employee data : ", err.stack)
-      Swal.fire("Error", err.response?.data?.message || "Failed to get employee data.", "error");
-
-    }
-  }
-
+  // ---------------------------
+  // 1️⃣ Load list of employees + role options
+  // ---------------------------
   useEffect(() => {
-    console.log("params check : ", empid)
-    if (empid) {
-      const payload = { employee_id: empid };
-      getEmpData(payload);
-    }
-  }, [empid]);
-
-  useEffect(() => {
-    const fetchInitiallyData = async () => {
-      const userData = JSON.parse(Cookies.get('user'));
-      const payload = { "emp_id": userData?.employee_id || '' };
-
+    const fetchInitialData = async () => {
       try {
-        const [employeeDataRes, permissionDataRes] = await Promise.all([
+        const userData = JSON.parse(Cookies.get('user') || "{}");
+        const payload = { emp_id: userData?.employee_id || '' };
+
+        const [employeeListRes, permissionListRes] = await Promise.all([
           getEmployeesByPermission(payload),
           getPermissionsList()
         ]);
-        console.log("employeeData", employeeDataRes, "permissionData", permissionDataRes, "field", fields)
-        const addSno = await employeeDataRes.data.data.map((data, index) => ({
+
+        // Add serial number
+        const employeeList = employeeListRes.data.data.map((emp, index) => ({
           sno: index + 1,
-          ...data
-        }))
-        setEmployeesData(addSno)
-        const updatedFormFields = fields.map((field) => {
-          if (field.key === "role") {
-            console.log("field.name", field.key)
-            if (Array.isArray(permissionDataRes.data.data) && permissionDataRes.data.data.length > 0) {
-              const employeeRoleOptions = permissionDataRes.data.data.map((item) => ({
-                value: item.permission_id,
-                label: item.permission_name,
-              }));
-              console.log("Mapped Employee Role Options:", employeeRoleOptions);
-              return { ...field, options: employeeRoleOptions };
-            } else {
-              console.error("Employee role data response is not an array or is empty.");
-            }
-          }
-          return field;
-        });
-        setFields(updatedFormFields);
-        console.log("fieldsfieldsfields", fields)
+          ...emp
+        }));
+        setEmployeesData(employeeList);
+
+        // Add role options
+        const roleOptions = permissionListRes.data.data.map((item) => ({
+          value: item.permission_id,
+          label: item.permission_name,
+        }));
+        setFields((prevFields) =>
+          prevFields.map((field) =>
+            field.key === "role" ? { ...field, options: roleOptions } : field
+          )
+        );
+
       } catch (error) {
-        console.error("Unexpected error in fetchInitiallyData:", error);
+        console.error("Error in fetchInitialData:", error);
+        Swal.fire("Error", "Failed to load initial data.", "error");
       }
     };
 
-    fetchInitiallyData();
+    fetchInitialData();
   }, []);
 
-  const handleFieldUpdate = async (key, value, userData, type) => {
-    console.log("Checkk : ", key, value, userData)
+  // ---------------------------
+  // 2️⃣ Load selected employee by route param
+  // ---------------------------
+  useEffect(() => {
+    if (id) {
+      const fetchEmployeeById = async () => {
+        try {
+          const response = await getEmployee();
+          const foundEmployee = response.data.data.find(
+            (emp) => String(emp.employee_id) === String(id)
+          );
+
+          if (foundEmployee) {
+            setSelectedEmployee(foundEmployee);   // Sets it as selected in search
+            getEmpData(foundEmployee);            // Loads full details
+          } else {
+            Swal.fire("Not Found", "Employee not found.", "warning");
+          }
+        } catch (error) {
+          console.error("Error fetching employee by ID:", error);
+          Swal.fire("Error", "Failed to load employee details.", "error");
+        }
+      };
+
+      fetchEmployeeById();
+    }
+  }, [id]);
+
+  // ---------------------------
+  // 3️⃣ Load employee detail for editing
+  // ---------------------------
+  const getEmpData = async (item) => {
+    if (!item?.employee_id) return;
 
     try {
-      const payload = {
-        "id": userData?.employee_id,
-        "key": key,
-        "value": value
+      const payload = { id: item.employee_id };
+      const response = await getEmployeeDetails(payload);
+      const userData = response.data.data[0];
+
+      if (!userData) {
+        Swal.fire("Error", "Employee details not found.", "error");
+        return;
       }
-      const response = await editEmployeeDetails(payload)
+
+      setEmployeeData({
+        employee_id: userData.employee_id || "",
+        name: userData.name || "",
+        email: userData.email || "",
+        password: userData.password_hash || "",
+        phone: userData.phone || "",
+        role: userData.role || "",
+        photo: userData.photo || "",
+      });
+
+      setSelectedEmployee(item);  // Keep selected in search
+
+    } catch (error) {
+      console.error("Error getting employee data:", error);
+      Swal.fire("Error", error?.response?.data?.message || "Failed to get employee data.", "error");
+    }
+  };
+
+  // ---------------------------
+  // 4️⃣ Handle profile field update
+  // ---------------------------
+  const handleFieldUpdate = async (key, value, userData) => {
+    try {
+      const payload = {
+        id: userData?.employee_id,
+        key,
+        value
+      };
+
+      const response = await editEmployeeDetails(payload);
+
       if (!response.data.status) {
         Swal.fire("Error", response?.data?.message || "Failed to edit employee data.", "error");
+        return;
       }
+
       Swal.fire("Updated!", "Employee data updated successfully.", "success");
-      setEmployeeData(prev => ({
+
+      setEmployeeData((prev) => ({
         ...prev,
         [key]: value,
-      }))
+      }));
+
+      // If photo updates, also update cookie
       if (key === "photo") {
-        const userDataCookies = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
-        if (userDataCookies && userData?.employee_id === userDataCookies.employee_id) {
-          console.log("Profile changing test:", userData);
-          const data = {
-            ...userDataCookies,
-            photo: userData.photo
-          };
-
-          Cookies.set('user', JSON.stringify(data));
+        const userCookie = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
+        if (userCookie && userData?.employee_id === userCookie.employee_id) {
+          Cookies.set('user', JSON.stringify({ ...userCookie, photo: value }));
         }
-
-        console.log("userData:", userData, "userDataCookies:", userDataCookies);
       }
 
+    } catch (error) {
+      console.error("Error updating employee data:", error);
+      Swal.fire("Error", error?.response?.data?.message || "Failed to edit employee data.", "error");
     }
-    catch (err) {
-      Swal.fire("Error", err.response?.data?.message || "Failed to edit employee data.", "error");
-      console.log("Error occurs while update employee data : ", err.stack)
-    }
-  }
+  };
 
+  // ---------------------------
+  // Render
+  // ---------------------------
   return (
     <Fragment>
       <Row>
@@ -163,8 +196,10 @@ const ViewEditProfileEmp = () => {
                     listkey="name"
                     keybadge=""
                     data={employeesData}
+                    value={selectedEmployee}
                     onSearch={(results) => console.log("Filtered:", results)}
-                    getUserData={(item) => getEmpData(item)} />
+                    getUserData={getEmpData}
+                  />
                 </Col>
               </Row>
             </Card.Body>
@@ -172,13 +207,14 @@ const ViewEditProfileEmp = () => {
         </Col>
       </Row>
 
-
       <Row>
-        <Col md={6} >
+        <Col md={6}>
           <Card className="custom-card">
             <Card.Body>
-              <UserCard userData={employeeData} fields={fields}
-                onFieldUpdate={(key, value, userData) => handleFieldUpdate(key, value, userData, "")}
+              <UserCard
+                userData={employeeData}
+                fields={fields}
+                onFieldUpdate={handleFieldUpdate}
               />
             </Card.Body>
           </Card>

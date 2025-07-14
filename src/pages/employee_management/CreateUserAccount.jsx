@@ -20,6 +20,7 @@ import {
 import { usePermission } from "../../contexts";
 import { getEmployeesNotPassword, getUserAccounts, updatePassword } from "../../service/employee_management/UserAccountService";
 import { getPermissionsList } from "../../service/configuration/permissions";
+import Search from "../../components/common/search/Search";
 
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
@@ -29,6 +30,7 @@ const CreateUserAccount = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(15);
   const [filteredData, setFilteredData] = useState([]);
+  const [tableData, setTableData] = useState([]);
   const [formFields, setFormFields] = useState(CreateUserAccountFields);
   const { getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
@@ -90,6 +92,7 @@ const CreateUserAccount = () => {
       }));
       // setTableData(formattedData);
       setFilteredData(formattedData);
+      setTableData(formattedData);
     } catch (error) {
       console.log("Error occurs while getting employee table data: ", error.stack);
     }
@@ -137,7 +140,7 @@ const CreateUserAccount = () => {
       try {
 
         const { password, employee } = formData;
-      
+
         const payload = {
           password,
           id: employee,
@@ -190,6 +193,13 @@ const CreateUserAccount = () => {
             setTableData(newFilteredData);
             return newFilteredData;
           });
+          setTableData((prevData) => {
+            const newFilteredData = prevData
+              .filter((item, ind) => ind !== index)
+              .map((item, ind) => ({ ...item, sno: ind + 1 }));
+            setTableData(newFilteredData);
+            return newFilteredData;
+          });
 
           Swal.fire("Deleted!", "Employee deleted successfully.", "success");
         }
@@ -226,6 +236,28 @@ const CreateUserAccount = () => {
       </Row>
 
       <Card className="custom-card p-3">
+        <Card.Title className="d-flex">
+          <div className="d-flex justify-content-between
+                                                                            border-bottom border-block-end-dashed w-100 pb-3"
+          >
+            <div className="w-25 px-1">
+              <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+            </div>
+            <div className="d-flex gap-4 align-items-end">
+              {/* <Button
+                        onClick={async () => {
+                          const { exportToExcel } = await import('../../utils/generalUtils')
+                          exportToExcel(filteredData, 'Task_list')
+                        }}
+                        type="button"
+                        variant="primary"
+                        className="btn btn-wave btn-sm me-3 p-2">
+                        Export Excel
+                      </Button> */}
+            </div>
+          </div>
+
+        </Card.Title>
         <Card.Body className="overflow-auto">
           <Suspense fallback={<Loader />}>
             <CustomTable

@@ -14,6 +14,8 @@ const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
 import Cookies from 'js-cookie';
+import Search from "../../components/common/search/Search";
+import { useNavigate } from "react-router-dom";
 
 const CreateEmployee = () => {
   const [tableData, setTableData] = useState([]);
@@ -23,6 +25,7 @@ const CreateEmployee = () => {
   const [formFields, setFormFields] = useState(AddEmployeeField);
   const { permissions, getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
+  const navigate = useNavigate();
 
   const columns = [
     { header: "Emp ID", accessor: "employee_id", editable: false },
@@ -53,9 +56,7 @@ const CreateEmployee = () => {
       }))
       setTableData(addSno)
       setFilteredData(addSno)
-
       const permissionFlags = getOperationFlagsById(3, 1); // paren_id , sub_menu id      
-      
       setPermissionFlags(permissionFlags);
 
     }
@@ -68,41 +69,41 @@ const CreateEmployee = () => {
     getEmployeeData()
   }, [])
 
-   const fetchEmployeeData = async () => {
-      try {
-        const userPermissionData = await getPermissionsList()
-        const updatedFormFields = AddEmployeeField.map((field) => {  
-          if (field.name === "emprole") {
-            if (Array.isArray(userPermissionData.data.data) && userPermissionData.data.data.length > 0) {
-              const employeeRoleOptions = userPermissionData.data.data.map((item) => ({
-                value: item.permission_id,
-                label: item.permission_name,
-              }));
-              return { ...field, options: employeeRoleOptions };
-            } else {
-              console.error("Employee role data response is not an array or is empty.");
-            }
+  const fetchEmployeeData = async () => {
+    try {
+      const userPermissionData = await getPermissionsList()
+      const updatedFormFields = AddEmployeeField.map((field) => {
+        if (field.name === "emprole") {
+          if (Array.isArray(userPermissionData.data.data) && userPermissionData.data.data.length > 0) {
+            const employeeRoleOptions = userPermissionData.data.data.map((item) => ({
+              value: item.permission_id,
+              label: item.permission_name,
+            }));
+            return { ...field, options: employeeRoleOptions };
+          } else {
+            console.error("Employee role data response is not an array or is empty.");
           }
-          return field;
-        });
-        setFormFields(updatedFormFields);
-        const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
-        // console.log(permissionFlags, '---permissionFlags');
-        setPermissionFlags(permissionFlags);
-      } catch (err) {
-        console.error("Error fetching employee data:", err);
-      }
-    };
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
+      const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+      // console.log(permissionFlags, '---permissionFlags');
+      setPermissionFlags(permissionFlags);
+    } catch (err) {
+      console.error("Error fetching employee data:", err);
+    }
+  };
 
-      useEffect(() => {
-        const fetchInitial = async () => {
-          await Promise.all([
-            getEmployeeData(),
-            fetchEmployeeData()
-          ]);
-        };
-        fetchInitial();
-      }, []);
+  useEffect(() => {
+    const fetchInitial = async () => {
+      await Promise.all([
+        getEmployeeData(),
+        fetchEmployeeData()
+      ]);
+    };
+    fetchInitial();
+  }, []);
 
   // Handle pagination
   const handlePageChange = (pageNumber) => {
@@ -126,7 +127,7 @@ const CreateEmployee = () => {
     });
     if (result.isConfirmed) {
       try {
-        const { name,email, phone,emprole } = formData;
+        const { name, email, phone, emprole } = formData;
         const userData = JSON.parse(Cookies.get('user'))
         const payload = {
           "name": name,
@@ -151,7 +152,7 @@ const CreateEmployee = () => {
 
   };
 
-  const onDelete = useCallback(async (updatedData, index) => {  
+  const onDelete = useCallback(async (updatedData, index) => {
     const result = await Swal.fire({
       title: "Are you sure about removing the employee?",
       text: "You won't be able to revert this!",
@@ -161,12 +162,12 @@ const CreateEmployee = () => {
       cancelButtonText: "No, cancel!",
       reverseButtons: true,
     });
-  
+
     if (result.isConfirmed) {
       try {
         const payload = { id: updatedData?.employee_id || '' };
         const response = await deleteEmployee(payload);
-        
+
         if (response.data.status) {
           // Use functional state update to get the latest state
           setFilteredData(prevData => {
@@ -176,7 +177,7 @@ const CreateEmployee = () => {
             setTableData(newFilteredData);
             return newFilteredData;
           });
-  
+
           Swal.fire("Deleted!", response?.data?.message || "Employee deleted successfully.", "success");
         }
       } catch (error) {
@@ -185,12 +186,18 @@ const CreateEmployee = () => {
     }
   }, [filteredData]);
 
+  const handlerEdit = async (data) => {
+    console.log("data: ", data)
+    navigate(`/vieweditprofile/${data?.employee_id}`);
+  }
+
   return (
     <Fragment>
       <Row>
         <Col xl={12}>
           <Card className="custom-card">
             <Card.Body>
+
               <Col xl={12}>
                 <CustomForm
                   formFields={formFields}
@@ -209,6 +216,28 @@ const CreateEmployee = () => {
       </Row>
 
       <Card className="custom-card p-3">
+        <Card.Title className="d-flex">
+          <div className="d-flex justify-content-between
+                                                                    border-bottom border-block-end-dashed w-100 pb-3"
+          >
+            <div className="w-25 px-1">
+              <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+            </div>
+            <div className="d-flex gap-4 align-items-end">
+              {/* <Button
+                onClick={async () => {
+                  const { exportToExcel } = await import('../../utils/generalUtils')
+                  exportToExcel(filteredData, 'Task_list')
+                }}
+                type="button"
+                variant="primary"
+                className="btn btn-wave btn-sm me-3 p-2">
+                Export Excel
+              </Button> */}
+            </div>
+          </div>
+
+        </Card.Title>
         <Card.Body className="overflow-auto">
           <Suspense fallback={<Loader />}>
             <CustomTable
@@ -219,6 +248,7 @@ const CreateEmployee = () => {
               totalRecords={filteredData.length}
               handlePageChange={handlePageChange}
               onDelete={onDelete}
+              handlerEdit={handlerEdit}
               showDeleteButton={permissionFlags?.showDELETE}
               showUpdateButton={permissionFlags?.showUPDATE}
             />

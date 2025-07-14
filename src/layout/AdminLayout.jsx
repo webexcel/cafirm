@@ -25,40 +25,25 @@ const AdminLayout = () => {
    * 
    * @param {string} title - The new title to display in the header.
    */
+
   const handleHeaderTitleChange = useCallback((title) => {
     setHeaderTitle(title);
-    console.log('title', title);
-  }, [setHeaderTitle]);
+    useDocumentTitle(title);
+  }, []);
 
 
-  /**
-   * Simulate a loading state for the component using `setTimeout`.
-   * The loading state will be set to `false` after 200ms.
-   */
   useEffect(() => {
-    console.log("MENUITEMS : ",MENUITEMS)
-    MENUITEMS.map((data) => {
-      if (data.children) {
 
-      }
-      else {
-        if (data.title) {
-          handleHeaderTitleChange(data.title)
-          console.log("else part", data)
-        }
-      }
-    })
+    // Simulate loading state
     const simulateLoading = setTimeout(() => {
       setLoading(false);
     }, 200);
 
-
-    return () => clearTimeout(simulateLoading); // Cleanup timeout on component unmount
-
+    return () => clearTimeout(simulateLoading);
   }, []);
 
   //Call the custom hook to set the document title to "Dashboard"
-  useDocumentTitle(headerTitle);
+
   return (
     <>
       {loading ? (
