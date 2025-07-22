@@ -7,7 +7,7 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddTimeSheetField } from "../../constants/fields/taskFields";
 import { getClient } from "../../service/client_management/createClientServices";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import { getEmployee, getPartners } from "../../service/employee_management/createEmployeeService";
 import { getService } from "../../service/masterDetails/serviceApi";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
@@ -56,6 +56,7 @@ const AddTimeSheet = () => {
         const clientresponse = await getClient();
         // const serviceresponse = await getService()
         const employeeresponse = await getEmployee();
+        const partnerresponse = await getPartners();
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
 
@@ -86,8 +87,21 @@ const AddTimeSheet = () => {
             } else {
               console.error("Employee data response is not an array or is empty.");
             }
-
           }
+          if (field.name === "partner") {
+            if (Array.isArray(partnerresponse.data.data) && partnerresponse.data.data.length > 0) {
+              const partnerOptions = partnerresponse.data.data.map((item) => ({
+                value: item.id,
+                label: item.name,
+              }));
+              console.log("Mapped Partner Options:", partnerOptions);
+              return { ...field, options: partnerOptions };
+            } else {
+              console.error("Partner data response is not an array or is empty.");
+            }
+          }
+
+
           return field;
         });
         setFormFields(updatedFormFields);
@@ -233,7 +247,7 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, employee, priority, task, startdate, end } = formData;
+        const { client, service, description, employee, priority, task, startdate, end, partner } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
         console.log("servicedata", servicedata)
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
@@ -241,6 +255,7 @@ const AddTimeSheet = () => {
         console.log("clientval", clientval)
         console.log("serviceval", serviceval)
         const payload = {
+          "partnerId": partner || "",
           "client": client || '',
           "name": task || '',
           "service": service || '',

@@ -16,12 +16,12 @@ export const AddTimeSheetField = [
     options: [],
     required: true,
   },
-
   {
-    name: "task",
-    label: "Task",
-    placeholder: "Enter Task",
-    type: "text",
+    name: "partner",
+    label: "Partner",
+    placeholder: "Select Partner",
+    type: "searchable_dropdown",
+    options: [],
     required: true,
   },
 
@@ -65,6 +65,13 @@ export const AddTimeSheetField = [
       { value: "Medium", label: "Medium" },
       { value: "Critical", label: "Critical" },
     ],
+    required: true,
+  },
+  {
+    name: "task",
+    label: "Task",
+    placeholder: "Enter Task",
+    type: "text",
     required: true,
   },
 ];

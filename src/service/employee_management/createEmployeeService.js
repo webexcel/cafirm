@@ -16,3 +16,7 @@ export const deleteEmployee = async (data) => {
 export const createUserAccount = async (data) => {
   return await endpoint.post(`${mainUrl.EMPLOYEE}/addUserAccount`, data);
 };
+
+export const getPartners = async () => {
+  return await endpoint.get(`${mainUrl.SERVICETASK}/getPartners`);
+};

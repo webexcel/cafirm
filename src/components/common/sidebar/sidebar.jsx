@@ -540,52 +540,35 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	}
 
 	const setHeaderInstance = () => {
-		const cleanPath = location.pathname.replace(/\/$/, "");
-		console.log("testtttttttttttttttttt : ", cleanPath, menuItems);
+		// Normalize the current path: remove trailing slashes and convert to lowercase
+		const cleanPath = location.pathname.replace(/\/+$/, "").toLowerCase();
 
-		const findpathheader = menuItems
+		// Safeguard: ensure menuItems is loaded
+		if (!menuItems || menuItems.length === 0) {
+			onHeaderTitleChange("");
+			return;
+		}
+
+		// Search for a matching title from menuItems
+		const findTitle = menuItems
 			.flatMap((item) => {
-				if (item.children) {
+				if (item.children && Array.isArray(item.children)) {
+					// Check inside submenus
 					return item.children
-						.filter((child) => child.path === cleanPath)
+						.filter((child) => (child.path || "").toLowerCase() === cleanPath)
 						.map((child) => child.title);
-				} else if (item.path === cleanPath) {
-					return item.title;
+				} else if ((item.path || "").toLowerCase() === cleanPath) {
+					// Direct match
+					return [item.title];
 				}
 				return [];
 			})
-			.find(Boolean);
-
-		onHeaderTitleChange(findpathheader || "");
-
-		const findSideMenuList = menuItems.map((item) => {
-			if (item.children) {
-				let hasActiveChild = false;
-				const updatedChildren = item.children.map((child) => {
-					if (child.path === cleanPath) {
-						hasActiveChild = true;
-						return { ...child, active: true, selected: true };
-					}
-					return child;
-				});
-
-				return {
-					...item,
-					active: hasActiveChild,
-					selected: hasActiveChild,
-					children: updatedChildren
-				};
-			} else {
-				if (item.path === cleanPath) {
-					return { ...item, active: true, selected: true };
-				}
-				return item;
-			}
-		});
-
-		// Use this updated menu list if needed in state
-		// setMenuItems(findSideMenuList);
+			.find(Boolean); // get the first non-falsy title
+		console.log("testtt title :", findTitle)
+		// Update the header
+		onHeaderTitleChange(findTitle || "");
 	};
+
 
 	setHeaderInstance()
 
