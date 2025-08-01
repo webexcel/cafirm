@@ -597,7 +597,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 						</svg></div>
 
 						<ul className="main-menu" onClick={() => Sideclick()}>
-							{MENUITEMS.map((levelone) => (
+							{menuItems.map((levelone) => (
 								<Fragment key={Math.random()}>
 									<li className={`${levelone.menutitle ? "slide__category" : ""} ${levelone.type === "link" ? "slide" : ""}
                        ${levelone.type === "sub" ? "slide has-sub" : ""} ${levelone?.active ? "open" : ""} ${levelone?.selected ? "active" : ""}`}>
