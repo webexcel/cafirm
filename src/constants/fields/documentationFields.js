@@ -9,9 +9,9 @@ export const CreateDocumentationField = [
   },
 
   {
-    name: "type",
-    label: "Type",
-    placeholder: "Select Type",
+    name: "task",
+    label: "Task",
+    placeholder: "Select Task",
     type: "dropdown",
     options: [],
     required: true,

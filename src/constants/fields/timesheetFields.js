@@ -89,7 +89,7 @@ export const WeeklyTimeSheetField = [
     type: "weeklydatepicker",
     options: [],
     required: false,
-    disable: true,
+    disable: false,
     collength: 12,
   },
 ];

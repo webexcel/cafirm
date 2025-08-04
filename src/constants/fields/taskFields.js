@@ -41,6 +41,14 @@ export const AddTimeSheetField = [
     required: true,
   },
   {
+    name: "year",
+    label: "Year",
+    placeholder: "Select Year",
+    type: "searchable_dropdown",
+    options: [],
+    required: true,
+  },
+  {
     name: "startdate",
     label: "Date",
     placeholder: "Select Start Date",

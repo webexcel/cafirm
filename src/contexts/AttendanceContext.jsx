@@ -94,6 +94,7 @@ export const AttendanceProvider = ({ children }) => {
 
             const response = await addAttendanceLogin(payload);
             if (response.data.status) {
+                console.log("response.data.data :", response.data.data)
                 setCurrentId(response.data.data);
                 setIsRunning(true);
             }

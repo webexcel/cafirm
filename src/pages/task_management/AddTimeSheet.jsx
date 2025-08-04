@@ -13,6 +13,7 @@ import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
 import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 import { usePermission } from "../../contexts";
+import { getYearList } from "../../service/masterDetails/createFinYear";
 
 
 const AddTimeSheet = () => {
@@ -54,9 +55,9 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
-        // const serviceresponse = await getService()
         const employeeresponse = await getEmployee();
         const partnerresponse = await getPartners();
+        const yearresponse = await getYearList();
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
 
@@ -67,14 +68,12 @@ const AddTimeSheet = () => {
                 value: item.client_id,
                 label: item.client_name,
               }));
-              // console.log("Mapped Client Options:", clientOptions);
               setClientData(clientOptions)
               return { ...field, options: clientOptions };
 
             } else {
               console.error("Client data response is not an array or is empty.");
             }
-
           }
           if (field.name === "employee") {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
@@ -88,6 +87,7 @@ const AddTimeSheet = () => {
               console.error("Employee data response is not an array or is empty.");
             }
           }
+
           if (field.name === "partner") {
             if (Array.isArray(partnerresponse.data.data) && partnerresponse.data.data.length > 0) {
               const partnerOptions = partnerresponse.data.data.map((item) => ({
@@ -101,6 +101,18 @@ const AddTimeSheet = () => {
             }
           }
 
+          if (field.name === "year") {
+            if (Array.isArray(yearresponse.data.data) && yearresponse.data.data.length > 0) {
+              const yearOption = yearresponse.data.data.map((item) => ({
+                value: item.id,
+                label: item.year,
+              }));
+              console.log("Mapped Year Options:", yearOption);
+              return { ...field, options: yearOption };
+            } else {
+              console.error("Partner data response is not an array or is empty.");
+            }
+          }
 
           return field;
         });
@@ -247,7 +259,7 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, employee, priority, task, startdate, end, partner } = formData;
+        const { client, service, description, employee, priority, task, startdate, end, partner, year } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
         console.log("servicedata", servicedata)
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
@@ -264,6 +276,7 @@ const AddTimeSheet = () => {
           "dueDate": end || new Date(),
           "priority": priority || '',
           "description": description || '',
+          "year_id": year || ""
         }
         const response = await addTask(payload);
         if (!response.data.status) {

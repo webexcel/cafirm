@@ -8,14 +8,14 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 60000,
   },
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'https://caf.webexcel.in',
-  //       changeOrigin: true,
-  //       secure: false,
-  //       rewrite: path => path.replace(/^\/api/, '')
-  //     }
-  //   }
-  // }
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://caf.webexcel.in',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path.replace(/^\/api/, '')
+      }
+    }
+  }
 });

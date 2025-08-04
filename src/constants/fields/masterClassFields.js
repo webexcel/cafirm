@@ -17,6 +17,17 @@ export const CreateServiceFields = [
   },
 ];
 
+export const CreateFinYearFields = [
+  {
+    name: "year",
+    label: "Year",
+    placeholder: "Enter Year",
+    type: "text",
+    required: true,
+  },
+
+];
+
 export const CreateDocTypeFields = [
   {
     name: "type",

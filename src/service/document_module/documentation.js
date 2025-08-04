@@ -12,3 +12,7 @@ export const addDocument = async (data) => {
 export const deleteDocument = async (data) => {
   return await endpoint.post(`${mainUrl.DOCUMENT}/deleteDocument`, data);
 };
+
+export const getTasksByClient = async (data) => {
+  return await endpoint.post(`${mainUrl.TASK}/getTasksByClient`, data);
+};

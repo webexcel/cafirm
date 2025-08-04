@@ -15,7 +15,7 @@ import { usePermission } from "../../../contexts";
 const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	const { menuItems } = usePermission();
 	const [menuitems, setMenuitems] = useState(MENUITEMS);
-	console.log(menuItems, '---menuItemscontext');
+	// console.log(menuItems, '---menuItemscontext');
 
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {

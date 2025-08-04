@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Col, Row, Button } from "react-bootstrap";
-import WeeklyCalenderLabel from './CalenderLabel';
 import CustomForm from "../../components/custom/form/CustomForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import useForm from "../../hooks/useForm";
@@ -15,6 +14,8 @@ import DateLabel from "./DateLabel";
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
 import { getISOWeekNumber } from "../../utils/generalUtils";
+import Loader from "../../components/common/loader/loader";
+import LoaderCon from "../../components/common/loader/loadercon";
 
 const ModalTimesheetField = [
     {
@@ -40,8 +41,9 @@ const WeeklyTimeSheet = () => {
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
     const [showModal, setShowModal] = useState(false);
+    const [isDataEmpty, setIsDataEmpty] = useState(false)
     const inputRef = useRef();
-
+    const [loader, setLoader] = useState(false)
     const validationSchema = Yup.object({
     });
 
@@ -68,24 +70,21 @@ const WeeklyTimeSheet = () => {
         const fetchFieldOptionData = async () => {
             try {
                 const employeeresponse = await getEmployee();
-                console.log("Employee API Response:", employeeresponse);
                 const updatedFormFields = WeeklyTimeSheetField.map((field) => {
                     if (field.name === "employee") {
-                        console.log("Inner.....")
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                             const userData = JSON.parse(Cookies.get('user'));
-                            console.log("userData111111111111111", userData);
-                            if (userData?.role !== "1" & userData?.role !== "2") {
+                            if (Number(userData?.role) !== 1 || Number(userData?.role) !== 2) {
                                 setFieldValue("employee", userData.employee_id);
                                 console.log("userData11", userData);
                             }
-                            console.log("userDatauserDatauserData", userData)
+                            else {
+                                setFieldValue("employee", "");
+                            }
                             const employeeOptions = employeeresponse.data.data.map((item) => ({
                                 value: item.employee_id,
                                 label: item.name,
                             }));
-                            console.log("Mapped Employee:", userData, field,
-                                employeeOptions);
                             return {
                                 ...field,
                                 options: employeeOptions,
@@ -110,13 +109,22 @@ const WeeklyTimeSheet = () => {
     function getWeeklyDateRange(date = new Date()) {
         const today = new Date(date);
         const dayOfWeek = today.getDay();
+
+        // Clone today's date and go back to the most recent Sunday
         const lastSunday = new Date(today);
         lastSunday.setDate(today.getDate() - dayOfWeek);
 
         const weekDates = [];
+
         for (let i = 0; i < 7; i++) {
-            let currentDate = new Date(lastSunday);
-            currentDate.setDate(lastSunday.getDate() + i);
+            const currentDate = new Date(lastSunday);
+            currentDate.setDate(lastSunday.getDate() + i); // Do NOT mutate original 'lastSunday'
+
+            // Validate currentDate
+            if (isNaN(currentDate.getTime())) {
+                console.warn("Invalid date at index", i);
+                continue; // Skip this loop if date is invalid
+            }
 
             const isToday =
                 currentDate.getDate() === today.getDate() &&
@@ -131,8 +139,20 @@ const WeeklyTimeSheet = () => {
                 fullDate: currentDate.toISOString().split('T')[0]
             });
         }
+
         return weekDates;
     }
+
+
+    useEffect(() => {
+        console.log("formData.weekly_id :", formData.weekly_id)
+        if (formData.weekly_id) {
+            const date = new Date(formData.weekly_id)
+            const selectedWeek = getWeeklyDateRange(date)
+            setWeeklyDate(selectedWeek)
+            console.log("selectedWeek : ", selectedWeek)
+        }
+    }, [formData.weekly_id])
 
     const addTime = (time1, time2) => {
         if (!time1) return time2;
@@ -149,7 +169,6 @@ const WeeklyTimeSheet = () => {
     };
 
     const formatTimesheetData = (timesheetData) => {
-        console.log("Timesheet Data:", timesheetData);
         const currentWeek = getWeeklyDateRange();
         console.log("Current Week:", currentWeek);
         setWeeklyDate(currentWeek);
@@ -187,12 +206,6 @@ const WeeklyTimeSheet = () => {
             return filterHeadData.some((key) => dataItem[key] !== null);
         });
 
-        console.log("filteredTaskData", filteredTaskData);
-
-        console.log("filteredData", filterHeadData)
-
-        console.log("formatdataaaaaaaaaaaaaaaaa", formattedData)
-
         const mergedData = formattedData.reduce((acc, curr) => {
             Object.keys(curr).forEach((key) => {
                 if (!isNaN(key)) {
@@ -208,7 +221,8 @@ const WeeklyTimeSheet = () => {
         console.log("Formatted Data:", formattedData, mergedData);
         const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
         const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
-        setInitialList(formattedData)
+        setIsDataEmpty(formattedData.length === 0 ? false : true)
+        setInitialList([])
         console.log("dateKeys", orderedHeaders, weeklyAllDate)
         setHeaderData(orderedHeaders);
 
@@ -216,7 +230,7 @@ const WeeklyTimeSheet = () => {
 
     const getWeeklyData = async (emp_id, selecteddate) => {
         console.log("getWeeklyData called with emp_id:", emp_id, "and selecteddate:", selecteddate);
-
+        setLoader(true)
         // 🟢 Always clear previous data first so old data doesn't show
         setInitialList([]);
         setWeeklyAllData([]);
@@ -239,6 +253,7 @@ const WeeklyTimeSheet = () => {
             if (response?.data?.status && Array.isArray(response?.data?.data) && response?.data?.data.length > 0) {
                 setWeeklyData(response.data.data);
                 formatTimesheetData(response.data.data);
+                setLoader(false)
             } else {
                 Swal.fire("No Data", "No weekly data found for this employee in the selected week.", "warning");
                 console.log("No timesheet data returned for selected employee/week.");
@@ -246,10 +261,15 @@ const WeeklyTimeSheet = () => {
                 setInitialList([]);
                 setWeeklyAllData([]);
                 setWeeklyTotal({});
+                setLoader(false)
             }
         } catch (error) {
             console.error("Error fetching weekly data:", error);
+            setLoader(false)
             Swal.fire("Error", "Failed to load weekly timesheet data.", "error");
+        }
+        finally {
+            setLoader(false)
         }
     };
 
@@ -370,12 +390,17 @@ const WeeklyTimeSheet = () => {
     const handleAdd = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+        setLoader(true)
         try {
             console.log("formData", new Date(formData).getDay());
             getWeeklyData(formData?.employee, formData?.weekly_id);
         } catch (err) {
+            setLoader(false)
             console.error("Error while get weekly timesheet data:", err.stack);
             Swal.fire("Error", err.response?.data?.message || "Failed to get weekly timesheet data.", "error");
+        }
+        finally {
+            setLoader(false)
         }
 
     };
@@ -461,7 +486,7 @@ const WeeklyTimeSheet = () => {
                             ))}
                         </tr>
 
-                        {weeklyAllData.length > 0 && (
+                        {initialList.length !== 0 && (
                             <tr className="bg-light">
                                 {headerData.map((header, index) => {
                                     const isFixedWidth = ["task_id", "task_name"].includes(header) ? "5%" : "auto";
@@ -477,7 +502,7 @@ const WeeklyTimeSheet = () => {
                     </thead>
 
                     <tbody>
-                        {initialList.length > 0 ? (
+                        {isDataEmpty ? (
                             <>
                                 {initialList.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="text-center">
@@ -543,9 +568,14 @@ const WeeklyTimeSheet = () => {
                             </>
                         ) : (
                             <tr>
-                                <td colSpan={weeklydates.length + 2} className="text-center text-muted p-4">
-                                    No weekly data found
-                                </td>
+                                {
+                                    loader ? (<LoaderCon />) : (
+                                        <td colSpan={weeklydates.length + 2} className="text-center text-muted p-4">
+                                            {loader ? (<LoaderCon />) : "No weekly data found"}
+                                        </td>
+                                    )
+                                }
+
                             </tr>
                         )}
                     </tbody>

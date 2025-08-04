@@ -5,13 +5,12 @@ import CustomForm from "../../components/custom/form/CustomForm";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { getClient } from "../../service/client_management/createClientServices";
-import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
-import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
+import { getServicesForTask } from "../../service/task_management/createTaskServices";
 import { usePermission } from "../../contexts";
 import { CreateDocumentationField } from "../../constants/fields/documentationFields";
 import DocumentationTreeTable from "./DocumentationTreeTable";
-import { addDocument, deleteDocument, getDocumentsService } from "../../service/document_module/documentation";
+import { addDocument, deleteDocument, getDocumentsService, getTasksByClient } from "../../service/document_module/documentation";
 import { getDocumentType } from "../../service/masterDetails/createDocument";
 import Search from "../../components/common/search/Search";
 import axios from "axios";
@@ -57,13 +56,6 @@ const Documentation = () => {
             })) || [];
             setClientData(clientOptions);
             return { ...field, options: clientOptions };
-          }
-          if (field.name === "type") {
-            const typeOptions = typeresponse?.data?.data?.map((item) => ({
-              value: item.id,
-              label: item.type_name,
-            })) || [];
-            return { ...field, options: typeOptions };
           }
           return field;
         });
@@ -111,23 +103,25 @@ const Documentation = () => {
 
   useEffect(() => {
     if (formData.client) {
-      setFieldValue("service", "");
-      formData.task = "";
-      const fetchClientOptionData = async () => {
+      const fetchTaskData = async () => {
         try {
-          const clientresponse = await getClient();
-          const client = clientresponse?.data?.data?.find(
-            (element) => Number(formData.client) === Number(element.client_id)
-          );
-          if (client) {
-            setFieldValue("task", `${client.display_name || ""}-${formData.task}`);
-            getServiceDataByClient();
-          }
+          const response = await getTasksByClient({ client_id: formData.client });
+          const updatedFormFields = formFields.map((field) => {
+            if (field.name === "task") {
+              const taskOptions = response?.data?.data?.map((item) => ({
+                value: item.task_id,
+                label: item.task_name,
+              })) || [];
+              return { ...field, options: taskOptions };
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
         } catch (error) {
-          console.error("Error fetching client data:", error);
+          console.error("Error loading services:", error);
         }
       };
-      fetchClientOptionData();
+      fetchTaskData();
     }
   }, [formData.client]);
 
@@ -135,17 +129,20 @@ const Documentation = () => {
     if (formData.service) {
       const fetchServiceData = async () => {
         try {
-          const serviceresponse = await getService();
-          const service = serviceresponse?.data?.data?.find(
-            (element) => Number(formData.service) === Number(element.service_id)
-          );
-          if (service) {
-            const taskValidation = formData.task.split("-");
-            const taskPrefix = taskValidation.length > 1 ? taskValidation[0] : formData.task;
-            setFieldValue("task", `${taskPrefix}-${service.service_short_name}`);
-          }
+          const response = await getServicesForTask({ client_id: formData.client });
+          const updatedFormFields = formFields.map((field) => {
+            if (field.name === "service") {
+              const serviceOptions = response?.data?.data?.map((item) => ({
+                value: item.service_id,
+                label: item.service_name,
+              })) || [];
+              return { ...field, options: serviceOptions };
+            }
+            return field;
+          });
+          setFormFields(updatedFormFields);
         } catch (error) {
-          console.error("Error fetching service data:", error);
+          console.error("Error loading services:", error);
         }
       };
       fetchServiceData();
@@ -190,7 +187,7 @@ const Documentation = () => {
         const payload = {
           client_id: formData?.client || "",
           description: formData?.description || "",
-          type_id: formData?.type || "",
+          task_id: formData?.task || "",
           doc_name: formData?.doc_name || "",
           doc_base: formData?.upload_doc || "",
         };
