@@ -81,7 +81,7 @@ const TypeRow = ({ typeNode, level, onDelete, index, downloadFile, copyClipboard
     <>
       <tr onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
         <td style={{ paddingLeft: `${level * 20}px` }}>
-          <i className={`bi ${expanded ? 'bi-caret-down-fill' : 'bi-caret-right-fill'} me-1`} />
+          <i className={`bi ${expanded ? 'bi bi-folder text-warning' : 'bi bi-folder text-warning'} me-1`} />
           <span>{typeNode.task_name}</span>
         </td>
       </tr>
@@ -103,7 +103,7 @@ const ClientRow = ({ client, onDelete, index, downloadFile, copyClipboard }) => 
     <>
       <tr onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
         <td>
-          <i className={`bi ${expanded ? 'bi-caret-down-fill' : 'bi-caret-right-fill'} me-1`} />
+          <i className={`bi ${expanded ? 'bi bi-folder text-warning' : 'bi bi-folder text-warning'} me-1`} />
           <span>{client.client_name}</span>
         </td>
       </tr>

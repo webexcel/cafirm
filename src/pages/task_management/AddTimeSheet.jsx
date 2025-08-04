@@ -26,9 +26,9 @@ const AddTimeSheet = () => {
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Task", accessor: "task_name", editable: false },
-    // { header: "Client", accessor: "client_name", editable: false },
     { header: "Employee", accessor: "assigned_to", editable: false },
     { header: "Service", accessor: "service_name", editable: true },
+    { header: "Fin Year", accessor: "year_name", editable: true },
     { header: "Total Minutes", accessor: "total_minutes", editable: true },
     { header: "Status", accessor: "status_name", editable: true },
     { header: "Priority", accessor: "priority", editable: true },

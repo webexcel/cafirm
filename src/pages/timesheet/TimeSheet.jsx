@@ -32,8 +32,7 @@ const AddTimeSheet = () => {
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
     { header: "Task Name", accessor: "task_name", editable: false },
-    // { header: "Client Name", accessor: "client_name", editable: false },
-    // { header: "Service", accessor: "service_name", editable: true },
+    { header: "Fin Year", accessor: "year_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Time", accessor: "total_time", editable: true },
     // { header: "Actions", accessor: "Actions", editable: false },
@@ -152,13 +151,6 @@ const AddTimeSheet = () => {
           const employeeresponse = await getTaskByEmployee(payload);
 
           console.log("Task API Response:", employeeresponse.data.data);
-          // const filterData = employeeresponse.data.data.find((data) =>Number(data.task_id))
-          // setSelectedTaskLimits((prev) => ({
-          //   start: '',
-          //   end: '',
-          //   ...prev
-          // }))
-
           const updatedFormFields = await formFields.map((field) => {
 
             if (field.name === "task") {
@@ -166,7 +158,11 @@ const AddTimeSheet = () => {
               if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                 const employeeOptions = employeeresponse.data.data.map((item) => ({
                   value: item.task_id,
-                  label: item.task_name,
+                  label: (
+                    <>
+                      {item.task_name} - <p style={{ display: "inline" }} className="text-primary fw-bold">{item.year_name}</p>
+                    </>
+                  )
                 }));
 
                 console.log('employeeOptions : ', employeeOptions, formFields)
@@ -208,6 +204,7 @@ const AddTimeSheet = () => {
 
   // Handle add
   const handleAdd = async (e) => {
+    console.log("Selected form:", formData);
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({

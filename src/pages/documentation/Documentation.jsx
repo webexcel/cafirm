@@ -110,7 +110,12 @@ const Documentation = () => {
             if (field.name === "task") {
               const taskOptions = response?.data?.data?.map((item) => ({
                 value: item.task_id,
-                label: item.task_name,
+                label: (
+                  <>
+                    {item.task_name} - <p style={{ display: "inline"}} className="text-primary fw-bold">{item.year_name}</p>
+                  </>
+                )
+
               })) || [];
               return { ...field, options: taskOptions };
             }

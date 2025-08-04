@@ -170,7 +170,7 @@ const WeeklyTimeSheet = () => {
 
     const formatTimesheetData = (timesheetData) => {
         const currentWeek = getWeeklyDateRange();
-        console.log("Current Week:", currentWeek);
+        console.log("Current Week:", currentWeek, timesheetData);
         setWeeklyDate(currentWeek);
         const formattedData = timesheetData.reduce((acc, item) => {
             const taskKey = item.task_id || "Unknown Task";
@@ -178,7 +178,10 @@ const WeeklyTimeSheet = () => {
             if (!exisitingEntry) {
                 exisitingEntry = {
                     task_id: taskKey,
-                    task_name: item.task_name || "Unknown Task",
+                    task_name: (
+                        <>
+                            {item.task_name} - <p style={{ display: "inline" }} className="text-danger fw-bold">{item.year_name}</p>
+                        </>) || "Unknown Name"
                 }
                 currentWeek.forEach((day) => {
                     exisitingEntry[day.date] = null;
@@ -231,7 +234,6 @@ const WeeklyTimeSheet = () => {
     const getWeeklyData = async (emp_id, selecteddate) => {
         console.log("getWeeklyData called with emp_id:", emp_id, "and selecteddate:", selecteddate);
         setLoader(true)
-        // 🟢 Always clear previous data first so old data doesn't show
         setInitialList([]);
         setWeeklyAllData([]);
         setWeeklyTotal({});
@@ -345,7 +347,6 @@ const WeeklyTimeSheet = () => {
 
             console.log("newList", newList)
 
-            const userData = JSON.parse(Cookies.get('user'));
             const result = {
                 task_id: filterData.task_id,
                 emp_id: formData?.employee,
@@ -392,7 +393,7 @@ const WeeklyTimeSheet = () => {
         if (!validateForm()) return;
         setLoader(true)
         try {
-            console.log("formData", new Date(formData).getDay());
+            // console.log("formData", new Date(formData).getDay());
             getWeeklyData(formData?.employee, formData?.weekly_id);
         } catch (err) {
             setLoader(false)
@@ -413,7 +414,7 @@ const WeeklyTimeSheet = () => {
             ...prev,
             task: initialList.map((item) => ({ label: item.task_name, value: item.task_id }))
         }))
-        console.log("i,nitialModalFields", initialModalFields)
+        console.log("initialModalFieldsssssssssssssssssssssss", initialModalFields, weeklyAllData)
 
         setFormModalFields((prev) =>
             prev.map((field) =>
@@ -425,7 +426,6 @@ const WeeklyTimeSheet = () => {
                     : field
             )
         );
-        // console.log("initialModalFields",initialModalFields,initiallyData,formModalFields)
     }
 
     const handleSubmit = async (values) => {

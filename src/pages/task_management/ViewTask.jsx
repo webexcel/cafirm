@@ -42,9 +42,9 @@ const ViewTask = () => {
 
     const columns = [
         { header: "S No", accessor: "sno", editable: false },
-        // { header: "Client", accessor: "client_name", editable: false },
         { header: "Employee", accessor: "assignTo", editable: false },
         { header: "Task", accessor: "task_name", editable: false },
+        { header: "Fin Year", accessor: "year_name", editable: true },
         { header: "Total Time", accessor: "total_time", editable: true },
         { header: "Priority", accessor: "priority", editable: true },
         { header: "Status", accessor: "status_name", editable: true },
