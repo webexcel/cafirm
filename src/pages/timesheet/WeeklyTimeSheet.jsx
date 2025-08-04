@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { usePermission } from "../../contexts";
 import DateLabel from "./DateLabel";
+
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
 import { getISOWeekNumber } from "../../utils/generalUtils";
@@ -28,6 +29,7 @@ const ModalTimesheetField = [
     },
 ];
 
+
 const WeeklyTimeSheet = () => {
     const [formFields, setFormFields] = useState(WeeklyTimeSheetField);
     const [formModalFields, setFormModalFields] = useState(ModalTimesheetField);
@@ -40,9 +42,11 @@ const WeeklyTimeSheet = () => {
     const [weeklyTotal, setWeeklyTotal] = useState([]);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
+
     const [showModal, setShowModal] = useState(false);
     const [isDataEmpty, setIsDataEmpty] = useState(false)
     const inputRef = useRef();
+
     const [loader, setLoader] = useState(false)
     const validationSchema = Yup.object({
     });
@@ -88,8 +92,10 @@ const WeeklyTimeSheet = () => {
                             return {
                                 ...field,
                                 options: employeeOptions,
+
                                 // disabled: userData?.role !== "1" || userData?.role !== "2" ? true : false,
                                 disabled: !["1", "2"].includes(String(userData?.role)) ? true : false
+
                             };
                         } else {
                             console.error("Employee data response is not an array or is empty.");
@@ -439,6 +445,7 @@ const WeeklyTimeSheet = () => {
         setShowModal(false)
     }
 
+
     return (
         <>
             <Row>
@@ -466,6 +473,7 @@ const WeeklyTimeSheet = () => {
                 <table className="table table-bordered w-100">
                     <thead>
                         <tr>
+
                             <th className="fs-18 fw-bolder text-center" colSpan={2} style={{ width: "12%", borderRight: "none" }}>
                                 <div>
                                     <span className="me-2">
@@ -479,6 +487,7 @@ const WeeklyTimeSheet = () => {
                                     {`Week : ${formData?.weekly_id ? getISOWeekNumber(formData?.weekly_id) : getISOWeekNumber(today)}`}
                                 </span>
                             </th>
+
                             {weeklydates.map((data, index) => (
                                 <th key={index} className="text-center fw-bold" style={{ width: "auto" }}>
                                     <DateLabel {...data} />
@@ -503,6 +512,7 @@ const WeeklyTimeSheet = () => {
 
                     <tbody>
                         {isDataEmpty ? (
+
                             <>
                                 {initialList.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="text-center">
@@ -562,6 +572,7 @@ const WeeklyTimeSheet = () => {
                                             <i className="bi bi-plus-square-fill me-2" style={{ fontSize: "20px" }}></i>
                                             Add Task
                                         </div>
+
                                     </td>
                                 </tr>
 
@@ -581,6 +592,7 @@ const WeeklyTimeSheet = () => {
                     </tbody>
 
                 </table>
+
             </Card>
             <CustomModal
                 show={showModal}
