@@ -10,5 +10,9 @@ export const ForgotPasswordService = async (data) => {
 };
 
 export const ResetPasswordService = async (data) => {
-	return await endpoint.post(`${mainUrl.AUTH}/reset_password`, data);
+  return await endpoint.post(`${mainUrl.AUTH}/reset_password`, data);
+};
+
+export const getUserDetails = async () => {
+  return await endpoint.get(`${mainUrl.AUTH}/getUserDetails`);
 };

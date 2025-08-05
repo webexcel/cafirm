@@ -14,6 +14,7 @@ const CustomTable = React.lazy(() =>
 import Cookies from 'js-cookie';
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { usePermission } from "../../contexts";
+import OverlayLoader from "../../components/common/loader/OverlayLoader";
 
 const AddTimeSheet = () => {
 
@@ -28,6 +29,7 @@ const AddTimeSheet = () => {
     start: '',
     end: ''
   })
+  const [loader, setLoader] = useState(false)
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
@@ -72,17 +74,12 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const userData = JSON.parse(Cookies.get('user'));
-
         const payload = {
           emp_id: userData?.employee_id
         };
         const clientresponse = await getClient();
         const employeeresponse = await getEmployeesByPermission(payload);
-        console.log("Client API Response 111111111111111111111:", clientresponse);
-        console.log("Employee API Response:", employeeresponse);
-
         const updatedFormFields = ViewEmpTimeSheetField.map((field) => {
-
           if (field.name === "client") {
             if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
               const clientOption = clientresponse.data.data.map((item) => ({
@@ -140,6 +137,7 @@ const AddTimeSheet = () => {
   useEffect(() => {
 
     if (formData.employee) {
+      setLoader(true)
       const fetchClientOptionData = async () => {
         console.log('formm data', formData)
         try {
@@ -166,11 +164,13 @@ const AddTimeSheet = () => {
                 }));
 
                 console.log('employeeOptions : ', employeeOptions, formFields)
+                setLoader(false) 
                 return {
                   ...field,
                   options: employeeOptions
                 };
               } else {
+                setLoader(false)
                 console.error("Student data response is not an array or is empty.");
               }
             }
@@ -180,6 +180,7 @@ const AddTimeSheet = () => {
           console.log("Mapped Student Options:", formFields);
 
         } catch (error) {
+          setLoader(false)
           console.error("Error fetching Student data:", error);
         }
       };
@@ -243,47 +244,9 @@ const AddTimeSheet = () => {
 
   };
 
-  // const onDelete = useCallback(async (updatedData, index) => {
-  //   console.log("update dataaa", updatedData)
-  //   const result = await Swal.fire({
-  //     title: "Are you sure about delete timesheet?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, delete it!",
-  //     cancelButtonText: "No, cancel!",
-  //     reverseButtons: true,
-  //   });
-  //   if (result.isConfirmed) {
-  //     try {
-  //       const payload = { id: updatedData.time_sheet_id };
-  //       const response = await deleteTimeSheet(payload);
-  //       if (response.data.status) {
-  //         setFilteredData((prevFilteredData) =>
-  //           prevFilteredData
-  //             .filter((item, ind) => ind !== index)
-  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
-  //         );
-
-  //         setTableData((prevTableData) =>
-  //           prevTableData
-  //             .filter((item, ind) => ind !== index)
-  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
-  //         );
-
-  //         Swal.fire("Deleted!", response?.data?.message || "Timesheet deleted successfully.", "success");
-  //       }
-  //     } catch (error) {
-  //       Swal.fire("Error", error.response?.data?.message || "Failed to delete time sheet.", "error");
-  //     }
-
-  //   }
-
-  // }, []);
-
-
   return (
     <Fragment>
+      <OverlayLoader loading={loader} />
       <Row>
         <Col xl={12}>
           <Card className="custom-card">

@@ -30,7 +30,6 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 
 	useEffect(() => {
 		window.addEventListener("resize", menuResizeFn);
-		console.log("testtt side menuuuuuuuuuu")
 	}, []);
 
 	const location = useLocation();
@@ -564,7 +563,7 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 				return [];
 			})
 			.find(Boolean); // get the first non-falsy title
-		console.log("testtt title :", findTitle)
+		// console.log("testtt title :", findTitle)
 		// Update the header
 		onHeaderTitleChange(findTitle || "");
 	};

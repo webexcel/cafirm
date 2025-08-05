@@ -8,24 +8,6 @@ export const TaskModalFields = [
     disable: false,
     collength: 12,
   },
-  //   {
-  //     name: "client",
-  //     label: "Client",
-  //     placeholder: "Select Client",
-  //     type: "text",
-  //     required: true,
-  //     disable: true,
-  //     collength : 12
-  //   },
-  //   {
-  //     name: "service",
-  //     label: "Service",
-  //     placeholder: "Select Service",
-  //     type: "text",
-  //     required: true,
-  //     disable: true,
-  //     collength : 12
-  //   },
   {
     name: "employee",
     label: "Employee",

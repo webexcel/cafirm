@@ -101,6 +101,7 @@ const CustomForm = ({
             options={field.options}
             isSearchable
             placeholder={`Select ${field.label}`}
+            isDisabled={field.disable || false}
           />
         );
 

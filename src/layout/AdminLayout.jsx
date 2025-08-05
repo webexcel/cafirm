@@ -3,6 +3,8 @@ import { Outlet } from "react-router-dom";
 import { MENUITEMS } from "../components/common/sidebar/sidemenu";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import { AttendanceProvider } from "../contexts";
+import { deepEqual, getUserCookie, updateUserCookie } from "../utils/authUtils";
+import { getUserData } from "../utils/adminUtils";
 
 // Lazy-loaded components
 const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop"));
@@ -30,6 +32,17 @@ const AdminLayout = () => {
     setHeaderTitle(title);
     useDocumentTitle(title);
   }, []);
+
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const existUser = getUserCookie('user')
+  //     const newUser = await getUserData()
+  //     if (!deepEqual(JSON.parse(existUser), newUser)) {
+  //       updateUserCookie('user', newUser)
+  //     }
+  //   }
+  //   checkUser()
+  // }, [])
 
 
   useEffect(() => {

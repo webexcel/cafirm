@@ -15811,6 +15811,25 @@ html[dir=rtl] .carousel-item-prev:not(.carousel-item-end) {
   color: #fff;
   top: 4rem;
 }
+
+.overlay-loader {
+  position: fixed; /* full screen */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.6); /* transparent white */
+  z-index: 1050; /* higher than modal backdrop */
+}
+.custom-tooltip.bs-tooltip-top .tooltip-inner {
+  background-color: #0d6efd; /* Your desired background color */
+  color: white;
+  font-weight: 500;
+}
+
+.custom-tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: #0d6efd;
+}
 .page-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
   content: var(--bs-breadcrumb-divider, "\ea61");
   font-family: "tabler-icons" !important;

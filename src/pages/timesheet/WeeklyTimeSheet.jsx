@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Col, Row, Button } from "react-bootstrap";
+import { Card, Col, Row, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import CustomForm from "../../components/custom/form/CustomForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import useForm from "../../hooks/useForm";
@@ -15,7 +15,6 @@ import DateLabel from "./DateLabel";
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
 import { getISOWeekNumber } from "../../utils/generalUtils";
-import Loader from "../../components/common/loader/loader";
 import LoaderCon from "../../components/common/loader/loadercon";
 
 const ModalTimesheetField = [
@@ -29,10 +28,22 @@ const ModalTimesheetField = [
     },
 ];
 
+const ModalTimesheetDetailsField = [
+    {
+        name: "description",
+        label: "Description",
+        placeholder: "Select Description",
+        type: "textarea",
+        required: true,
+        disabled: false
+    },
+];
+
 
 const WeeklyTimeSheet = () => {
     const [formFields, setFormFields] = useState(WeeklyTimeSheetField);
     const [formModalFields, setFormModalFields] = useState(ModalTimesheetField);
+    const [formModalDetailFields, setFormModalDetailFields] = useState(ModalTimesheetDetailsField);
     const [weeklydates, setWeeklyDate] = useState([]);
     const [weeklyAllData, setWeeklyAllData] = useState([]);
     const [headerData, setHeaderData] = useState([]);
@@ -57,9 +68,16 @@ const WeeklyTimeSheet = () => {
             return acc;
         }, {})
     );
+    const [initialModalDetailFields, setInitialModalDetailFields] = useState(
+        ModalTimesheetDetailsField.reduce((acc, item) => {
+            acc[item.name] = item?.options ? [] : "";
+            return acc;
+        }, {})
+    );
+
 
     const [initialList, setInitialList] = useState([])
-
+    const [showDetailModal, setShowDetailModal] = useState(false);
     const initialFormState = WeeklyTimeSheetField.reduce((acc, field) => {
         acc[field.name] = "";
         return acc;
@@ -80,10 +98,10 @@ const WeeklyTimeSheet = () => {
                             const userData = JSON.parse(Cookies.get('user'));
                             if (Number(userData?.role) !== 1 || Number(userData?.role) !== 2) {
                                 setFieldValue("employee", userData.employee_id);
-                                console.log("userData11", userData);
+                                // console.log("userData11", userData);
                             }
                             else {
-                                setFieldValue("employee", "");
+                                setFieldValue("employee", 8);
                             }
                             const employeeOptions = employeeresponse.data.data.map((item) => ({
                                 value: item.employee_id,
@@ -178,63 +196,73 @@ const WeeklyTimeSheet = () => {
         const currentWeek = getWeeklyDateRange();
         console.log("Current Week:", currentWeek, timesheetData);
         setWeeklyDate(currentWeek);
+
         const formattedData = timesheetData.reduce((acc, item) => {
             const taskKey = item.task_id || "Unknown Task";
             let exisitingEntry = acc.find((item) => item.task_id === taskKey);
+
             if (!exisitingEntry) {
                 exisitingEntry = {
                     task_id: taskKey,
-                    task_name: (
-                        <>
-                            {item.task_name} - <p style={{ display: "inline" }} className="text-danger fw-bold">{item.year_name}</p>
-                        </>) || "Unknown Name"
-                }
+                    task_name: `${item.task_name} - ${item.year_name}` || "Unknown name"
+                };
+
+                // Initialize each date with { time: null, description: "" }
                 currentWeek.forEach((day) => {
-                    exisitingEntry[day.date] = null;
+                    exisitingEntry[day.date] = { time: null, description: "" };
                 });
-                console.log("exisitingEntryexisitingEntry", exisitingEntry)
-                const timeSheetData = item.timesheet.reduce((acc, entry) => {
+
+                console.log("exisitingEntryexisitingEntry", exisitingEntry);
+
+                // Fill actual timesheet data
+                item.timesheet.forEach((entry) => {
                     const entryDate = new Date(entry.date).getDate();
-                    exisitingEntry[entryDate] = entry.total_time;
-                    return acc;
-                }, {});
-                const prev = { ...exisitingEntry };
-                exisitingEntry = { ...prev, ...timeSheetData };
-                console.log("Time Sheet Data:", timeSheetData);
+                    exisitingEntry[entryDate] = {
+                        time: entry.total_time || null,
+                        description: entry.description || ""
+                    };
+                });
+
+                console.log("Time Sheet Data:", item.timesheet);
             }
+
             acc.push({ ...exisitingEntry });
             return acc;
-        }, [])
+        }, []);
 
         setWeeklyAllData(formattedData);
+
         const filterHeadData = Object.keys(formattedData[0]).filter(
             (item) => item !== "task_id" && item !== "task_name"
         );
 
         const filteredTaskData = formattedData.filter((dataItem) => {
-            return filterHeadData.some((key) => dataItem[key] !== null);
+            return filterHeadData.some((key) => dataItem[key]?.time !== null);
         });
 
         const mergedData = formattedData.reduce((acc, curr) => {
             Object.keys(curr).forEach((key) => {
                 if (!isNaN(key)) {
-                    acc[key] = addTime(acc[key], curr[key]);
+                    const time = curr[key]?.time;
+                    acc[key] = addTime(acc[key], time);
                 }
             });
             return acc;
         }, {
-            "task_name": "Task Name", "task_id": "Task ID"
-        }
-        );
-        setWeeklyTotal(mergedData)
-        console.log("Formatted Data:", formattedData, mergedData);
-        const weeklyAllDate = getWeeklyDateRange().map((data) => data.date)
-        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
-        setIsDataEmpty(formattedData.length === 0 ? false : true)
-        setInitialList([])
-        console.log("dateKeys", orderedHeaders, weeklyAllDate)
-        setHeaderData(orderedHeaders);
+            "task_name": "Task Name",
+            "task_id": "Task ID"
+        });
 
+        setWeeklyTotal(mergedData);
+        console.log("Formatted Data:", formattedData, mergedData);
+
+        const weeklyAllDate = getWeeklyDateRange().map((data) => data.date);
+        const orderedHeaders = ['task_id', 'task_name', ...weeklyAllDate];
+
+        setIsDataEmpty(formattedData.length === 0 ? false : true);
+        setInitialList([]);
+        console.log("dateKeys", orderedHeaders, weeklyAllDate);
+        setHeaderData(orderedHeaders);
     };
 
     const getWeeklyData = async (emp_id, selecteddate) => {
@@ -292,6 +320,7 @@ const WeeklyTimeSheet = () => {
             getWeeklyData(userData?.employee_id, today);
         }
         else {
+            setFieldValue("employee", "")
             const date = today;
             setFieldValue("weekly_id", date);
         }
@@ -306,8 +335,8 @@ const WeeklyTimeSheet = () => {
 
     const handleEditClick = (index) => {
         setEditRowIndex(index);
-        console.log("check :", weeklyAllData[index], editedData, index)
-        setEditedData({ ...weeklyAllData[index] });
+        console.log("check :", initialList[index], editedData, index)
+        setEditedData({ ...initialList[index] });
     };
 
     const handleInputChangeInline = (dateKey, value) => {
@@ -319,10 +348,11 @@ const WeeklyTimeSheet = () => {
 
     const handleSaveClick = async (row) => {
         try {
-            console.log("row", weeklyTotal, row)
+            console.log("row", weeklyTotal, row, initialList, editedData, editRowIndex)
             const updatedData = [...initialList];
-            updatedData[editRowIndex] = { ...editedData };
-            setInitialList(updatedData);
+            // updatedData[editRowIndex] = { ...editedData };
+            console.log("updatedData[editRowIndex]", updatedData, initialList)
+            setInitialList(initialList);
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
             console.log("updateded dataa :", updatedData, editRowIndex)
             const mergedData = updatedData.reduce((acc, curr) => {
@@ -346,7 +376,8 @@ const WeeklyTimeSheet = () => {
                     return {
                         ts_id: matchedItem ? matchedItem.time_sheet_id : null,
                         ts_date: matchedItem ? matchedItem.date : weeklydates.map((item) => (item.fullDate)).find((item) => new Date(item).getDate().toString() === key),
-                        time: updatedData[editRowIndex][key] || null
+                        time: updatedData[editRowIndex][key].time || null,
+                        description: updatedData[editRowIndex][key].description || null
                     };
                 }
                 );
@@ -399,7 +430,6 @@ const WeeklyTimeSheet = () => {
         if (!validateForm()) return;
         setLoader(true)
         try {
-            // console.log("formData", new Date(formData).getDay());
             getWeeklyData(formData?.employee, formData?.weekly_id);
         } catch (err) {
             setLoader(false)
@@ -420,7 +450,6 @@ const WeeklyTimeSheet = () => {
             ...prev,
             task: initialList.map((item) => ({ label: item.task_name, value: item.task_id }))
         }))
-        console.log("initialModalFieldsssssssssssssssssssssss", initialModalFields, weeklyAllData)
 
         setFormModalFields((prev) =>
             prev.map((field) =>
@@ -435,15 +464,40 @@ const WeeklyTimeSheet = () => {
     }
 
     const handleSubmit = async (values) => {
-        console.log("valuessss", values, weeklyAllData)
-        setInitialList(() => {
-            const filtered = weeklyAllData.filter((item) =>
-                values.task.some((item1) => item1.value === item.task_id)
-            );
-            return filtered;
-        });
-        setShowModal(false)
+        console.log("Submitted Values:", values);
+        console.log("Weekly All Data:", weeklyAllData);
+
+        // Filter matching tasks based on selected task values
+        const filtered = weeklyAllData.filter((dataItem) =>
+            values.task?.some((selectedItem) => selectedItem.value === dataItem.task_id)
+        );
+
+        console.log("filtered : ", filtered)
+
+        // Directly set the filtered result
+        setInitialList(filtered);
+        setShowModal(false);
+    };
+
+
+    const openDetailModal = (tasklist, selectedData, key) => {
+        setShowDetailModal(true)
+        // console.log("task_name", tasklist,selectedData, initialModalDetailFields)
+        setInitialModalDetailFields((prev) => ({ ...selectedData, id: key, task_id: tasklist.task_id }))
     }
+
+    const handleDetailSubmit = (value) => {
+        console.log("valuess", value, initialModalDetailFields, initialList);
+        const filterr = initialList.filter((data) => Number(data.task_id) != Number(value.task_id))
+        const filter1 = initialList.find((data) => Number(data.task_id) === Number(value.task_id))
+        const filterObject = { ...filter1, [value.id]: initialList[value.id] = { ...filter1[value.id], description: value.description } }
+        console.log("filterr :", filterr, filter1['4'], filter1, filterObject)
+        const test = [...filterr, filterObject]
+        console.log("testtt : ", test)
+        setInitialList(test)
+        setShowDetailModal(false)
+
+    };
 
 
     return (
@@ -473,7 +527,6 @@ const WeeklyTimeSheet = () => {
                 <table className="table table-bordered w-100">
                     <thead>
                         <tr>
-
                             <th className="fs-18 fw-bolder text-center" colSpan={2} style={{ width: "12%", borderRight: "none" }}>
                                 <div>
                                     <span className="me-2">
@@ -501,12 +554,15 @@ const WeeklyTimeSheet = () => {
                                     const isFixedWidth = ["task_id", "task_name"].includes(header) ? "5%" : "auto";
                                     return (
                                         <th key={index} className="text-center fw-bold" style={{ width: isFixedWidth }}>
-                                            {weeklyTotal[header] || ""}
+                                            {typeof weeklyTotal[header] === "object"
+                                                ? weeklyTotal[header]?.time || ""
+                                                : weeklyTotal[header] || ""}
                                         </th>
                                     );
                                 })}
                                 <th className="text-center fw-bold" style={{ width: "10%" }}>Actions</th>
                             </tr>
+
                         )}
                     </thead>
 
@@ -528,22 +584,53 @@ const WeeklyTimeSheet = () => {
                                             return (
                                                 <td key={index} style={{ width: isFixedWidth }}>
                                                     {isEditable ? (
-                                                        <InputMask
-                                                            inputRef={inputRef}
-                                                            mask="99:99"
-                                                            maskChar={null}
-                                                            value={editedData[header] || ""}
-                                                            onChange={(e) => handleInputChangeInline(header, e.target.value)}
-                                                            placeholder="HH:MM"
-                                                            pattern="^([01]\d|2[0-3]):([0-5]\d)$"
-                                                            title="Enter time in HH:MM format (24-hour)"
-                                                            className="form-control form-control-sm text-center"
-                                                            inputMode="numeric"
-                                                        />
+                                                        <div className="d-flex align-items-center gap-1">
+                                                            <InputMask
+                                                                inputRef={inputRef}
+                                                                mask="99:99"
+                                                                maskChar={null}
+                                                                value={row[header]?.time || ""}
+                                                                onChange={(e) => handleInputChangeInline(header, e.target.value)}
+                                                                placeholder="HH:MM"
+                                                                className="form-control form-control-sm text-center"
+                                                                inputMode="numeric"
+                                                            />
+
+                                                            <OverlayTrigger
+                                                                placement="top"
+                                                                overlay={
+                                                                    <Tooltip
+                                                                        id={`tooltip-${header}`}
+                                                                        className="custom-tooltip"
+                                                                    >
+                                                                        {["task_id", "task_name"].includes(header)
+                                                                            ? row[header] || ""
+                                                                            : row[header]?.description || "No description"}
+                                                                    </Tooltip>
+                                                                }
+                                                            >
+                                                                <Button
+                                                                    variant="primary"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        openDetailModal(row, editedData?.[header] || {}, header)
+                                                                    }
+                                                                    className="ms-1"
+                                                                >
+                                                                    <i className="bi bi-info-circle"></i>
+                                                                </Button>
+                                                            </OverlayTrigger>
+
+                                                        </div>
                                                     ) : (
-                                                        <span className="d-block w-100">{row[header] || ""}</span>
+                                                        <span className="d-block w-100">
+                                                            {["task_id", "task_name"].includes(header)
+                                                                ? row[header] || ""
+                                                                : row[header]?.time || ""}
+                                                        </span>
                                                     )}
                                                 </td>
+
                                             );
                                         })}
 
@@ -603,7 +690,15 @@ const WeeklyTimeSheet = () => {
                 formFields={formModalFields}
                 modalTitle="Select Task"
             />
-
+            <CustomModal
+                show={showDetailModal}
+                handleClose={() => setShowDetailModal(false)}
+                handleSubmit={handleDetailSubmit}
+                validationSchema={validationSchema}
+                initialValues={initialModalDetailFields}
+                formFields={formModalDetailFields}
+                modalTitle="Description"
+            />
         </>
     );
 };

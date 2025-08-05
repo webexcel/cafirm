@@ -33,9 +33,9 @@ const CustomModal = React.memo(({
                 validateOnBlur={true}
             >
                 {({ values, setFieldValue, errors, touched }) => {
-                    console.log("Formik values:", values);
-                    console.log("Formik errors:", errors);
-                    console.log("Touched fields:", touched);
+                    // console.log("Formik values:", values);
+                    // console.log("Formik errors:", errors);
+                    // console.log("Touched fields:", touched);
 
                     return (
                         <FormikForm>

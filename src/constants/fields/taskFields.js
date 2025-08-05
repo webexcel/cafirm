@@ -108,6 +108,7 @@ export const ViewTaskField = [
     type: "searchable_dropdown",
     options: [],
     required: true,
+    disable : false
   },
   {
     name: "priority",
