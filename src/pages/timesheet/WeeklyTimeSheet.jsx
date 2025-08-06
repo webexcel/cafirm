@@ -11,7 +11,6 @@ import Swal from "sweetalert2";
 import { getEmployee } from "../../service/employee_management/createEmployeeService";
 import { usePermission } from "../../contexts";
 import DateLabel from "./DateLabel";
-
 import CustomModal from "../../components/custom/modal/CustomModal";
 import * as Yup from "yup";
 import { getISOWeekNumber } from "../../utils/generalUtils";
@@ -339,11 +338,22 @@ const WeeklyTimeSheet = () => {
         setEditedData({ ...initialList[index] });
     };
 
-    const handleInputChangeInline = (dateKey, value) => {
-        setEditedData((prev) => ({
-            ...prev,
-            [dateKey]: value
-        }));
+    const handleInputChangeInline = (dateKey, value, row) => {
+        console.log("testtt : ", dateKey, value, row)
+        // const filterData = initialList.filter((item) => Number(item.))
+        // setEditedData((prev) => ({
+        //     ...prev,
+        //     [dateKey]: value
+        // }));
+
+        const filterData = initialList.map((data, index) => {
+            if (Number(data.task_id) === Number(row.task_id)) {
+                return { ...data, [dateKey]: { ...data[dateKey], time: value } }
+            }
+            return data;
+        })
+        setInitialList(filterData)
+        console.log("filterData : ", filterData)
     };
 
     const handleSaveClick = async (row) => {
@@ -590,7 +600,7 @@ const WeeklyTimeSheet = () => {
                                                                 mask="99:99"
                                                                 maskChar={null}
                                                                 value={row[header]?.time || ""}
-                                                                onChange={(e) => handleInputChangeInline(header, e.target.value)}
+                                                                onChange={(e) => handleInputChangeInline(header, e.target.value, row)}
                                                                 placeholder="HH:MM"
                                                                 className="form-control form-control-sm text-center"
                                                                 inputMode="numeric"

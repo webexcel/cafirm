@@ -110,30 +110,29 @@ const ViewTask = () => {
             let updatedFields = [...formFields];
 
             if (!isAdmin) {
-                // Set default employee value
                 setFieldValue("employee", user.employee_id);
 
-                try {
-                    const res = await getEmployee();
+                // try {
+                //     const res = await getEmployee();
 
-                    updatedFields = updatedFields.map((field) => {
-                        if (field.name === "employee") {
-                            const options = res.data.data.map((emp) => ({
-                                value: emp.employee_id,
-                                label: emp.name,
-                            }));
-                            return {
-                                ...field,
-                                options,
-                                disable: true, // disable for non-admins
-                            };
-                        }
-                        return field;
-                    });
-                    setFormFields(updatedFields);
-                } catch (error) {
-                    console.error("Error fetching employees:", error);
-                }
+                //     updatedFields = updatedFields.map((field) => {
+                //         if (field.name === "employee") {
+                //             const options = res.data.data.map((emp) => ({
+                //                 value: emp.employee_id,
+                //                 label: emp.name,
+                //             }));
+                //             return {
+                //                 ...field,
+                //                 options,
+                //                 disable: true, // disable for non-admins
+                //             };
+                //         }
+                //         return field;
+                //     });
+                //     setFormFields(updatedFields);
+                // } catch (error) {
+                //     console.error("Error fetching employees:", error);
+                // }
             } else {
                 // setFormFields(updatedFields); // For admin, just use default
             }
@@ -148,26 +147,46 @@ const ViewTask = () => {
         };
 
         init();
-    }, [formFields]);
-
-
+    }, []);
 
     // Fetch clients
     useEffect(() => {
-        getClient().then((res) => {
-            const clients = res.data.data.map(client => ({
-                value: client.client_id,
-                label: client.client_name
-            }));
-            const updated = formFields.map(field => {
-                if (field.name === "client") {
-                    return { ...field, options: [{ value: 'All', label: 'All' }, ...clients] };
-                }
-                return field;
-            });
-            setFormFields(updated);
-        });
+        const fetchClients = async () => {
+            try {
+                const res = await getClient();
+                const empres = await getEmployee()
+                const clients = res.data.data.map(client => ({
+                    value: client.client_id,
+                    label: client.client_name
+                }));
+
+                const updated = formFields.map(field => {
+                    if (field.name === "client") {
+                        return { ...field, options: [{ value: 'All', label: 'All' }, ...clients] };
+                    }
+                    if (field.name === "employee" && !isAdmin) {
+                        const options = empres.data.data.map((emp) => ({
+                            value: emp.employee_id,
+                            label: emp.name,
+                        }));
+                        return {
+                            ...field,
+                            options,
+                            disable: true, // disable for non-admins
+                        };
+                    }
+                    return field;
+                });
+
+                setFormFields(updated);
+            } catch (error) {
+                console.error("Failed to fetch clients:", error);
+            }
+        };
+
+        fetchClients();
     }, []);
+
 
     // Fetch services
     useEffect(() => {
