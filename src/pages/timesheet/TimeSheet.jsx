@@ -110,7 +110,7 @@ const AddTimeSheet = () => {
               return {
                 ...field,
                 options: employeeOptions,
-                disabled: employeeresponse.data.data.length === 1 ? true : false
+                disable: employeeresponse.data.data.length === 1 ? true : false
               };
             } else {
               console.error("Employee data response is not an array or is empty.");

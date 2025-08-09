@@ -127,6 +127,7 @@ const CustomForm = ({
             value={formData[field.name] || ""}
             placeholder={field.placeholder}
             onChange={(e) => onChange(e, field.name)}
+            isDisabled={field.disable || false}
           />
         );
 

@@ -21,8 +21,6 @@ export const AddClientsField = [
     placeholder: "Select Client Type",
     type: "dropdown",
     options: [
-      { label: "Business", value: "business" },
-      { label: "Individual", value: "individual" },
     ],
     required: true,
   },

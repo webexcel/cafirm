@@ -114,7 +114,6 @@ const ClientTimeSheet = () => {
 
               if (employeeresponse.data.data.length === 1) {
                 setFieldValue("employee", employeeresponse.data.data[0].employee_id);
-                console.log("userData111111111111111", employeeresponse.data.data);
               } const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
                 label: item.name,
@@ -124,7 +123,7 @@ const ClientTimeSheet = () => {
               return {
                 ...field,
                 options: [{ value: 'All', label: 'All' }, ...employeeOptions],
-                disabled: employeeresponse.data.data.length === 1 ? true : false
+                disable: employeeresponse.data.data.length === 1 ? true : false
               };
             } else {
               console.error("Employee data response is not an array or is empty.");

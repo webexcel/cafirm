@@ -60,7 +60,6 @@ const AddTimeSheet = () => {
         const yearresponse = await getYearList();
         console.log("Client API Response:", clientresponse);
         console.log("Employee API Response:", employeeresponse);
-
         const updatedFormFields = AddTimeSheetField.map((field) => {
           if (field.name === "client") {
             if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
@@ -70,7 +69,6 @@ const AddTimeSheet = () => {
               }));
               setClientData(clientOptions)
               return { ...field, options: clientOptions };
-
             } else {
               console.error("Client data response is not an array or is empty.");
             }
@@ -82,7 +80,7 @@ const AddTimeSheet = () => {
                 label: item.name,
               }));
               console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions };
+              return { ...field, options: employeeOptions, disable: true };
             } else {
               console.error("Employee data response is not an array or is empty.");
             }

@@ -17,6 +17,25 @@ export const CreateServiceFields = [
   },
 ];
 
+export const CreateClientTypeFields = [
+  {
+    name: "client_type",
+    label: "Client Type",
+    placeholder: "Enter Client Type",
+    type: "text",
+    required: true,
+  },
+
+  // {
+  //   name: "service_short_name",
+  //   label: "Short Name",
+  //   placeholder: "Enter Short Name",
+  //   type: "text",
+  //   required: true,
+  //   maxLength : 5
+  // },
+];
+
 export const CreateFinYearFields = [
   {
     name: "year",

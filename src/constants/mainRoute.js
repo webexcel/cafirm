@@ -21,4 +21,5 @@ export default Object.freeze({
   DOCUMENTTYPE: "documenttype",
   YEAR: "year",
   TASK: "task",
+  CLIENT_TYPE: "clienttype",
 });

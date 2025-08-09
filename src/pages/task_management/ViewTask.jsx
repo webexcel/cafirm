@@ -32,7 +32,7 @@ const ViewTask = () => {
     const [formFields, setFormFields] = useState(ViewTaskField);
 
     const user = JSON.parse(getUserCookie("user"));
-    const isAdmin = Number(user.role) === 1;
+    const isAdmin = Number(user.role) === 1 || Number(user.role) === 2;
     const columns = [
         { header: "S No", accessor: "sno", editable: false },
         { header: "Employee", accessor: "assignTo", editable: false },
@@ -172,7 +172,7 @@ const ViewTask = () => {
                         return {
                             ...field,
                             options,
-                            disable: true, // disable for non-admins
+                            disable: true,
                         };
                     }
                     return field;

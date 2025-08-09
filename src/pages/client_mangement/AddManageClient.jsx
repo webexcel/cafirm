@@ -10,6 +10,7 @@ import { AddClientsField } from "../../constants/fields/clinetsFields";
 import { addClient, deleteClient, getClient } from "../../service/client_management/createClientServices";
 import { usePermission } from "../../contexts";
 import { useNavigate } from "react-router-dom";
+import { addClientType, getClientType } from "../../service/masterDetails/createClientType";
 const CustomTable = React.lazy(() =>
   import("../../components/custom/table/CustomTable")
 );
@@ -63,6 +64,34 @@ const AddManageClient = () => {
       console.log("Error occurs while getting client data : ", err)
     }
   }
+
+  const fetchClientData = async () => {
+    try {
+      const clientTypedata = await getClientType()
+      const updatedFormFields = AddClientsField.map((field) => {
+        if (field.name === "clientType") {
+          if (Array.isArray(clientTypedata.data.data) && clientTypedata.data.data.length > 0) {
+            const clienttypeOptions = clientTypedata.data.data.map((item) => ({
+              value: item.id,
+              label: item.type_name,
+            }));
+            return { ...field, options: clienttypeOptions };
+          } else {
+            console.error("client data response is not an array or is empty.");
+          }
+        }
+        return field;
+      });
+      setFormFields(updatedFormFields);
+      const permissionFlags = getOperationFlagsById(3, 3); // paren_id , sub_menu id
+      // console.log(permissionFlags, '---permissionFlags');
+      setPermissionFlags(permissionFlags);
+    } catch (err) {
+      console.error("Error fetching employee data:", err);
+    }
+  };
+
+  useEffect(() => { fetchClientData() }, [])
 
   useEffect(() => {
     getClientData()
@@ -168,7 +197,7 @@ const AddManageClient = () => {
 
   }, []);
 
-   const handlerEdit = async (data) => {
+  const handlerEdit = async (data) => {
     console.log("data: ", data)
     navigate(`/ViewEditProfiles/${data?.client_id}`);
   }
