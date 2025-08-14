@@ -14,6 +14,7 @@ import Loader from "../../components/common/loader/loader";
 import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 import { usePermission } from "../../contexts";
 import { getYearList } from "../../service/masterDetails/createFinYear";
+import { getUserCookie } from "../../utils/authUtils";
 
 
 const AddTimeSheet = () => {
@@ -51,76 +52,79 @@ const AddTimeSheet = () => {
   );
 
   useEffect(() => {
-    // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
         const employeeresponse = await getEmployee();
         const partnerresponse = await getPartners();
         const yearresponse = await getYearList();
-        console.log("Client API Response:", clientresponse);
-        console.log("Employee API Response:", employeeresponse);
+
+        const employee = JSON.parse(getUserCookie('user'))
+        const isAdmin = [1, 2].includes(Number(employee?.role));
+        console.log("Employee Data: ", employee);
         const updatedFormFields = AddTimeSheetField.map((field) => {
-          if (field.name === "client") {
-            if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
-              const clientOptions = clientresponse.data.data.map((item) => ({
-                value: item.client_id,
-                label: item.client_name,
-              }));
-              setClientData(clientOptions)
-              return { ...field, options: clientOptions };
-            } else {
-              console.error("Client data response is not an array or is empty.");
-            }
-          }
           if (field.name === "employee") {
-            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
-                value: item.employee_id,
-                label: item.name,
-              }));
-              console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions, disable: true };
-            } else {
-              console.error("Employee data response is not an array or is empty.");
-            }
+            const employeeOptions = (employeeresponse.data.data || []).map(item => ({
+              value: item.employee_id,
+              label: item.name,
+            }));
+            return { ...field, options: employeeOptions, disable: isAdmin ? false : true };
+          }
+          if (field.name === "client") {
+            const clientOptions = (clientresponse.data.data || []).map(item => ({
+              value: item.client_id,
+              label: item.client_name,
+            }));
+            setClientData(clientOptions);
+            return { ...field, options: clientOptions };
           }
 
           if (field.name === "partner") {
-            if (Array.isArray(partnerresponse.data.data) && partnerresponse.data.data.length > 0) {
-              const partnerOptions = partnerresponse.data.data.map((item) => ({
-                value: item.id,
-                label: item.name,
-              }));
-              console.log("Mapped Partner Options:", partnerOptions);
-              return { ...field, options: partnerOptions };
-            } else {
-              console.error("Partner data response is not an array or is empty.");
-            }
+            const partnerOptions = (partnerresponse.data.data || []).map(item => ({
+              value: item.id,
+              label: item.name,
+            }));
+            return { ...field, options: partnerOptions };
           }
 
           if (field.name === "year") {
-            if (Array.isArray(yearresponse.data.data) && yearresponse.data.data.length > 0) {
-              const yearOption = yearresponse.data.data.map((item) => ({
-                value: item.id,
-                label: item.year,
-              }));
-              console.log("Mapped Year Options:", yearOption);
-              return { ...field, options: yearOption };
-            } else {
-              console.error("Partner data response is not an array or is empty.");
-            }
+            const yearOptions = (yearresponse.data.data || []).map(item => ({
+              value: item.id,
+              label: item.year,
+            }));
+            return { ...field, options: yearOptions };
           }
 
           return field;
         });
+
         setFormFields(updatedFormFields);
+
+        // Set default employee value after form fields are set
+        if (!isAdmin && employee?.employee_id) {
+          const defaultEmployee = employeeresponse.data.data.find(
+            emp => Number(emp.employee_id) === Number(employee.employee_id)
+          );
+
+          if (defaultEmployee) {
+            setFieldValue("employee", [
+              {
+                value: defaultEmployee.employee_id,
+                label: defaultEmployee.name
+              }
+            ]);
+          }
+        }
+
+
       } catch (error) {
         console.error("Error fetching class data:", error);
       }
     };
-    fetchFieldOptionData()
+
+    fetchFieldOptionData();
   }, []);
+
 
   const getPriorityBased = async () => {
     try {
@@ -243,6 +247,7 @@ const AddTimeSheet = () => {
 
   // Handle add
   const handleAdd = async (e) => {
+    console.log("Selected form:", formData);
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({
