@@ -52,6 +52,29 @@ const WeeklyTimeSheet = () => {
     const [weeklyTotal, setWeeklyTotal] = useState([]);
     const { permissions, getOperationFlagsById } = usePermission();
     const [permissionFlags, setPermissionFlags] = useState(1);
+    const [user] = useState(() => {
+        try {
+            const storedUser = Cookies.get("user");
+            return storedUser
+                ? JSON.parse(storedUser)
+                : {
+                    employee_id: "",
+                    email: "",
+                    name: "",
+                    role: "",
+                    photo: "",
+                };
+        } catch (error) {
+            console.error("Error parsing user cookie:", error);
+            return {
+                employee_id: "",
+                email: "",
+                name: "",
+                role: "",
+                photo: "",
+            };
+        }
+    });
 
     const [showModal, setShowModal] = useState(false);
     const [isDataEmpty, setIsDataEmpty] = useState(false)
@@ -73,7 +96,6 @@ const WeeklyTimeSheet = () => {
             return acc;
         }, {})
     );
-
 
     const [initialList, setInitialList] = useState([])
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -130,56 +152,48 @@ const WeeklyTimeSheet = () => {
     }, []);
 
     function getWeeklyDateRange(date = new Date()) {
-        const today = new Date(date);
-        const dayOfWeek = today.getDay();
+        const today = new Date(date); // clone input date
+        const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
 
-        // Clone today's date and go back to the most recent Sunday
-        const lastSunday = new Date(today);
-        lastSunday.setDate(today.getDate() - dayOfWeek);
+        const sunday = new Date(today);
+        sunday.setDate(today.getDate() - dayOfWeek);
 
         const weekDates = [];
 
         for (let i = 0; i < 7; i++) {
-            const currentDate = new Date(lastSunday);
-            currentDate.setDate(lastSunday.getDate() + i); // Do NOT mutate original 'lastSunday'
-
-            // Validate currentDate
-            if (isNaN(currentDate.getTime())) {
-                console.warn("Invalid date at index", i);
-                continue; // Skip this loop if date is invalid
-            }
-
-            const isToday =
-                currentDate.getDate() === today.getDate() &&
-                currentDate.getMonth() === today.getMonth() &&
-                currentDate.getFullYear() === today.getFullYear();
+            const currentDate = new Date(sunday);
+            currentDate.setDate(sunday.getDate() + i);
 
             weekDates.push({
                 date: currentDate.getDate(),
-                day: currentDate.toLocaleDateString('en-US', { weekday: 'long' }),
-                month: currentDate.toLocaleDateString('en-US', { month: 'long' }),
-                active: isToday,
-                fullDate: currentDate.toISOString().split('T')[0]
+                day: currentDate.toLocaleDateString("en-US", { weekday: "long" }),
+                month: currentDate.toLocaleDateString("en-US", { month: "long" }),
+                active:
+                    currentDate.getDate() === today.getDate() &&
+                    currentDate.getMonth() === today.getMonth() &&
+                    currentDate.getFullYear() === today.getFullYear(),
+                fullDate: currentDate.toISOString().split("T")[0],
             });
         }
 
         return weekDates;
     }
 
-
-    useEffect(() => {
-        console.log("formData.weekly_id :", formData.weekly_id)
-        if (formData.weekly_id) {
-            const date = new Date(formData.weekly_id)
-            const selectedWeek = getWeeklyDateRange(date)
-            setWeeklyDate(selectedWeek)
-            console.log("selectedWeek : ", selectedWeek)
-        }
-    }, [formData.weekly_id])
+    // useEffect(() => {
+    //     console.log("formData.weekly_id :", formData.weekly_id)
+    //     if (formData.weekly_id) {
+    //         const date = new Date(formData.weekly_id)
+    //         const selectedWeek = getWeeklyDateRange(date)
+    //         setWeeklyDate(selectedWeek)
+    //         console.log("selectedWeek : ", selectedWeek)
+    //     }
+    // }, [formData.weekly_id])
 
     const addTime = (time1, time2) => {
-        if (!time1) return time2;
-        if (!time2) return time1;
+        if (!time1) return time2 || null;
+        if (!time2) return time1 || null;
+
+        if (typeof time1 !== "string" || typeof time2 !== "string") return null;
 
         const [h1, m1] = time1.split(":").map(Number);
         const [h2, m2] = time2.split(":").map(Number);
@@ -192,7 +206,7 @@ const WeeklyTimeSheet = () => {
     };
 
     const formatTimesheetData = (timesheetData) => {
-        const currentWeek = getWeeklyDateRange();
+        const currentWeek = getWeeklyDateRange(formData?.weekly_id);
         console.log("Current Week:", currentWeek, timesheetData);
         setWeeklyDate(currentWeek);
 
@@ -263,6 +277,7 @@ const WeeklyTimeSheet = () => {
         console.log("dateKeys", orderedHeaders, weeklyAllDate);
         setHeaderData(orderedHeaders);
     };
+    useEffect(() => { console.log("weekly_id : ", formData.weekly_id) }, [formData.weekly_id])
 
     const getWeeklyData = async (emp_id, selecteddate) => {
         console.log("getWeeklyData called with emp_id:", emp_id, "and selecteddate:", selecteddate);
@@ -346,38 +361,54 @@ const WeeklyTimeSheet = () => {
         //     [dateKey]: value
         // }));
 
-        const filterData = initialList.map((data, index) => {
+        // const filterData = weeklyAllData.map((data, index) => {
+        //     if (Number(data.task_id) === Number(row.task_id)) {
+        //         return { ...data, [dateKey]: { ...data[dateKey], time: value } }
+        //     }
+        //     return data;
+        // })
+        // setInitialList(filterData)
+        // console.log("filterData : ", filterData)
+        const filterData = weeklyAllData.map((data, index) => {
             if (Number(data.task_id) === Number(row.task_id)) {
                 return { ...data, [dateKey]: { ...data[dateKey], time: value } }
             }
             return data;
         })
-        setInitialList(filterData)
-        console.log("filterData : ", filterData)
+        setWeeklyAllData(filterData)
+
     };
 
     const handleSaveClick = async (row) => {
         try {
-            console.log("row", weeklyTotal, row, initialList, editedData, editRowIndex)
-            const updatedData = [...initialList];
-            // updatedData[editRowIndex] = { ...editedData };
-            console.log("updatedData[editRowIndex]", updatedData, initialList)
-            setInitialList(initialList);
+            console.log(
+                "weeklyTotal : ", weeklyTotal,
+                "Row : ", row,
+                "weeklyAllData :", weeklyAllData,
+                "editedData : ", editedData,
+                "editRowIndex : ", editRowIndex,
+                "weeklyData :", weeklyData
+            )
+
+            const filterTableRow = weeklyAllData.find((data) => Number(data.task_id) === Number(row.task_id))
             const filterData = weeklyData.filter((item) => row.task_id === item.task_id)[0]
-            console.log("updateded dataa :", updatedData, editRowIndex)
+            const updatedData = [...weeklyAllData];
+
+            console.log("updatedData[editRowIndex]", updatedData, initialList, isPastOrToday(9))
+            setInitialList(initialList);
+            console.log("updateded dataa :", updatedData, editRowIndex, filterData, weeklyTotal)
             const mergedData = updatedData.reduce((acc, curr) => {
                 Object.keys(curr).forEach((key) => {
                     if (!isNaN(key)) {
-                        acc[key] = addTime(acc[key], curr[key]);
+                        const timeValue = curr[key]?.time || null; // get the time string
+                        acc[key] = addTime(acc[key], timeValue);
                     }
                 });
                 return acc;
-            }, {
-                "task_name": "Task Name", "task_id": "Task ID"
-            }
-            );
+            }, { task_name: "Task Name", task_id: "Task ID" });
+
             setWeeklyTotal(mergedData)
-            const newList = Object.keys(updatedData[editRowIndex])
+            const responseList = Object.keys(filterTableRow)
                 .filter(key => key !== "task_id" && key !== "task_name" && isPastOrToday(Number(key)))
                 .map((key) => {
                     const matchedItem = filterData.timesheet.find(
@@ -389,15 +420,13 @@ const WeeklyTimeSheet = () => {
                         time: updatedData[editRowIndex][key].time || null,
                         description: updatedData[editRowIndex][key].description || null
                     };
-                }
-                );
-
-            console.log("newList", newList)
+                })
+            console.log("responseList : ", responseList)
 
             const result = {
                 task_id: filterData.task_id,
                 emp_id: formData?.employee,
-                timesheets: newList,
+                timesheets: responseList,
             }
 
             const response = await updateWeeklyTimesheet({ data: result });
@@ -489,7 +518,6 @@ const WeeklyTimeSheet = () => {
         setShowModal(false);
     };
 
-
     const openDetailModal = (tasklist, selectedData, key) => {
         setShowDetailModal(true)
         // console.log("task_name", tasklist,selectedData, initialModalDetailFields)
@@ -509,29 +537,31 @@ const WeeklyTimeSheet = () => {
 
     };
 
-
     return (
         <>
-            <Row>
-                <Col xl={12}>
-                    <Card className="custom-card">
-                        <Card.Body>
-                            <Col xl={12}>
-                                <CustomForm
-                                    formFields={formFields}
-                                    formData={formData}
-                                    errors={errors}
-                                    onChange={handleInputChange}
-                                    onSubmit={handleAdd}
-                                    btnText={'Submit'}
-                                    showAddButton={true}
-                                    showUpdateButton={permissionFlags?.showUPDATE}
-                                />
-                            </Col>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+            {(Number(user?.role) === 1 || Number(user?.role) === 2) && (
+                <Row>
+                    <Col xl={12}>
+                        <Card className="custom-card">
+                            <Card.Body>
+                                <Col xl={12}>
+                                    <CustomForm
+                                        formFields={formFields}
+                                        formData={formData}
+                                        errors={errors}
+                                        onChange={handleInputChange}
+                                        onSubmit={handleAdd}
+                                        btnText="Submit"
+                                        showAddButton={true}
+                                        showUpdateButton={permissionFlags?.showUPDATE}
+                                    />
+                                </Col>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            )}
+
 
             <Card>
                 <table className="table table-bordered w-100">
@@ -558,7 +588,7 @@ const WeeklyTimeSheet = () => {
                             ))}
                         </tr>
 
-                        {initialList.length !== 0 && (
+                        {weeklyAllData.length !== 0 && (
                             <tr className="bg-light">
                                 {headerData.map((header, index) => {
                                     const isFixedWidth = ["task_id", "task_name"].includes(header) ? "5%" : "auto";
@@ -580,11 +610,11 @@ const WeeklyTimeSheet = () => {
                         {isDataEmpty ? (
 
                             <>
-                                {initialList.map((row, rowIndex) => (
+                                {weeklyAllData.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="text-center">
                                         {headerData.map((header, index) => {
                                             const isFixedWidth = ["task_id"].includes(header) ? "8%" :
-                                                ["task_name"].includes(header) ? "17%" : "auto";
+                                                ["task_name"].includes(header) ? "14%" : "auto";
 
                                             const isEditable =
                                                 editRowIndex === rowIndex &&
@@ -592,9 +622,9 @@ const WeeklyTimeSheet = () => {
                                                 isPastOrToday(header);
 
                                             return (
-                                                <td key={index} style={{ width: isFixedWidth }}>
+                                                <td key={index} style={{ width: isFixedWidth,fontSize:'.8rem' }}>
                                                     {isEditable ? (
-                                                        <div className="d-flex align-items-center gap-1">
+                                                        <div className="d-flex align-items-center">
                                                             <InputMask
                                                                 inputRef={inputRef}
                                                                 mask="99:99"
@@ -663,7 +693,7 @@ const WeeklyTimeSheet = () => {
                                     </tr>
                                 ))}
 
-                                <tr style={{ cursor: "pointer" }}>
+                                {/* <tr style={{ cursor: "pointer" }}>
                                     <td colSpan={headerData.length + 1}>
                                         <div className="d-flex align-items-center text-primary fw-bold py-1 px-4" onClick={getWeeklyTaskData}>
                                             <i className="bi bi-plus-square-fill me-2" style={{ fontSize: "20px" }}></i>
@@ -671,7 +701,7 @@ const WeeklyTimeSheet = () => {
                                         </div>
 
                                     </td>
-                                </tr>
+                                </tr> */}
 
                             </>
                         ) : (
