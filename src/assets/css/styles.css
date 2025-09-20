@@ -4584,6 +4584,11 @@ textarea.form-control-lg {
   filter: brightness(90%);
 }
 
+.borderless-row td {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 .form-check-input:focus {
   border-color: #86b7fe;
   outline: 0;
@@ -15805,6 +15810,25 @@ html[dir=rtl] .carousel-item-prev:not(.carousel-item-end) {
   background-size: cover;
   color: #fff;
   top: 4rem;
+}
+
+.overlay-loader {
+  position: fixed; /* full screen */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.6); /* transparent white */
+  z-index: 1050; /* higher than modal backdrop */
+}
+.custom-tooltip.bs-tooltip-top .tooltip-inner {
+  background-color: #0d6efd; /* Your desired background color */
+  color: white;
+  font-weight: 500;
+}
+
+.custom-tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: #0d6efd;
 }
 .page-header-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
   content: var(--bs-breadcrumb-divider, "\ea61");
@@ -29502,7 +29526,7 @@ code[class*=language-] {
 
 .css-18ds7zr-control{
   min-height: 0px !important;
-  max-height: 34px !important;
+  max-height: 36px !important;
 }
 
 @media (min-width: 1000px) {

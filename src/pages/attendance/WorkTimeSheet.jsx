@@ -52,7 +52,6 @@ const WorkTimeSheet = () => {
         const fetchFieldOptionData = async () => {
             try {
                 const userData = JSON.parse(Cookies.get('user'));
-
                 const payload = {
                     emp_id: userData?.employee_id
                 };
@@ -63,13 +62,11 @@ const WorkTimeSheet = () => {
                         if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                             if (employeeresponse.data.data.length === 1) {
                                 setFieldValue("employee", employeeresponse.data.data[0].employee_id);
-                                console.log("userData111111111111111", employeeresponse.data.data);
                             }
                             const employeeOptions = employeeresponse.data.data.map((item) => ({
                                 value: item.employee_id,
                                 label: item.name,
                             }));
-                            console.log("Mapped Employee Options:", employeeOptions);
                             return {
                                 ...field, options: employeeOptions,
                                 disabled: employeeresponse.data.data.length === 1 ? true : false
@@ -97,7 +94,7 @@ const WorkTimeSheet = () => {
         try {
             const userData = JSON.parse(Cookies.get('user'));
             const payload = {
-                "emp_id": "",
+                "emp_id": userData?.employee_id,
                 "start_date": "",
                 "end_date": "",
                 "user_id": userData?.employee_id,

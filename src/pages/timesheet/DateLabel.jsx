@@ -10,7 +10,7 @@ const DateLabel = ({ day, date, active }) => {
             <span
                 className='text-center rounded-circle d-flex align-items-center justify-content-center'
                 style={{
-                    backgroundColor: active ? '#004bffe0' : 'rgb(0 233 0 / 27%)',
+                    backgroundColor: active ? 'rgb(142, 84, 233)' : 'rgb(216 210 227)',
                     width: '35px',
                     height: '35px',
                     color: active ? 'white' : 'black',

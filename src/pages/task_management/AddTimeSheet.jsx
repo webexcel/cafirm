@@ -7,12 +7,15 @@ import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddTimeSheetField } from "../../constants/fields/taskFields";
 import { getClient } from "../../service/client_management/createClientServices";
-import { getEmployee } from "../../service/employee_management/createEmployeeService";
+import { getEmployee, getPartners } from "../../service/employee_management/createEmployeeService";
 import { getService } from "../../service/masterDetails/serviceApi";
 import CustomTable from "../../components/custom/table/CustomTable";
 import Loader from "../../components/common/loader/loader";
 import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from "../../service/task_management/createTaskServices";
 import { usePermission } from "../../contexts";
+import { getYearList } from "../../service/masterDetails/createFinYear";
+import { getUserCookie } from "../../utils/authUtils";
+import Search from "../../components/common/search/Search";
 
 
 const AddTimeSheet = () => {
@@ -25,9 +28,9 @@ const AddTimeSheet = () => {
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Task", accessor: "task_name", editable: false },
-    // { header: "Client", accessor: "client_name", editable: false },
     { header: "Employee", accessor: "assigned_to", editable: false },
     { header: "Service", accessor: "service_name", editable: true },
+    { header: "Fin Year", accessor: "year_name", editable: true },
     { header: "Total Minutes", accessor: "total_minutes", editable: true },
     { header: "Status", accessor: "status_name", editable: true },
     { header: "Priority", accessor: "priority", editable: true },
@@ -50,53 +53,79 @@ const AddTimeSheet = () => {
   );
 
   useEffect(() => {
-    // Fetch field option data
     const fetchFieldOptionData = async () => {
       try {
         const clientresponse = await getClient();
-        // const serviceresponse = await getService()
         const employeeresponse = await getEmployee();
-        console.log("Client API Response:", clientresponse);
-        console.log("Employee API Response:", employeeresponse);
+        const partnerresponse = await getPartners();
+        const yearresponse = await getYearList();
 
+        const employee = JSON.parse(getUserCookie('user'))
+        const isAdmin = [1, 2].includes(Number(employee?.role));
+        console.log("Employee Data: ", employee);
         const updatedFormFields = AddTimeSheetField.map((field) => {
-          if (field.name === "client") {
-            if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
-              const clientOptions = clientresponse.data.data.map((item) => ({
-                value: item.client_id,
-                label: item.client_name,
-              }));
-              console.log("Mapped Client Options:", clientOptions);
-              setClientData(clientOptions)
-              return { ...field, options: clientOptions };
-
-            } else {
-              console.error("Client data response is not an array or is empty.");
-            }
-
-          }
           if (field.name === "employee") {
-            if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
-              const employeeOptions = employeeresponse.data.data.map((item) => ({
-                value: item.employee_id,
-                label: item.name,
-              }));
-              console.log("Mapped Employee Options:", employeeOptions);
-              return { ...field, options: employeeOptions };
-            } else {
-              console.error("Employee data response is not an array or is empty.");
-            }
-
+            const employeeOptions = (employeeresponse.data.data || []).map(item => ({
+              value: item.employee_id,
+              label: item.name,
+            }));
+            return { ...field, options: employeeOptions, disable: isAdmin ? false : true };
           }
+          if (field.name === "client") {
+            const clientOptions = (clientresponse.data.data || []).map(item => ({
+              value: item.client_id,
+              label: item.client_name,
+            }));
+            setClientData(clientOptions);
+            return { ...field, options: clientOptions };
+          }
+
+          if (field.name === "partner") {
+            const partnerOptions = (partnerresponse.data.data || []).map(item => ({
+              value: item.id,
+              label: item.name,
+            }));
+            return { ...field, options: partnerOptions };
+          }
+
+          if (field.name === "year") {
+            const yearOptions = (yearresponse.data.data || []).map(item => ({
+              value: item.id,
+              label: item.year,
+            }));
+            return { ...field, options: yearOptions };
+          }
+
           return field;
         });
+
         setFormFields(updatedFormFields);
+
+        // Set default employee value after form fields are set
+        if (!isAdmin && employee?.employee_id) {
+          const defaultEmployee = employeeresponse.data.data.find(
+            emp => Number(emp.employee_id) === Number(employee.employee_id)
+          );
+
+          if (defaultEmployee) {
+            setFieldValue("employee", [
+              {
+                value: defaultEmployee.employee_id,
+                label: defaultEmployee.name
+              }
+            ]);
+          }
+        }
+
+
       } catch (error) {
         console.error("Error fetching class data:", error);
       }
     };
-    fetchFieldOptionData()
+
+    fetchFieldOptionData();
   }, []);
+
 
   const getPriorityBased = async () => {
     try {
@@ -195,7 +224,7 @@ const AddTimeSheet = () => {
               value: item.service_id,
               label: item.service_name,
             }));
-            console.log("Mapped Client Options:", serviceOptions);
+            // console.log("Mapped Client Options:", serviceOptions);
             // setServiceData(serviceOptions)
             return { ...field, options: serviceOptions };
           } else {
@@ -219,6 +248,7 @@ const AddTimeSheet = () => {
 
   // Handle add
   const handleAdd = async (e) => {
+    console.log("Selected form:", formData);
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({
@@ -233,7 +263,7 @@ const AddTimeSheet = () => {
     if (result.isConfirmed) {
       try {
         console.log("Selected form:", formData);
-        const { client, service, description, employee, priority, task, startdate, end } = formData;
+        const { client, service, description, employee, priority, task, startdate, end, partner, year } = formData;
         const clientval = clientdata.filter((data) => Number(data.value) === Number(client))
         console.log("servicedata", servicedata)
         const serviceval = servicedata.filter((data) => Number(data.value) === Number(service))
@@ -241,6 +271,7 @@ const AddTimeSheet = () => {
         console.log("clientval", clientval)
         console.log("serviceval", serviceval)
         const payload = {
+          "partnerId": partner || "",
           "client": client || '',
           "name": task || '',
           "service": service || '',
@@ -249,6 +280,7 @@ const AddTimeSheet = () => {
           "dueDate": end || new Date(),
           "priority": priority || '',
           "description": description || '',
+          "year_id": year || ""
         }
         const response = await addTask(payload);
         if (!response.data.status) {
@@ -321,8 +353,10 @@ const AddTimeSheet = () => {
                   errors={errors}
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
-                  showAddButton={permissionFlags?.showCREATE}
-                  showUpdateButton={permissionFlags?.showUPDATE}
+                  // showAddButton={permissionFlags?.showCREATE}
+                  // showUpdateButton={permissionFlags?.showUPDATE}
+                  showAddButton={true}
+                  showUpdateButton={true}
                 />
 
               </Col>
@@ -334,6 +368,21 @@ const AddTimeSheet = () => {
       <Row>
         <Col xl={12}>
           <Card className="custom-card p-3">
+            <Card.Title className="d-flex justify-content-between border-bottom pb-3">
+              <div className="w-25 px-1">
+                <Search list={tableData} onSearch={setFilteredData} />
+              </div>
+              {/* <div className="d-flex gap-4 align-items-end">
+                <Button onClick={async () => {
+                  const { exportToExcel } = await import('../../utils/generalUtils');
+                  exportToExcel(filteredData, 'Task_List');
+                }}
+                  variant="primary"
+                  className="btn btn-wave btn-sm me-3 p-2">
+                  Export Excel
+                </Button>
+              </div> */}
+            </Card.Title>
             <Card.Body className="overflow-auto">
               <Suspense fallback={<Loader />}>
                 <CustomTable

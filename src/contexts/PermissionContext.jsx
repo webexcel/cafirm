@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { getUserPermissions } from "../service/configuration/permissions";
 
+// Icons mapping
 const icon1 = <i className="bx bx-desktop"></i>;
 const icon6 = <i className="bx bx-error-alt"></i>;
 const icon11 = <i className="bx bx-menu"></i>;
@@ -12,13 +13,11 @@ const iconMap = {
   "Calender": icon11,
 };
 
-export const PermissionContext = createContext(undefined);
+export const PermissionContext = createContext();
 
 export const usePermission = () => {
   const context = useContext(PermissionContext);
-  if (!context) {
-    throw new Error("usePermission must be used within a PermissionProvider");
-  }
+  if (!context) throw new Error("usePermission must be used within a PermissionProvider");
   return context;
 };
 
@@ -26,24 +25,22 @@ export const PermissionProvider = ({ children }) => {
   const [permissions, setPermissions] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [userData, setUserData] = useState(() => {
-    const storedData = Cookies.get("user");
-    return storedData ? JSON.parse(storedData) : null;
+    const cookie = Cookies.get("user");
+    return cookie ? JSON.parse(cookie) : null;
   });
+  const [taskId, setTaskId] = useState([]);
 
+  const setHandleTaskId = (id) => setTaskId(id);
+
+  // Watch cookie for login changes
   useEffect(() => {
-    // Sync userData with cookie updates
-    const checkUserCookie = () => {
-      const storedData = Cookies.get("user");
-      const parsedData = storedData ? JSON.parse(storedData) : null;
-      
-      if (JSON.stringify(parsedData) !== JSON.stringify(userData)) {
-        setUserData(parsedData);
+    const interval = setInterval(() => {
+      const cookie = Cookies.get("user");
+      if (cookie && JSON.stringify(JSON.parse(cookie)) !== JSON.stringify(userData)) {
+        setUserData(JSON.parse(cookie));
       }
-    };
-    
-    const interval = setInterval(checkUserCookie, 1000);
-
-    return () => clearInterval(interval); // Cleanup interval on unmount
+    }, 1000);
+    return () => clearInterval(interval);
   }, [userData]);
 
   useEffect(() => {
@@ -51,27 +48,24 @@ export const PermissionProvider = ({ children }) => {
       fetchPermissions();
     }
   }, [userData]);
-  
 
   const fetchPermissions = async () => {
     try {
-      const response = await getUserPermissions(userData?.employee_id);
-      console.log("Fetched Permissions:", response.data.data);
-      setPermissions(response.data.data);
+      const res = await getUserPermissions(userData?.employee_id);
+      setPermissions(res.data.data);
     } catch (err) {
-      console.error("Failed to fetch permissions:", err.message);
+      console.error("Failed to fetch permissions:", err);
     }
   };
 
   const getOperationFlagsById = (menuId, submenuSeq) => {
-    const menu = permissions.find((menu) => menu.parent_menu_id === menuId);
-    const submenu = menu?.submenus?.find((sub) => sub.sequence_number === submenuSeq);
-
+    const menu = permissions.find(m => m.parent_menu_id === menuId);
+    const submenu = menu?.submenus?.find(s => s.sequence_number === submenuSeq);
     return submenu
       ? submenu.operations.reduce((acc, { operation }) => {
-          acc[`show${operation}`] = true;
-          return acc;
-        }, {})
+        acc[`show${operation}`] = true;
+        return acc;
+      }, {})
       : {};
   };
 
@@ -80,10 +74,10 @@ export const PermissionProvider = ({ children }) => {
     setMenuItems([]);
   };
 
+  // Build menuItems from permissions
   useEffect(() => {
     if (!permissions.length) return;
-
-    const menuData = permissions.map((parent) => {
+    const items = permissions.map(parent => {
       if (parent.submenus) {
         return {
           title: parent.parent_menu,
@@ -92,40 +86,39 @@ export const PermissionProvider = ({ children }) => {
           active: false,
           selected: false,
           dirchange: false,
-          children: parent.submenus.map((submenu) => ({
-            path: `${import.meta.env.BASE_URL}${submenu.submenu.replace(/[\s/]+/g, "")}`,
+          children: parent.submenus.map(sub => ({
+            path: `${import.meta.env.BASE_URL}${sub.submenu.toLowerCase().replace(/[\/\s\\]/g, "")}`,
             type: "link",
             active: false,
             selected: false,
             dirchange: false,
-            title: submenu.submenu,
+            title: sub.submenu,
           })),
         };
-      } else {
-        return {
-          path: `${import.meta.env.BASE_URL}${parent.parent_menu.replace(/[\s/]+/g, "")}`,
-          icon: iconMap[parent.parent_menu] || icon6,
-          type: "link",
-          active: false,
-          selected: false,
-          dirchange: false,
-          title: parent.parent_menu,
-        };
       }
+      return {
+        path: `${import.meta.env.BASE_URL}${parent.parent_menu.toLowerCase().replace(/[\/\s\\]/g, "")}`,
+        icon: iconMap[parent.parent_menu] || icon6,
+        type: "link",
+        active: false,
+        selected: false,
+        dirchange: false,
+        title: parent.parent_menu,
+      };
     });
-
-    setMenuItems(menuData);
+    setMenuItems(items);
   }, [permissions]);
 
   return (
-    <PermissionContext.Provider
-      value={{
-        permissions,
-        menuItems,
-        fetchPermissions,
-        getOperationFlagsById,
-        resetPermissions
-      }}>
+    <PermissionContext.Provider value={{
+      permissions,
+      menuItems,
+      fetchPermissions,
+      getOperationFlagsById,
+      resetPermissions,
+      taskId,
+      setHandleTaskId
+    }}>
       {children}
     </PermissionContext.Provider>
   );

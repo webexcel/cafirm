@@ -22,12 +22,9 @@ export default function ActivityTracker() {
 
   const handleAttendance = () => {
     const date = selectedDate.toISOString().split('T')[0];
-
     const action = isRunning ? handleLogout() : handleLogin();
-
     return action.then(() => getTrackerAttendanceData(date));
   };
-
 
   const getTrackerAttendanceData = async (date) => {
     try {
@@ -57,13 +54,15 @@ export default function ActivityTracker() {
 
   useEffect(() => {
     getTrackerAttendanceData(selectedDate.toISOString().split('T')[0]);
-  }, [])
+  }, []);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const handleDateChange = (date) => { setSelectedDate(date) }
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
 
   useEffect(() => {
     getTrackerAttendanceData(selectedDate.toISOString().split('T')[0]);
@@ -74,27 +73,36 @@ export default function ActivityTracker() {
     getTrackerAttendanceData(selectedDate.toISOString().split('T')[0]);
   };
 
-
   return (
     <Fragment>
       <Row>
         <Col xl={12}>
           <div className="card shadow-md border-0 rounded-3 py-3 px-3 d-flex flex-row justify-content-between align-items-center">
-            <div className="d-flex align-items-center gap-3">
-              <i className="bi bi-stopwatch-fill display-6 text-primary"></i>
-              <h1 className="display-5 fw-bold text-dark m-0">
-                {formatTime(time)}
-              </h1>
-              <Button
-                variant={isRunning ? "danger" : "success"}
-                onClick={handleAttendance}
-                className="d-flex align-items-center gap-2 btn btn-sm px-3 py-1"
-              >
-                <span>{isRunning ? "Logout" : "Login"}</span>
-                <i className={`bi ${isRunning ? "bi-pause-fill" : "bi-play-fill"} fs-5`}></i>
-              </Button>
+            <div className="d-flex flex-column align-items-start gap-1">
+              {/* Top Row: Icon + Label */}
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-stopwatch-fill text-primary" style={{ fontSize: "18px" }}></i>
+                <span className="text-muted fw-semibold" style={{ fontSize: "14px" }}>Session Time:</span>
+              </div>
+
+              {/* Bottom Row: Time + Button */}
+              <div className="d-flex align-items-center gap-3 ms-2">
+                <div className="fw-bold text-dark" style={{ fontSize: "28px" }}>
+                  {formatTime(time)}
+                </div>
+                <Button
+                  variant={isRunning ? "danger" : "success"}
+                  onClick={handleAttendance}
+                  className="d-flex align-items-center gap-2 px-4 py-2"
+                  style={{ fontSize: "16px" }}
+                >
+                  <span>{isRunning ? "Logout" : "Login"}</span>
+                  <i className={`bi ${isRunning ? "bi-pause-fill" : "bi-play-fill"} fs-5`}></i>
+                </Button>
+              </div>
             </div>
 
+            {/* Right Side: Date Picker */}
             <div>
               <Form onSubmit={handleSubmit} className="d-flex gap-3">
                 <div style={{ position: "relative", display: "inline-block" }}>
@@ -121,8 +129,8 @@ export default function ActivityTracker() {
                 </Button>
               </Form>
             </div>
-
           </div>
+
         </Col>
       </Row>
 

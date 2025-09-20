@@ -1,184 +1,263 @@
-
-import React, { Fragment, useState, useEffect, Suspense } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Row, Col, Card } from "react-bootstrap";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
+import Cookies from "js-cookie";
+
+// Components
 import SelectableSearch from "../../components/custom/search/SelectableSearch";
 import UserCard from "../../components/custom/card/UserCard";
-import Swal from "sweetalert2";
-import { editEmployeeDetails, getEmployeeDetails, getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
-import { useSearchParams } from "react-router-dom";
-import Cookies from 'js-cookie';
+
+// Services
+import {
+  editEmployeeDetails,
+  getEmployeeDetails,
+  getEmployeesByPermission,
+} from "../../service/employee_management/viewEditEmployeeService";
 import { getPermissionsList } from "../../service/configuration/permissions";
+import { getEmployee } from "../../service/employee_management/createEmployeeService";
+
+// Utils
+import { getUserCookie } from "../../utils/authUtils";
 
 const ViewEditProfileEmp = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  // State: isAdmin
+  const [isAdmin, setIsAdmin] = useState(() => {
+    const user = getUserCookie("user");
+    if (!user) return false;
+    try {
+      const parsed = JSON.parse(user);
+      return Number(parsed.role) === 1;
+    } catch (e) {
+      console.error("Invalid user cookie", e);
+      return false;
+    }
+  });
+
+  // State: Employees for search
   const [employeesData, setEmployeesData] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  // State: Profile data
   const [employeeData, setEmployeeData] = useState({
-    "employee_id": "",
-    "name": "",
-    "email": "",
-    "password": "",
-    "phone": "",
-    "role": "",
-  })
+    employee_id: "",
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "",
+    photo: "",
+  });
+
+  // State: Profile form fields
   const [fields, setFields] = useState([
     { key: "name", label: "Name", type: "text" },
-    {
-      key: "role", label: "Employee Role", type: "list",
-      options: [],
-    },
-    { key: "employee_id", label: "Employee ID", type: "Number" },
+    { key: "role", label: "Employee Role", type: "list", options: [] },
+    { key: "employee_id", label: "Employee ID", type: "number" },
     { key: "email", label: "Email", type: "email" },
     { key: "phone", label: "Contact", type: "number" },
-    { key: "photo", label: "photo", type: "text" },
-  ])
-  const [searchParams] = useSearchParams();
-  const empid = searchParams.get("id");
+    { key: "photo", label: "Photo", type: "text" },
+  ]);
 
-  const getEmpData = async (item) => {
-    console.log("Item : ", item)
+  // 🔁 Redirect non-admins to their own profile
+  useEffect(() => {
+    const user = getUserCookie("user");
+    if (!user) return;
+
     try {
-      const payload = {
-        "id": item?.employee_id || ""
+      const parsed = JSON.parse(user);
+      if (Number(parsed.role) !== 1 && !id) {
+        navigate(`/vieweditprofile/${parsed.employee_id}`);
       }
-      const response = await getEmployeeDetails(payload)
-      const userData = response.data.data[0]
-      console.log("User data : ", userData)
-      setEmployeeData(prev => ({
-        ...prev,
-        email: userData?.email,
-        password: userData?.password_hash,
-        employee_id: userData?.employee_id,
-        name: userData?.name,
-        phone: userData?.phone,
-        role: userData?.role,
-        photo: userData?.photo
-      }))
-      console.log("Response : ", response)
+    } catch (err) {
+      console.error("Failed to parse user for redirect:", err);
     }
-    catch (err) {
-      console.log("Error occurs while getting employee data : ", err.stack)
-      Swal.fire("Error", err.response?.data?.message || "Failed to get employee data.", "error");
+  }, [id, navigate]);
 
-    }
-  }
-
+  // 🔁 Load employee list and permission roles
   useEffect(() => {
-    console.log("params check : ", empid)
-    if (empid) {
-      const payload = { employee_id: empid };
-      getEmpData(payload);
-    }
-  }, [empid]);
-
-  useEffect(() => {
-    const fetchInitiallyData = async () => {
-      const userData = JSON.parse(Cookies.get('user'));
-      const payload = { "emp_id": userData?.employee_id || '' };
-
+    const fetchInitialData = async () => {
       try {
-        const [employeeDataRes, permissionDataRes] = await Promise.all([
+        const userData = JSON.parse(Cookies.get("user") || "{}");
+        const payload = { emp_id: userData?.employee_id || "" };
+
+        const [employeeListRes, permissionListRes] = await Promise.all([
           getEmployeesByPermission(payload),
-          getPermissionsList()
+          getPermissionsList(),
         ]);
-        console.log("employeeData", employeeDataRes, "permissionData", permissionDataRes, "field", fields)
-        const addSno = await employeeDataRes.data.data.map((data, index) => ({
+
+        const employeeList = employeeListRes.data.data.map((emp, index) => ({
           sno: index + 1,
-          ...data
-        }))
-        setEmployeesData(addSno)
-        const updatedFormFields = fields.map((field) => {
-          if (field.key === "role") {
-            console.log("field.name", field.key)
-            if (Array.isArray(permissionDataRes.data.data) && permissionDataRes.data.data.length > 0) {
-              const employeeRoleOptions = permissionDataRes.data.data.map((item) => ({
-                value: item.permission_id,
-                label: item.permission_name,
-              }));
-              console.log("Mapped Employee Role Options:", employeeRoleOptions);
-              return { ...field, options: employeeRoleOptions };
-            } else {
-              console.error("Employee role data response is not an array or is empty.");
-            }
-          }
-          return field;
-        });
-        setFields(updatedFormFields);
-        console.log("fieldsfieldsfields", fields)
+          ...emp,
+        }));
+        setEmployeesData(employeeList);
+
+        const roleOptions = permissionListRes.data.data.map((item) => ({
+          value: item.permission_id,
+          label: item.permission_name,
+        }));
+
+        setFields((prev) =>
+          prev.map((field) =>
+            field.key === "role" ? { ...field, options: roleOptions } : field
+          )
+        );
       } catch (error) {
-        console.error("Unexpected error in fetchInitiallyData:", error);
+        console.error("Error in fetchInitialData:", error);
+        Swal.fire("Error", "Failed to load initial data.", "error");
       }
     };
 
-    fetchInitiallyData();
+    fetchInitialData();
   }, []);
 
-  const handleFieldUpdate = async (key, value, userData, type) => {
-    console.log("Checkk : ", key, value, userData)
+  // 🔁 Load selected employee via `id` param
+  useEffect(() => {
+    if (id) {
+      const fetchEmployeeById = async () => {
+        try {
+          const response = await getEmployee();
+          const foundEmployee = response.data.data.find(
+            (emp) => String(emp.employee_id) === String(id)
+          );
+
+          if (foundEmployee) {
+            setSelectedEmployee(foundEmployee);
+            getEmpData(foundEmployee);
+          } else {
+            Swal.fire("Not Found", "Employee not found.", "warning");
+          }
+        } catch (error) {
+          console.error("Error fetching employee by ID:", error);
+          Swal.fire("Error", "Failed to load employee details.", "error");
+        }
+      };
+
+      fetchEmployeeById();
+    }
+  }, [id]);
+
+  // 🔁 Load employee data for edit
+  const getEmpData = async (item) => {
+    if (!item?.employee_id) return;
 
     try {
+      const payload = { id: item.employee_id };
+      const response = await getEmployeeDetails(payload);
+      const userData = response.data.data[0];
+
+      if (!userData) {
+        Swal.fire("Error", "Employee details not found.", "error");
+        return;
+      }
+
+      setEmployeeData({
+        employee_id: userData.employee_id || "",
+        name: userData.name || "",
+        email: userData.email || "",
+        password: userData.password_hash || "",
+        phone: userData.phone || "",
+        role: userData.role || "",
+        photo: userData.photo || "",
+      });
+
+      setSelectedEmployee(item);
+    } catch (error) {
+      console.error("Error getting employee data:", error);
+      Swal.fire(
+        "Error",
+        error?.response?.data?.message || "Failed to get employee data.",
+        "error"
+      );
+    }
+  };
+
+  // ✅ Handle field update
+  const handleFieldUpdate = async (key, value, userData) => {
+    try {
       const payload = {
-        "id": userData?.employee_id,
-        "key": key,
-        "value": value
-      }
-      const response = await editEmployeeDetails(payload)
+        id: userData?.employee_id,
+        key,
+        value,
+      };
+
+      const response = await editEmployeeDetails(payload);
+
       if (!response.data.status) {
-        Swal.fire("Error", response?.data?.message || "Failed to edit employee data.", "error");
+        Swal.fire(
+          "Error",
+          response?.data?.message || "Failed to edit employee data.",
+          "error"
+        );
+        return;
       }
+
       Swal.fire("Updated!", "Employee data updated successfully.", "success");
-      setEmployeeData(prev => ({
+
+      setEmployeeData((prev) => ({
         ...prev,
         [key]: value,
-      }))
+      }));
+
+      // Update cookie photo if user updated their own photo
       if (key === "photo") {
-        const userDataCookies = Cookies.get('user') ? JSON.parse(Cookies.get('user')) : null;
-        if (userDataCookies && userData?.employee_id === userDataCookies.employee_id) {
-          console.log("Profile changing test:", userData);
-          const data = {
-            ...userDataCookies,
-            photo: userData.photo
-          };
-
-          Cookies.set('user', JSON.stringify(data));
+        const userCookie = Cookies.get("user")
+          ? JSON.parse(Cookies.get("user"))
+          : null;
+        if (userCookie && userData?.employee_id === userCookie.employee_id) {
+          Cookies.set(
+            "user",
+            JSON.stringify({ ...userCookie, photo: value })
+          );
         }
-
-        console.log("userData:", userData, "userDataCookies:", userDataCookies);
       }
-
+    } catch (error) {
+      console.error("Error updating employee data:", error);
+      Swal.fire(
+        "Error",
+        error?.response?.data?.message || "Failed to edit employee data.",
+        "error"
+      );
     }
-    catch (err) {
-      Swal.fire("Error", err.response?.data?.message || "Failed to edit employee data.", "error");
-      console.log("Error occurs while update employee data : ", err.stack)
-    }
-  }
+  };
 
+  // 🧾 Render
   return (
     <Fragment>
+      {isAdmin && (
+        <Row>
+          <Col xl={12}>
+            <Card className="custom-card">
+              <Card.Body>
+                <Row>
+                  <Col md={4}>
+                    <SelectableSearch
+                      listkey="name"
+                      keybadge=""
+                      data={employeesData}
+                      value={selectedEmployee}
+                      onSearch={(results) => console.log("Filtered:", results)}
+                      getUserData={getEmpData}
+                    />
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
       <Row>
-        <Col xl={12}>
+        <Col md={6}>
           <Card className="custom-card">
             <Card.Body>
-              <Row>
-                <Col md={4}>
-                  <SelectableSearch
-                    listkey="name"
-                    keybadge=""
-                    data={employeesData}
-                    onSearch={(results) => console.log("Filtered:", results)}
-                    getUserData={(item) => getEmpData(item)} />
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-
-      <Row>
-        <Col md={6} >
-          <Card className="custom-card">
-            <Card.Body>
-              <UserCard userData={employeeData} fields={fields}
-                onFieldUpdate={(key, value, userData) => handleFieldUpdate(key, value, userData, "")}
+              <UserCard
+                userData={employeeData}
+                fields={fields}
+                onFieldUpdate={handleFieldUpdate}
               />
             </Card.Body>
           </Card>

@@ -7,6 +7,7 @@ import { getLatestTasks } from "../../service/task_management/createTaskServices
 import { getTimesheetLimited } from "../../service/timesheet/employeeTimeSheet";
 import { formatDateIntl } from "../../utils/generalUtils";
 import demoimage from '../../assets/images/apps/calender.png'
+import OverlayLoader from "../../components/common/loader/OverlayLoader";
 
 
 const Dashboard = () => {
@@ -23,9 +24,10 @@ const Dashboard = () => {
 
   const [taskDataList, setTaskDataList] = useState([]);
   const [ticketDataList, setTicketataList] = useState([]);
-
+  const [loader, setLoader] = useState(false)
   useEffect(() => {
     const fetchServices = async () => {
+      setLoader(true)
       try {
         const [res1, res2, res3, res4] = await Promise.all([
           getDashboard(),
@@ -45,7 +47,9 @@ const Dashboard = () => {
 
         setTaskDataList(res2.data.data);
         setTicketataList(res3.data.data);
+        setLoader(false)
       } catch (error) {
+        setLoader(false)
         console.error("Error fetching services:", error);
       }
     };
@@ -57,8 +61,9 @@ const Dashboard = () => {
   return (
     <Fragment>
 
-      <Row>
+      <OverlayLoader loading={loader} />
 
+      <Row>
         <Col className="card-background flex-fill dashboard-card-val">
           <DashboardCard
             Title={'Employee Count'}

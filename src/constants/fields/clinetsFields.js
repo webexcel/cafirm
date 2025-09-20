@@ -21,8 +21,6 @@ export const AddClientsField = [
     placeholder: "Select Client Type",
     type: "dropdown",
     options: [
-      { label: "Business", value: "business" },
-      { label: "Individual", value: "individual" },
     ],
     required: true,
   },
@@ -59,33 +57,33 @@ export const AddClientsField = [
     type: "textarea",
     required: true,
   },
-  {
-    name: "city",
-    label: "City",
-    placeholder: "Enter City",
-    type: "text",
-    required: true,
-    
-  },
-  {
-    name: "state",
-    label: "State",
-    placeholder: "Enter State",
-    type: "text",
-    required: true,
-  },
-  {
-    name: "country",
-    label: "Country",
-    placeholder: "Enter Country",
-    type: "text",
-    required: true,
-  },
+  // {
+  //   name: "city",
+  //   label: "City",
+  //   placeholder: "Enter City",
+  //   type: "text",
+  //   required: true,
+
+  // },
+  // {
+  //   name: "state",
+  //   label: "State",
+  //   placeholder: "Enter State",
+  //   type: "text",
+  //   required: true,
+  // },
+  // {
+  //   name: "country",
+  //   label: "Country",
+  //   placeholder: "Enter Country",
+  //   type: "text",
+  //   required: true,
+  // },
   {
     name: "pincode",
     label: "Pincode",
     placeholder: "Enter Pincode",
-    type: "text",
+    type: "number",
     required: true,
   },
   {
@@ -93,7 +91,7 @@ export const AddClientsField = [
     label: "GSTIN",
     placeholder: "Enter GSTIN",
     type: "text",
-    required: true,
+    // required: true,
     maxLength: 15,
   },
 
@@ -102,17 +100,27 @@ export const AddClientsField = [
     label: "Pan Number",
     placeholder: "Enter Pan Number",
     type: "text",
-    required: true,
+    // required: true,
     maxLength: 10,
   },
+ 
+
 
   {
     name: "tan_num",
     label: "Tan Number",
     placeholder: "Enter Tan Number",
     type: "text",
-    required: true,
+    // required: true,
     maxLength: 10,
+  },
+
+    {
+    name: "it_password",
+    label: "IT Password",
+    placeholder: "Enter IT Password",
+    type: "text",
+    // required: true,
   },
 ];
 

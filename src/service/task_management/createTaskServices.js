@@ -40,3 +40,11 @@ export const getServicesForTask = async (data) => {
 export const getLatestTasks = async () => {
   return await endpoint.get(`${mainUrl.SERVICETASK}/getLatestTasks`);
 };
+
+export const getTaskByEmployeeId = async (data) => {
+  return await endpoint.post(`${mainUrl.CHARTS}/getTaskByEmployeeId`, data);
+};
+
+export const getTaskByTaskId = async (data) => {
+  return await endpoint.post(`${mainUrl.CHARTS}/getTaskByTaskId`, data);
+};

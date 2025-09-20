@@ -3,7 +3,7 @@ export const ViewEmpTimeSheetField = [
     name: "employee",
     label: "Employee",
     placeholder: "Select Employee",
-    type: "dropdown",
+    type: "searchable_dropdown",
     options: [],
     required: true,
     disabled: true,
@@ -16,15 +16,13 @@ export const ViewEmpTimeSheetField = [
     options: [],
     required: true,
   },
-
   {
     name: "date",
     label: "Date",
     placeholder: "Select Date",
-    type: "date",
+    type: "date",   // 👈 new type - datebetween!
     required: true,
   },
-
   {
     name: "time",
     label: "Time",
@@ -39,7 +37,7 @@ export const ViewCliTimeSheetField = [
     name: "client",
     label: "Client",
     placeholder: "Select Client",
-    type: "dropdown",
+    type: "searchable_dropdown",
     options: [],
     required: true,
   },
@@ -47,7 +45,7 @@ export const ViewCliTimeSheetField = [
     name: "service",
     label: "Service",
     placeholder: "Select Service",
-    type: "dropdown",
+    type: "searchable_dropdown",
     options: [],
     required: true,
   },
@@ -55,30 +53,26 @@ export const ViewCliTimeSheetField = [
     name: "employee",
     label: "Employee",
     placeholder: "Select Employee",
-    type: "dropdown",
+    type: "searchable_dropdown",
     options: [],
     required: true,
-    disabled:true
+    disabled: true,
   },
 
-  {
-    name: "start_date",
+     {
+    name: "dates",
     label: "Date",
-    placeholder: "Select Start Date",
-    type: "date",
+    placeholder: "Select Date",
+    startDate: null,
+    endDate: null,
+    type: "daterange",
     required: true,
-  },
-  {
-    name: "end_date",
-    label: "Date",
-    placeholder: "Select End date",
-    type: "date",
-    required: true,
+    disable: false,
+    collength: 12,
   },
 ];
 
 export const WeeklyTimeSheetField = [
-
   {
     name: "employee",
     label: "Employee",
@@ -88,5 +82,14 @@ export const WeeklyTimeSheetField = [
     required: true,
     // disabled:true
   },
-
+  {
+    name: "weekly_id",
+    label: "Week ID",
+    placeholder: "Select Week ID",
+    type: "weeklydatepicker",
+    options: [],
+    required: false,
+    disable: false,
+    collength: 12,
+  },
 ];

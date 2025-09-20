@@ -3,11 +3,11 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PORT = import.meta.env.VITE_PORT;
 import { getToken } from "../utils/authUtils";
 const endpoint = axios.create({
-  baseURL: `${BASE_URL}:${PORT}/api/`,
+  baseURL: `${BASE_URL}/api/`,
   headers: {
     "Content-Type": "application/json",
   },
-});
+}); 
 
 endpoint.interceptors.request.use(
   (config) => {
@@ -30,7 +30,6 @@ endpoint.interceptors.response.use(
     if (error.response && [401, 403].includes(error.response.status)) {
       console.error("Unauthorized, please login again.");
       localStorage.clear();
-      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }

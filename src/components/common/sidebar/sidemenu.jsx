@@ -79,7 +79,10 @@ export const MENUITEMS = [
 		title: "Master Details", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
 
+			{ path: `${import.meta.env.BASE_URL}Roles`, type: "link", active: false, selected: false, dirchange: false, title: "Roles" },
 			{ path: `${import.meta.env.BASE_URL}createService`, type: "link", active: false, selected: false, dirchange: false, title: "Create Service" },
+			{ path: `${import.meta.env.BASE_URL}createDocType`, type: "link", active: false, selected: false, dirchange: false, title: "Create Document Type" },
+
 		],
 	},
 
@@ -89,13 +92,14 @@ export const MENUITEMS = [
 		children: [
 
 			// { path: `${import.meta.env.BASE_URL}EmployeeReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Report" },
-			{ path: `${import.meta.env.BASE_URL}EmployeeDatewiseReport`, type: "link", active: false, selected: false, dirchange: false, title: "Employee DateWise Report" },
+			{ path: `${import.meta.env.BASE_URL}EmployeeDateWiseReport`, type: "link", active: false, selected: false, dirchange: false, title: "Employee DateWise Report" },
+			{ path: `${import.meta.env.BASE_URL}ClientDateWiseReport`, type: "link", active: false, selected: false, dirchange: false, title: "Client DateWise Report" },
 			// { path: `${import.meta.env.BASE_URL}EmployeeWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Weekly Report" },
-			{ path: `${import.meta.env.BASE_URL}EmployeeMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Monthly Report" },
-			{ path: `${import.meta.env.BASE_URL}EmployeeYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Annual Report" },
-			{ path: `${import.meta.env.BASE_URL}ClientWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Weekly Report" },
-			{ path: `${import.meta.env.BASE_URL}ClientMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Monthly Report" },
-			{ path: `${import.meta.env.BASE_URL}ClientYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Annual Report" },
+			// { path: `${import.meta.env.BASE_URL}EmployeeMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Monthly Report" },
+			// { path: `${import.meta.env.BASE_URL}EmployeeYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Employee Annual Report" },
+			// { path: `${import.meta.env.BASE_URL}ClientWeeklyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Weekly Report" },
+			// { path: `${import.meta.env.BASE_URL}ClientMonthlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Monthly Report" },
+			// { path: `${import.meta.env.BASE_URL}ClientYearlyReports`, type: "link", active: false, selected: false, dirchange: false, title: "Client Annual Report" },
 		],
 	},
 
@@ -103,10 +107,9 @@ export const MENUITEMS = [
 	{
 		title: "Configuration", icon: icon6, type: "sub", active: false, selected: false, dirchange: false,
 		children: [
-			{ path: `${import.meta.env.BASE_URL}permissions`, type: "link", active: false, selected: false, dirchange: false, title: "Permissions" },
 			// { path: `${import.meta.env.BASE_URL}assignUser`, type: "link", active: false, selected: false, dirchange: false, title: "Assign User" },
 			{ path: `${import.meta.env.BASE_URL}AddMenu`, type: "link", active: false, selected: false, dirchange: false, title: "Add Menu" },
-			{ path: `${import.meta.env.BASE_URL}addOperations`, type: "link", active: false, selected: false, dirchange: false, title: "Operation" },
+			{ path: `${import.meta.env.BASE_URL}Operations`, type: "link", active: false, selected: false, dirchange: false, title: "Operation" },
 
 		],
 	},
@@ -119,6 +122,9 @@ export const MENUITEMS = [
 			{ path: `${import.meta.env.BASE_URL}viewAttendance`, type: "link", active: false, selected: false, dirchange: false, title: "View Attendance" },
 		],
 	},
+	// Documents 
+	{ path: `${import.meta.env.BASE_URL}DocumentManagement`, icon: icon1, type: "link", active: false, selected: false, dirchange: false, title: "Document Management" },
+
 
 	//Billing
 	// {

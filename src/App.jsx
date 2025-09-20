@@ -12,6 +12,7 @@ import { MasterClassRoutesList } from './routes/RoutesList/MasterClassRoutes.jsx
 import { AttendanceRoutes } from './routes/RoutesList/AttendanceRoutes.jsx';
 import { PermissionRoutesList } from './routes/RoutesList/Configuration.jsx';
 import { ReportsRoutesList } from './routes/RoutesList/ReportsRoutesList.jsx';
+import { DocumentRoutesList } from './routes/RoutesList/DocumentationRouteslist.jsx';
 const AuthLayout = React.lazy(() => import("./layout/AuthLayout.jsx"));
 const AdminLayout = React.lazy(() => import("./layout/AdminLayout.jsx"));
 const App = () => {
@@ -64,10 +65,12 @@ const App = () => {
                                 <Route key={index} path={route.path} element={route.element} />
                             ))}
 
-                             {ReportsRoutesList.childRoutes.map((route, index) => (
+                            {ReportsRoutesList.childRoutes.map((route, index) => (
                                 <Route key={index} path={route.path} element={route.element} />
                             ))}
-                            
+                            {DocumentRoutesList.childRoutes.map((route, index) => (
+                                <Route key={index} path={route.path} element={route.element} />
+                            ))}
                         </Route>
                     </Routes>
                 </React.Suspense>

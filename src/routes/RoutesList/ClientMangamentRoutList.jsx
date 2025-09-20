@@ -8,5 +8,6 @@ export const ClientsRoutesList = {
         { path: "CreateClients", element: <AddManageClient /> },
         // { path: "addService", element: <AddService /> },
         { path: "ViewEditProfiles", element: <ViewEditClientProfile /> },
+        { path: "ViewEditProfiles/:id", element: <ViewEditClientProfile /> },
     ]
 }

@@ -15,7 +15,7 @@ import { usePermission } from "../../../contexts";
 const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	const { menuItems } = usePermission();
 	const [menuitems, setMenuitems] = useState(MENUITEMS);
-	console.log(menuItems, '---menuItemscontext');
+	// console.log(menuItems, '---menuItemscontext');
 
 	function closeMenuFn() {
 		const closeMenuRecursively = (items) => {
@@ -30,7 +30,6 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 
 	useEffect(() => {
 		window.addEventListener("resize", menuResizeFn);
-		console.log("testtt side menuuuuuuuuuu")
 	}, []);
 
 	const location = useLocation();
@@ -395,8 +394,6 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 		const theme = store.getState();
 		let element = event.target;
 
-		console.log("tedtttttt", menuItems, MENUITEMS)
-
 		// if ((window.screen.availWidth <= 992 || theme.dataNavStyle != "icon-hover") && (window.screen.availWidth <= 992 || theme.dataNavStyle != "menu-hover")) {
 		if ((theme.dataNavStyle != "icon-hover" && theme.dataNavStyle != "menu-hover") || (window.innerWidth < 992) || (theme.dataNavLayout != "horizontal") && (theme.toggled != "icon-hover-closed" || theme.toggled != "menu-hover-closed")) {
 			for (const item of MENUITEMS) {
@@ -542,59 +539,38 @@ const Sidebar = ({ local_varaiable, ThemeChanger, onHeaderTitleChange }) => {
 	}
 
 	const setHeaderInstance = () => {
+		// Normalize the current path: remove trailing slashes and convert to lowercase
+		const cleanPath = location.pathname.replace(/\/+$/, "").toLowerCase();
 
-		const cleanPath = location.pathname.replace(/\/$/, "");
+		// Safeguard: ensure menuItems is loaded
+		if (!menuItems || menuItems.length === 0) {
+			onHeaderTitleChange("");
+			return;
+		}
 
-		const findpathheader = menuItems
+		// Search for a matching title from menuItems
+		const findTitle = menuItems
 			.flatMap((item) => {
-				if (item.children) {
+				if (item.children && Array.isArray(item.children)) {
+					// Check inside submenus
 					return item.children
-						.filter((child) => child.path === cleanPath)
+						.filter((child) => (child.path || "").toLowerCase() === cleanPath)
 						.map((child) => child.title);
-				} else if (item.path === cleanPath) {
-					return item.title;
+				} else if ((item.path || "").toLowerCase() === cleanPath) {
+					// Direct match
+					return [item.title];
 				}
 				return [];
 			})
-			.find(Boolean);
-
-		onHeaderTitleChange(findpathheader || "");
-
-		const findSideMenuList = menuItems.map((item) => {
-			if (item.child) {
-				let hasActiveChild = false;
-		         console.log("item.child",item.child,cleanPath)
-				const setChildren = item.child.map((children) => {
-					if (children.path === cleanPath) {
-						console.log("children",children)
-						hasActiveChild = true;
-						return { ...children, active: true, selected: true };
-					}
-					return children;
-				});
-		
-				return {
-					...item,
-					active: hasActiveChild, // Parent should only be active if a child is active
-					selected: hasActiveChild,
-					child: setChildren // Use 'child' instead of 'children' to match original key
-				};
-			} else {
-				if (item.path === cleanPath) {
-					return { ...item, active: true, selected: true };
-				}
-				return item;
-			}
-		});
-		
-		console.log("findSideMenuList", findSideMenuList);
-		
-
+			.find(Boolean); // get the first non-falsy title
+		// console.log("testtt title :", findTitle)
+		// Update the header
+		onHeaderTitleChange(findTitle || "");
 	};
 
 
-
 	setHeaderInstance()
+
 	return (
 		<Fragment>
 			<div id="responsive-overlay"

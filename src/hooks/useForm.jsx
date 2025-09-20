@@ -1,34 +1,45 @@
 import { useState } from "react";
-
+import { convertToBase64 } from "../utils/generalUtils";
 // Custom hook for form handling
 const useForm = (initialState, validate) => {
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
 
   // Handle input change
-  const handleInputChange = (e, fieldName) => {
-    console.log('eeeeeeeee', e, fieldName);
-
-    if(fieldName === "year_id"){
-      setFormData((prev) =>({
+  const handleInputChange = async (e, fieldName) => {
+    // console.log('eeeeeeeee', e, fieldName);
+    if (fieldName === 'upload_doc') {
+      const file = e.target.files[0];
+      const base64 = await convertToBase64(file);
+      console.log("base64 :", file.name)
+      setFormData((prev) => ({
         ...prev,
-        [fieldName] : e
+        [fieldName]: base64,
+        doc_name: file.name
       }))
       return;
     }
 
-    if(fieldName === "monthly_id"){
-      setFormData((prev) =>({
+    if (fieldName === "year_id") {
+      setFormData((prev) => ({
         ...prev,
-        [fieldName] : e
+        [fieldName]: e
       }))
       return;
     }
 
-    if(fieldName === "weekly_id"){
-      setFormData((prev) =>({
+    if (fieldName === "monthly_id") {
+      setFormData((prev) => ({
         ...prev,
-        [fieldName] : e
+        [fieldName]: e
+      }))
+      return;
+    }
+
+    if (fieldName === "weekly_id") {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: e
       }))
       return;
     }
@@ -78,7 +89,7 @@ const useForm = (initialState, validate) => {
   };
 
   const setFieldValue = (key, value) => {
-    console.log("key value: ", key, value)
+    // console.log("key value: ", key, value)
     setFormData((prev) => ({
       ...prev,
       [key]: value

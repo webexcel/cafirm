@@ -3,6 +3,8 @@ import { Outlet } from "react-router-dom";
 import { MENUITEMS } from "../components/common/sidebar/sidemenu";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import { AttendanceProvider } from "../contexts";
+import { deepEqual, getUserCookie, updateUserCookie } from "../utils/authUtils";
+import { getUserData } from "../utils/adminUtils";
 
 // Lazy-loaded components
 const ScrollToTop = React.lazy(() => import("../components/common/scrolltop/scrolltop"));
@@ -25,40 +27,36 @@ const AdminLayout = () => {
    * 
    * @param {string} title - The new title to display in the header.
    */
+
   const handleHeaderTitleChange = useCallback((title) => {
     setHeaderTitle(title);
-    console.log('title', title);
-  }, [setHeaderTitle]);
+    useDocumentTitle(title);
+  }, []);
+
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const existUser = getUserCookie('user')
+  //     const newUser = await getUserData()
+  //     if (!deepEqual(JSON.parse(existUser), newUser)) {
+  //       updateUserCookie('user', newUser)
+  //     }
+  //   }
+  //   checkUser()
+  // }, [])
 
 
-  /**
-   * Simulate a loading state for the component using `setTimeout`.
-   * The loading state will be set to `false` after 200ms.
-   */
   useEffect(() => {
-    console.log("MENUITEMS : ",MENUITEMS)
-    MENUITEMS.map((data) => {
-      if (data.children) {
 
-      }
-      else {
-        if (data.title) {
-          handleHeaderTitleChange(data.title)
-          console.log("else part", data)
-        }
-      }
-    })
+    // Simulate loading state
     const simulateLoading = setTimeout(() => {
       setLoading(false);
     }, 200);
 
-
-    return () => clearTimeout(simulateLoading); // Cleanup timeout on component unmount
-
+    return () => clearTimeout(simulateLoading);
   }, []);
 
   //Call the custom hook to set the document title to "Dashboard"
-  useDocumentTitle(headerTitle);
+
   return (
     <>
       {loading ? (

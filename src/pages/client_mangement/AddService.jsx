@@ -7,6 +7,7 @@ import Loader from "../../components/common/loader/loader";
 import useForm from "../../hooks/useForm";
 import validateCustomForm from "../../components/custom/form/ValidateForm";
 import { AddServiceField } from "../../constants/fields/clinetsFields";
+import OverlayLoader from "../../components/common/loader/OverlayLoader";
 const CustomTable = React.lazy(() =>
     import("../../components/custom/table/CustomTable")
 );

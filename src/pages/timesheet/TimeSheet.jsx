@@ -14,6 +14,8 @@ const CustomTable = React.lazy(() =>
 import Cookies from 'js-cookie';
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { usePermission } from "../../contexts";
+import OverlayLoader from "../../components/common/loader/OverlayLoader";
+import Search from "../../components/common/search/Search";
 
 const AddTimeSheet = () => {
 
@@ -24,13 +26,16 @@ const AddTimeSheet = () => {
   const [formFields, setFormFields] = useState(ViewEmpTimeSheetField);
   const { permissions, getOperationFlagsById } = usePermission();
   const [permissionFlags, setPermissionFlags] = useState(1);
-
+  const [selectedTaskLimits, setSelectedTaskLimits] = useState({
+    start: '',
+    end: ''
+  })
+  const [loader, setLoader] = useState(false)
   const columns = [
     { header: "S No", accessor: "sno", editable: false },
     { header: "Emp Name", accessor: "employee_name", editable: false },
     { header: "Task Name", accessor: "task_name", editable: false },
-    // { header: "Client Name", accessor: "client_name", editable: false },
-    // { header: "Service", accessor: "service_name", editable: true },
+    { header: "Fin Year", accessor: "year_name", editable: true },
     { header: "Date", accessor: "date", editable: true },
     { header: "Total Time", accessor: "total_time", editable: true },
     // { header: "Actions", accessor: "Actions", editable: false },
@@ -70,17 +75,12 @@ const AddTimeSheet = () => {
     const fetchFieldOptionData = async () => {
       try {
         const userData = JSON.parse(Cookies.get('user'));
-
         const payload = {
           emp_id: userData?.employee_id
         };
         const clientresponse = await getClient();
         const employeeresponse = await getEmployeesByPermission(payload);
-        console.log("Client API Response 111111111111111111111:", clientresponse);
-        console.log("Employee API Response:", employeeresponse);
-
         const updatedFormFields = ViewEmpTimeSheetField.map((field) => {
-
           if (field.name === "client") {
             if (Array.isArray(clientresponse.data.data) && clientresponse.data.data.length > 0) {
               const clientOption = clientresponse.data.data.map((item) => ({
@@ -100,7 +100,7 @@ const AddTimeSheet = () => {
             if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
               if (employeeresponse.data.data.length === 1) {
                 setFieldValue("employee", employeeresponse.data.data[0].employee_id);
-                console.log("userData111111111111111", employeeresponse.data.data);
+                // console.log("userData111111111111111", employeeresponse.data.data);
               }
               const employeeOptions = employeeresponse.data.data.map((item) => ({
                 value: item.employee_id,
@@ -111,7 +111,7 @@ const AddTimeSheet = () => {
               return {
                 ...field,
                 options: employeeOptions,
-                disabled: employeeresponse.data.data.length === 1 ? true : false
+                disable: employeeresponse.data.data.length === 1 ? true : false
               };
             } else {
               console.error("Employee data response is not an array or is empty.");
@@ -138,6 +138,7 @@ const AddTimeSheet = () => {
   useEffect(() => {
 
     if (formData.employee) {
+      setLoader(true)
       const fetchClientOptionData = async () => {
         console.log('formm data', formData)
         try {
@@ -149,7 +150,6 @@ const AddTimeSheet = () => {
           const employeeresponse = await getTaskByEmployee(payload);
 
           console.log("Task API Response:", employeeresponse.data.data);
-
           const updatedFormFields = await formFields.map((field) => {
 
             if (field.name === "task") {
@@ -157,15 +157,21 @@ const AddTimeSheet = () => {
               if (Array.isArray(employeeresponse.data.data) && employeeresponse.data.data.length > 0) {
                 const employeeOptions = employeeresponse.data.data.map((item) => ({
                   value: item.task_id,
-                  label: item.task_name,
+                  label: (
+                    <>
+                      {item.task_name} - <p style={{ display: "inline" }} className="text-primary fw-bold">{item.year_name}</p>
+                    </>
+                  )
                 }));
 
                 console.log('employeeOptions : ', employeeOptions, formFields)
+                setLoader(false)
                 return {
                   ...field,
                   options: employeeOptions
                 };
               } else {
+                setLoader(false)
                 console.error("Student data response is not an array or is empty.");
               }
             }
@@ -175,6 +181,7 @@ const AddTimeSheet = () => {
           console.log("Mapped Student Options:", formFields);
 
         } catch (error) {
+          setLoader(false)
           console.error("Error fetching Student data:", error);
         }
       };
@@ -199,6 +206,7 @@ const AddTimeSheet = () => {
 
   // Handle add
   const handleAdd = async (e) => {
+    console.log("Selected form:", formData);
     e.preventDefault();
     if (!validateForm()) return;
     const result = await Swal.fire({
@@ -237,47 +245,9 @@ const AddTimeSheet = () => {
 
   };
 
-  // const onDelete = useCallback(async (updatedData, index) => {
-  //   console.log("update dataaa", updatedData)
-  //   const result = await Swal.fire({
-  //     title: "Are you sure about delete timesheet?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, delete it!",
-  //     cancelButtonText: "No, cancel!",
-  //     reverseButtons: true,
-  //   });
-  //   if (result.isConfirmed) {
-  //     try {
-  //       const payload = { id: updatedData.time_sheet_id };
-  //       const response = await deleteTimeSheet(payload);
-  //       if (response.data.status) {
-  //         setFilteredData((prevFilteredData) =>
-  //           prevFilteredData
-  //             .filter((item, ind) => ind !== index)
-  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
-  //         );
-
-  //         setTableData((prevTableData) =>
-  //           prevTableData
-  //             .filter((item, ind) => ind !== index)
-  //             .map((item, ind) => ({ ...item, sno: ind + 1 }))
-  //         );
-
-  //         Swal.fire("Deleted!", response?.data?.message || "Timesheet deleted successfully.", "success");
-  //       }
-  //     } catch (error) {
-  //       Swal.fire("Error", error.response?.data?.message || "Failed to delete time sheet.", "error");
-  //     }
-
-  //   }
-
-  // }, []);
-
-
   return (
     <Fragment>
+      <OverlayLoader loading={loader} />
       <Row>
         <Col xl={12}>
           <Card className="custom-card">
@@ -290,10 +260,13 @@ const AddTimeSheet = () => {
                   onChange={handleInputChange}
                   onSubmit={handleAdd}
                   btnText={'Submit'}
-                  showAddButton={permissionFlags?.showCREATE}
-                  showUpdateButton={permissionFlags?.showUPDATE}
-
+                  showAddButton={true}
+                  // showAddButton={permissionFlags?.showCREATE}
+                  // showUpdateButton={permissionFlags?.showUPDATE}
+                  showUpdateButton={true}
+                  dateLimits={selectedTaskLimits}
                 />
+
 
               </Col>
             </Card.Body>
@@ -303,6 +276,28 @@ const AddTimeSheet = () => {
 
       <Card className="custom-card p-3">
         <Card.Body className="overflow-auto">
+          <Card.Title className="d-flex">
+            <div className="d-flex justify-content-between
+                                              border-bottom border-block-end-dashed w-100 pb-3"
+            >
+              <div className="w-25 px-1">
+                <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+              </div>
+              {/* <div className="d-flex gap-4 align-items-end">
+                <Button
+                  onClick={async () => {
+                    const { exportToExcel } = await import('../../utils/generalUtils')
+                    exportToExcel(filteredData, 'Timesheet_list')
+                  }}
+                  type="button"
+                  variant="primary"
+                  className="btn btn-wave btn-sm me-3 p-2">
+                  Export Excel
+                </Button>
+              </div> */}
+            </div>
+
+          </Card.Title>
           <Suspense fallback={<Loader />}>
             <CustomTable
               columns={columns}
