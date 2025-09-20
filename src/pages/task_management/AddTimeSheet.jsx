@@ -15,6 +15,7 @@ import { addTask, deleteTaskData, getServicesForTask, getTasksByPriority } from 
 import { usePermission } from "../../contexts";
 import { getYearList } from "../../service/masterDetails/createFinYear";
 import { getUserCookie } from "../../utils/authUtils";
+import Search from "../../components/common/search/Search";
 
 
 const AddTimeSheet = () => {
@@ -367,6 +368,21 @@ const AddTimeSheet = () => {
       <Row>
         <Col xl={12}>
           <Card className="custom-card p-3">
+            <Card.Title className="d-flex justify-content-between border-bottom pb-3">
+              <div className="w-25 px-1">
+                <Search list={tableData} onSearch={setFilteredData} />
+              </div>
+              {/* <div className="d-flex gap-4 align-items-end">
+                <Button onClick={async () => {
+                  const { exportToExcel } = await import('../../utils/generalUtils');
+                  exportToExcel(filteredData, 'Task_List');
+                }}
+                  variant="primary"
+                  className="btn btn-wave btn-sm me-3 p-2">
+                  Export Excel
+                </Button>
+              </div> */}
+            </Card.Title>
             <Card.Body className="overflow-auto">
               <Suspense fallback={<Loader />}>
                 <CustomTable

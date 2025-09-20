@@ -15,6 +15,7 @@ import Cookies from 'js-cookie';
 import { getEmployeesByPermission } from "../../service/employee_management/viewEditEmployeeService";
 import { usePermission } from "../../contexts";
 import OverlayLoader from "../../components/common/loader/OverlayLoader";
+import Search from "../../components/common/search/Search";
 
 const AddTimeSheet = () => {
 
@@ -164,7 +165,7 @@ const AddTimeSheet = () => {
                 }));
 
                 console.log('employeeOptions : ', employeeOptions, formFields)
-                setLoader(false) 
+                setLoader(false)
                 return {
                   ...field,
                   options: employeeOptions
@@ -275,6 +276,28 @@ const AddTimeSheet = () => {
 
       <Card className="custom-card p-3">
         <Card.Body className="overflow-auto">
+          <Card.Title className="d-flex">
+            <div className="d-flex justify-content-between
+                                              border-bottom border-block-end-dashed w-100 pb-3"
+            >
+              <div className="w-25 px-1">
+                <Search list={tableData} onSearch={(result) => setFilteredData(result)} />
+              </div>
+              {/* <div className="d-flex gap-4 align-items-end">
+                <Button
+                  onClick={async () => {
+                    const { exportToExcel } = await import('../../utils/generalUtils')
+                    exportToExcel(filteredData, 'Timesheet_list')
+                  }}
+                  type="button"
+                  variant="primary"
+                  className="btn btn-wave btn-sm me-3 p-2">
+                  Export Excel
+                </Button>
+              </div> */}
+            </div>
+
+          </Card.Title>
           <Suspense fallback={<Loader />}>
             <CustomTable
               columns={columns}
