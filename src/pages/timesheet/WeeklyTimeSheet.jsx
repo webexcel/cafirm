@@ -555,23 +555,28 @@ const WeeklyTimeSheet = () => {
 
     const openDetailModal = (tasklist, selectedData, key) => {
         setShowDetailModal(true)
-        // console.log("task_name", tasklist,selectedData, initialModalDetailFields)
         setInitialModalDetailFields((prev) => ({ ...selectedData, id: key, task_id: tasklist.task_id }))
     }
 
     const handleDetailSubmit = (value) => {
-        console.log("valuess", value, initialModalDetailFields, initialList);
-        const filterr = initialList.filter((data) => Number(data.task_id) != Number(value.task_id))
-        const filter1 = initialList.find((data) => Number(data.task_id) === Number(value.task_id))
-        const filterObject = { ...filter1, [value.id]: initialList[value.id] = { ...filter1[value.id], description: value.description } }
-        console.log("filterr :", filterr, filter1['4'], filter1, filterObject)
-        const test = [...filterr, filterObject]
-        console.log("testtt : ", test)
-        setInitialList(test)
-        setShowDetailModal(false)
+        setWeeklyAllData((prevData) => {
+            return prevData.map((task) => {
+                if (Number(task.task_id) === Number(value.task_id)) {
+                    return {
+                        ...task,
+                        [value.id]: {
+                            ...(task[value.id] || {}),
+                            description: value.description,
+                        },
+                    };
+                }
+                return task;
+            });
+        });
 
-
+        setShowDetailModal(false);
     };
+
     console.log("reoleee : ", user)
     return (
         <>
