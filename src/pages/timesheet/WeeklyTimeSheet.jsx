@@ -151,10 +151,55 @@ const WeeklyTimeSheet = () => {
         fetchFieldOptionData()
     }, []);
 
-    function getWeeklyDateRange(date = new Date()) {
-        const today = new Date(date); // clone input date
-        const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+    function parseDate(input) {
+        if (!input) {
+            throw new Error("Date is missing or empty");
+        }
 
+        if (input instanceof Date) return input;
+
+        if (typeof input === "string") {
+            // YYYY-MM-DD or YYYY/MM/DD
+            if (/^\d{4}[-/]\d{2}[-/]\d{2}$/.test(input)) {
+                const parts = input.split(/[-/]/);
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+
+            // DD-MM-YYYY
+            if (/^\d{2}-\d{2}-\d{4}$/.test(input)) {
+                const [day, month, year] = input.split("-");
+                return new Date(year, month - 1, day);
+            }
+
+            // ddmmyyyy with optional TZ
+            if (/^\d{8}([+-]\d{4}|Z)?$/.test(input)) {
+                const day = input.slice(0, 2);
+                const month = input.slice(2, 4);
+                const year = input.slice(4, 8);
+                const tz = input.slice(8); // +0530 or Z
+                const iso = `${year}-${month}-${day}T00:00:00${tz || ""}`;
+                return new Date(iso);
+            }
+        }
+
+        // fallback
+        const d = new Date(input);
+        if (!isNaN(d)) return d;
+
+        throw new Error("Unsupported date format: " + input);
+    }
+
+
+    function getWeeklyDateRange(date = new Date()) {
+        let today;
+        try {
+            today = parseDate(date);
+        } catch (err) {
+            console.warn("Invalid date input, using current date instead:", date);
+            today = new Date();
+        }
+
+        const dayOfWeek = today.getDay();
         const sunday = new Date(today);
         sunday.setDate(today.getDate() - dayOfWeek);
 
@@ -172,22 +217,12 @@ const WeeklyTimeSheet = () => {
                     currentDate.getDate() === today.getDate() &&
                     currentDate.getMonth() === today.getMonth() &&
                     currentDate.getFullYear() === today.getFullYear(),
-                fullDate: currentDate.toISOString().split("T")[0],
+                fullDate: currentDate.toLocaleDateString("en-CA"), // YYYY-MM-DD
             });
         }
 
         return weekDates;
     }
-
-    // useEffect(() => {
-    //     console.log("formData.weekly_id :", formData.weekly_id)
-    //     if (formData.weekly_id) {
-    //         const date = new Date(formData.weekly_id)
-    //         const selectedWeek = getWeeklyDateRange(date)
-    //         setWeeklyDate(selectedWeek)
-    //         console.log("selectedWeek : ", selectedWeek)
-    //     }
-    // }, [formData.weekly_id])
 
     const addTime = (time1, time2) => {
         if (!time1) return time2 || null;
@@ -535,8 +570,9 @@ const WeeklyTimeSheet = () => {
         setInitialList(test)
         setShowDetailModal(false)
 
-    };
 
+    };
+    console.log("reoleee : ", user)
     return (
         <>
             {(Number(user?.role) === 1 || Number(user?.role) === 2) && (
@@ -622,7 +658,7 @@ const WeeklyTimeSheet = () => {
                                                 isPastOrToday(header);
 
                                             return (
-                                                <td key={index} style={{ width: isFixedWidth,fontSize:'.8rem' }}>
+                                                <td key={index} style={{ width: isFixedWidth, fontSize: '.8rem' }}>
                                                     {isEditable ? (
                                                         <div className="d-flex align-items-center">
                                                             <InputMask
